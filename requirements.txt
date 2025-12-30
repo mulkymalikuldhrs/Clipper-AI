@@ -2,6 +2,8 @@
 ffmpeg-python==0.2.0
 yt-dlp==2024.07.25
 openai-whisper @ git+https://github.com/openai/whisper.git@c0d2f624c09dc18e709e37c2ad90c039a4eb72a2
+requests>=2.28.0
+Flask>=2.2.0
 
 # For LLM interaction (even if mocked for now)
 # requests==2.32.5 # Uncomment when real API calls are made

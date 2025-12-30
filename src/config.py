@@ -1,14 +1,21 @@
 # G — GLOBAL CONFIG
+import os
 
 # LLM7 API Configuration
 MODEL = "gpt-4.1-nano-2025-04-14"
 BASE_URL = "https://api.llm7.io/v1"
-API_KEY = "unused"  # As per document, but should be configurable
+# Load API key from environment variable for security
+API_KEY = os.getenv("LLM7_API_KEY", "unused")
 
 # Video Processing Configuration
 VIDEO_RES = (1080, 1920)
 FPS = 30
 LANG = "ID"
+
+# Content Discovery
+# Keywords for the source_agent to search for on YouTube
+SEARCH_KEYWORDS = ["motivasi", "inspirasi", "sukses", "mindset", "produktif"]
+
 
 # Output Quality Standards
 OUTPUT_RESOLUTION = "1080x1920"

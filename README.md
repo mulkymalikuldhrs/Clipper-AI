@@ -1,31 +1,40 @@
 # Autonomous AI Clipper
 
+**End-to-End · Full Auto · Production-Ready**
+
+**Owner:** Mulky Malikul Dhaher
+**Contact:** mulkymalikuldhr@mail.com
+
+---
+
 ## A — AIM (Project Goal)
 
-This project is an end-to-end, autonomous AI system designed to find, edit, and package short-form video content for platforms like TikTok, Instagram Reels, and YouTube Shorts. It operates in a continuous loop, requiring minimal human intervention.
-
-The core philosophy is that the AI acts as a **decision-maker**, determining *what* to clip and *how* to edit, while the underlying engines execute these decisions.
+Autonomous AI Clipper is a fully autonomous, production-ready system designed to find, edit, and package short-form video content for platforms like TikTok, Instagram Reels, and YouTube Shorts. It operates in a continuous loop, using AI to make creative decisions and powerful engines to execute them.
 
 ## T — Tech Stack
 
-- **Backend:** Python
+- **Backend:** Python, Flask
 - **Video Processing:** FFmpeg
-- **Subtitle Generation:** OpenAI's Whisper
-- **AI Decision Making:** LLM7 (currently mocked)
 - **Source Discovery:** `yt-dlp`
+- **AI Decision Making & Copywriting:** LLM7 (via API)
+- **Subtitle Generation:** OpenAI's Whisper
+
+---
 
 ## G — Getting Started
 
 ### Prerequisites
 
 1.  **Python 3.10+**
-2.  **FFmpeg:** You must have `ffmpeg` installed and available in your system's PATH. You can download it from [ffmpeg.org](https://ffmpeg.org/download.html) or install it via a package manager:
+2.  **FFmpeg:** You must have `ffmpeg` installed and available in your system's PATH.
     ```bash
     # On Debian/Ubuntu
     sudo apt update && sudo apt install ffmpeg
-
-    # On macOS (using Homebrew)
-    brew install ffmpeg
+    ```
+3.  **Git LFS:** Required to handle the sample media files.
+    ```bash
+    sudo apt update && sudo apt install git-lfs
+    git lfs install
     ```
 
 ### Installation
@@ -36,56 +45,64 @@ The core philosophy is that the AI acts as a **decision-maker**, determining *wh
     cd autonomous-ai-clipper
     ```
 
-2.  **Create a virtual environment (recommended):**
+2.  **Create a virtual environment and install dependencies:**
     ```bash
     python3 -m venv .venv
     source .venv/bin/activate
-    ```
-
-3.  **Install the dependencies:**
-    ```bash
     pip install -r requirements.txt
     ```
 
+### Configuration
+
+1.  **LLM API Key:** For the system to use real AI for decision-making, you must set an environment variable with your API key.
+    ```bash
+    export LLM7_API_KEY="your_api_key_here"
+    ```
+    If this key is not set, the system will fall back to using mock (simulated) data for decisions and copywriting.
+
+2.  **Content Keywords:** You can customize the content the system searches for by editing the `SEARCH_KEYWORDS` list in `src/config.py`.
+
+---
+
 ## X — Execution
 
-The main orchestrator script, `main.py`, runs the entire end-to-end workflow. The system has two modes of operation:
+The system can be run in two ways: as an autonomous background service or via a web dashboard.
 
-### 1. Autonomous Mode (Default)
+### 1. Running the Autonomous Loop Directly
 
-This is the primary mode of operation. The system will run in a continuous loop, discovering and processing videos from online sources. To run in this mode, ensure the `LOCAL_VERIFICATION_MODE` flag in `src/config.py` is set to `False`.
-
-```bash
-python -m src.main
-```
-
-The system will now run continuously. To stop it, press `Ctrl+C`.
-
-### 2. Local Verification Mode
-
-This mode is for testing and verification. It runs the entire video processing pipeline on a local sample video (`src/assets/sample_video.mp4`) and then exits. To run in this mode, set the `LOCAL_VERIFICATION_MODE` flag in `src/config.py` to `True`.
+This is the primary mode. The system will run continuously, discovering and processing videos.
 
 ```bash
 python -m src.main
 ```
+- To stop the system, press `Ctrl+C`.
+- All activity is logged to `src/logs/clipper.log`.
 
-### Monitoring the System
+### 2. Using the Web Dashboard
 
-All activities are logged to both the console and a file at `/src/logs/clipper.log`. You can monitor this file to see the system's progress:
+The web dashboard provides a user interface to monitor and control the clipper.
 
-```bash
-tail -f src/logs/clipper.log
-```
+1.  **Start the Dashboard:**
+    ```bash
+    python -m src.dashboard.app
+    ```
+2.  **Access the UI:** Open your browser and navigate to `http://127.0.0.1:5001`.
+
+From the dashboard, you can:
+- **Start/Stop** the autonomous clipper loop.
+- **View** a gallery of all completed jobs.
+- **Watch** the final videos and review their generated captions.
+
+---
 
 ## F — File Structure
 
-The project is organized into a `src` directory with the following structure:
-
--   `/src/agents/`: Contains the "thinking" parts of the system.
--   `/src/engines/`: Contains the "acting" parts of the system for heavy lifting.
--   `/src/utils/`: Houses shared utilities for logging, file management, and notifications.
--   `/src/assets/`: Contains sample files for isolated module testing.
--   `/src/output/`: The default directory where all final video files and metadata are stored.
--   `/src/logs/`: Contains the log files for monitoring and debugging.
--   `/src/config.py`: Global configuration for the system.
--   `/src/main.py`: The main orchestrator that runs the autonomous loop.
+-   `/output/`: Final, processed videos and metadata are stored here.
+-   `/src/agents/`: Contains the AI "thinking" components (discovery, scoring, decision-making).
+-   `/src/engines/`: Contains the "acting" components for video processing.
+-   `/src/dashboard/`: Contains the Flask web application for monitoring and control.
+-   `/src/assets/`: Contains sample media files for testing.
+-   `/src/logs/`: Contains detailed logs of the system's activity.
+-   `/src/config.py`: Central configuration for the entire system.
+-   `/src/main.py`: The main entry point for the autonomous loop.
+-   `/CHANGELOG.md`: A log of all major changes and new features.
