@@ -1,7 +1,7 @@
 # Core libraries for video and audio processing
 ffmpeg-python==0.2.0
 yt-dlp==2024.07.25
-openai-whisper @ git+https://github.com/openai/whisper.git@main
+openai-whisper @ git+https://github.com/openai/whisper.git@c0d2f624c09dc18e709e37c2ad90c039a4eb72a2
 
 # For LLM interaction (even if mocked for now)
 # requests==2.32.5 # Uncomment when real API calls are made

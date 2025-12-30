@@ -74,13 +74,13 @@ def find_best_clip(video_path: str, desired_length: int = 20, silence_threshold:
     segment_duration = longest_segment[1] - longest_segment[0]
 
     start_time = longest_segment[0]
-    end_time = longest_segment[1]
 
     # Center the clip if the segment is longer than desired
     if segment_duration > desired_length:
-        mid_point = start_time + segment_duration / 2
-        start_time = max(start_time, mid_point - desired_length / 2)
-        end_time = min(end_time, mid_point + desired_length / 2)
+        mid_point = longest_segment[0] + segment_duration / 2
+        start_time = mid_point - (desired_length / 2)
+
+    end_time = start_time + desired_length
 
     logging.info(f"Selected clip from {start_time:.2f}s to {end_time:.2f}s.")
 
@@ -88,6 +88,8 @@ def find_best_clip(video_path: str, desired_length: int = 20, silence_threshold:
 
 
 if __name__ == '__main__':
+    # This block is for testing the clip engine directly.
+    # It will not produce any output files.
     clip = find_best_clip(config.SAMPLE_VIDEO_PATH, desired_length=22)
     if clip:
         print(json.dumps(clip, indent=2))

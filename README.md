@@ -49,21 +49,25 @@ The core philosophy is that the AI acts as a **decision-maker**, determining *wh
 
 ## X — Execution
 
-The main orchestrator script, `main.py`, runs the entire end-to-end workflow in a continuous, autonomous loop.
+The main orchestrator script, `main.py`, runs the entire end-to-end workflow. The system has two modes of operation:
 
-### Running the Autonomous Loop
+### 1. Autonomous Mode (Default)
 
-To start the system, run the `main` module from the root of the project:
+This is the primary mode of operation. The system will run in a continuous loop, discovering and processing videos from online sources. To run in this mode, ensure the `LOCAL_VERIFICATION_MODE` flag in `src/config.py` is set to `False`.
 
 ```bash
 python -m src.main
 ```
 
-The system will now run continuously, performing the following steps in a loop:
-1.  **Discover:** Find new videos from online sources.
-2.  **Score:** Evaluate each video and approve or reject it.
-3.  **Process:** For approved videos, download, clip, edit, subtitle, and add audio.
-4.  **Wait:** Pause for a configured duration before starting the next cycle.
+The system will now run continuously. To stop it, press `Ctrl+C`.
+
+### 2. Local Verification Mode
+
+This mode is for testing and verification. It runs the entire video processing pipeline on a local sample video (`src/assets/sample_video.mp4`) and then exits. To run in this mode, set the `LOCAL_VERIFICATION_MODE` flag in `src/config.py` to `True`.
+
+```bash
+python -m src.main
+```
 
 ### Monitoring the System
 
@@ -72,8 +76,6 @@ All activities are logged to both the console and a file at `/src/logs/clipper.l
 ```bash
 tail -f src/logs/clipper.log
 ```
-
-To stop the system, press `Ctrl+C` in the terminal where it is running.
 
 ## F — File Structure
 

@@ -53,6 +53,8 @@ def apply_edits(input_path: str, output_path: str, start_time: float, end_time: 
         return None
 
 if __name__ == '__main__':
+    # This block is for testing the edit engine directly.
+    # It will create a test file in the root directory.
     clip_times = clip_engine.find_best_clip(config.SAMPLE_VIDEO_PATH)
     if clip_times:
         output_file = "test_edited_clip.mp4"
@@ -64,3 +66,5 @@ if __name__ == '__main__':
             edit_style="fast_zoom"
         )
         print(f"Check the output file: {output_file}")
+        # Clean up the test file
+        os.remove(output_file)

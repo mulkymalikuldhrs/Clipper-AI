@@ -21,6 +21,8 @@ AUDIO_NORMALIZATION = "clear"
 MAX_RETRY = 3
 LOG_LEVEL = "INFO"
 NOTIFICATION_SERVICE = "telegram" # 'email', 'dashboard', 'none'
+SLEEP_DURATION = 300 # 5 minutes
+LOCAL_VERIFICATION_MODE = False # Set to True to run a single cycle with local files
 
 # File Paths
 ASSETS_DIR = "src/assets"

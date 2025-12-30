@@ -42,8 +42,8 @@ def process_audio(input_video: str, music_path: str, output_video: str, music_vo
 
 if __name__ == '__main__':
     # This block is for testing the audio engine directly.
-    # It assumes that an edited clip has been created.
-    input_video = "test_final_clip_with_subs.mp4" # This should be the output of subtitle_engine test
+    # It assumes that a test clip has been created by the other engines.
+    input_video = "test_final_clip_with_subs.mp4"
 
     if not os.path.exists(input_video):
         print(f"Error: '{input_video}' not found. Please run the subtitle_engine test first.")
@@ -51,3 +51,6 @@ if __name__ == '__main__':
         output_video = "test_final_video_with_music.mp4"
         process_audio(input_video, config.MUSIC_FILE_PATH, output_video)
         print(f"Check the final video with music: {output_video}")
+        # Clean up the test files
+        os.remove(input_video)
+        os.remove(output_video)

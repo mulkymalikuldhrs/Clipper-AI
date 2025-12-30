@@ -3,6 +3,7 @@ import whisper
 import logging
 import os
 import subprocess
+import sys
 
 # Global variable to hold the loaded Whisper model
 _model = None
@@ -17,18 +18,14 @@ def _load_model():
             logging.info("Whisper model loaded successfully.")
         except Exception as e:
             logging.critical(f"Failed to load Whisper model: {e}", exc_info=True)
-            # Depending on the desired behavior, we might want to exit or raise
             raise
 
-def generate_srt(text, start_time, end_time):
-    """Formats a single transcription segment into SRT format."""
-    def format_time(s):
-        h = int(s / 3600)
-        m = int((s % 3600) / 60)
-        s_rem = s % 60
-        return f"{h:02}:{m:02}:{s_rem:06.3f}".replace('.', ',')
-
-    return f"1\n{format_time(start_time)} --> {format_time(end_time)}\n{text}\n\n"
+def generate_srt_timestamp(seconds):
+    """Formats seconds into SRT timestamp format HH:MM:SS,ms."""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = seconds % 60
+    return f"{hours:02}:{minutes:02}:{seconds:06.3f}".replace('.', ',')
 
 def create_subtitles(video_path: str, output_srt_path: str):
     """
@@ -47,10 +44,11 @@ def create_subtitles(video_path: str, output_srt_path: str):
 
         with open(output_srt_path, "w", encoding="utf-8") as srt_file:
             for i, segment in enumerate(result["segments"]):
+                start_time = generate_srt_timestamp(segment['start'])
+                end_time = generate_srt_timestamp(segment['end'])
                 srt_file.write(f"{i + 1}\n")
-                srt_file.write(f"{segment['start']:.3f} --> {segment['end']:.3f}\n")
+                srt_file.write(f"{start_time} --> {end_time}\n")
                 srt_file.write(f"{segment['text'].strip()}\n\n")
-
 
         logging.info(f"Subtitles saved to '{output_srt_path}'.")
         return output_srt_path
@@ -64,7 +62,6 @@ def burn_subtitles(video_path: str, srt_path: str, output_path: str):
     """
     if not os.path.exists(srt_path) or os.path.getsize(srt_path) == 0:
         logging.warning("SRT file is empty or does not exist. Skipping subtitle burning.")
-        # To avoid ffmpeg errors, we can just copy the video
         if video_path != output_path:
             subprocess.run(['cp', video_path, output_path])
         return output_path
@@ -109,6 +106,11 @@ if __name__ == '__main__':
     else:
         generated_srt = create_subtitles(input_video, srt_file)
 
-        if generated_srt:
+        if generated_srt and os.path.getsize(generated_srt) > 0:
             burn_subtitles(input_video, generated_srt, final_video)
             print(f"Check the final video: {final_video}")
+            # Clean up the test files
+            os.remove(srt_file)
+            os.remove(final_video)
+        else:
+            print("Subtitle generation failed or produced an empty file.")
