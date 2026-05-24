@@ -1,56 +1,60 @@
-# Clipper-AI
+# ✂️ Clipper-AI
 
-> Clipper-AI - A project by Mulky Malikul Dhaher
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Overview
+> A project by Mulky Malikul Dhaher
 
-Clipper-AI is a project developed and maintained by **Mulky Malikul Dhaher**. This repository contains the source code and related resources.
+---
 
-## Getting Started
+## 🇬🇧 English
 
-### Prerequisites
+Clipper-AI is an AI-powered project developed and maintained by **Mulky Malikul Dhaher**. This repository contains the source code and related resources.
 
-- Git
-- Appropriate runtime environment (see tech stack below)
-
-### Installation
+### Getting Started
 
 ```bash
 git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
 cd Clipper-AI
 ```
 
-### Usage
-
-Please refer to the documentation within the repository for usage instructions.
-
-## Tech Stack
-
+### Tech Stack
 See repository files for specific technology details.
 
-## Project Structure
+---
 
-```
-Clipper-AI/
-├── src/          # Source code
-├── docs/         # Documentation
-├── tests/        # Test files
-└── README.md     # This file
+## 🇮🇩 Bahasa Indonesia
+
+Clipper-AI adalah proyek bertenaga AI yang dikembangkan dan dikelola oleh **Mulky Malikul Dhaher**. Repositori ini berisi kode sumber dan sumber daya terkait.
+
+### Memulai
+
+```bash
+git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
+cd Clipper-AI
 ```
 
 ---
 
-## 🤝 Contributing
+## 🇨🇳 中文
 
-Contributions are welcome! We encourage the community to help improve this project.
+Clipper-AI 是由 **Mulky Malikul Dhaher** 开发和维护的AI驱动项目。本仓库包含源代码和相关资源。
 
-1. **Fork** the repository
-2. Create a **feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. Open a **Pull Request**
+### 快速开始
 
-Please make sure to update tests as appropriate and follow the existing code style.
+```bash
+git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
+cd Clipper-AI
+```
+
+---
+
+## ⚠️ Disclaimer
+
+**For Education Purpose Only.** All content, code, and documentation provided in this repository are intended solely for educational and research purposes. Nothing in this repository constitutes financial, investment, legal, or professional advice. The authors and contributors assume no responsibility or liability for any losses, damages, or consequences arising from the use of this software or information provided herein.
+
+**Hanya untuk Tujuan Pendidikan.** Semua konten, kode, dan dokumentasi dalam repositori ini hanya ditujukan untuk tujuan pendidikan dan penelitian. Penulis dan kontributor tidak bertanggung jawab atas risiko atau kerugian apa pun yang timbul dari penggunaan perangkat lunak atau informasi yang disediakan.
+
+**仅用于教育目的。** 本仓库中的所有内容、代码和文档仅用于教育和研究目的。作者和贡献者对因使用本软件或提供的信息而造成的任何损失、损害或后果不承担任何责任。
 
 ---
 
@@ -62,21 +66,8 @@ GitHub: [https://github.com/mulkymalikuldhrs](https://github.com/mulkymalikuldhr
 
 ---
 
-## ⚠️ Disclaimer
-
-**This project is for Education Purpose only.**
-
-All content, code, and documentation provided in this repository are intended solely for educational and research purposes. Nothing in this repository constitutes financial, investment, legal, or professional advice.
-
-**Risiko apapun tidak kita tanggung.** (We are not responsible for any risks or damages.)
-
-Use at your own risk. The authors and contributors assume no liability for any losses, damages, or consequences arising from the use of this software or information provided herein.
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-Copyright © Mulky Malikul Dhaher. All rights reserved.
-
+Copyright © 2026 Mulky Malikul Dhaher. All rights reserved.
