@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> A project by Mulky Malikul Dhaher
+> An AI-powered project by Mulky Malikul Dhaher
 
 ---
 
@@ -48,13 +48,28 @@ cd Clipper-AI
 
 ---
 
+## 🤝 Contributors Welcome
+
+We welcome contributions from everyone! Whether you're a beginner or an experienced developer, there are many ways to contribute:
+
+- 🐛 Report bugs and issues
+- 💡 Suggest new features
+- 🔧 Submit pull requests with improvements
+- 📖 Improve documentation
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+
+**Contact:** mulkymalikuldhaher@email.com | Mulky Malikul Dhaher
+
+---
+
 ## ⚠️ Disclaimer
 
-**For Education Purpose Only.** All content, code, and documentation provided in this repository are intended solely for educational and research purposes. Nothing in this repository constitutes financial, investment, legal, or professional advice. The authors and contributors assume no responsibility or liability for any losses, damages, or consequences arising from the use of this software or information provided herein.
+**EN (English):** For Education Purpose Only. All content, code, and documentation provided in this repository are intended solely for educational and research purposes. Nothing in this repository constitutes financial, investment, legal, or professional advice. The authors and contributors assume no responsibility or liability for any losses, damages, or consequences arising from the use of this software. We do not bear any responsibility or risk for how this software is used.
 
-**Hanya untuk Tujuan Pendidikan.** Semua konten, kode, dan dokumentasi dalam repositori ini hanya ditujukan untuk tujuan pendidikan dan penelitian. Penulis dan kontributor tidak bertanggung jawab atas risiko atau kerugian apa pun yang timbul dari penggunaan perangkat lunak atau informasi yang disediakan.
+**ID (Bahasa Indonesia):** Untuk Tujuan Pendidikan Saja. Semua konten, kode, dan dokumentasi dalam repositori ini hanya ditujukan untuk tujuan pendidikan dan penelitian. Penulis dan kontributor tidak bertanggung jawab atas risiko atau kerugian apa pun yang timbul dari penggunaan perangkat lunak atau informasi yang disediakan. Kami tidak menanggung tanggung jawab atau risiko atas penggunaan perangkat lunak ini.
 
-**仅用于教育目的。** 本仓库中的所有内容、代码和文档仅用于教育和研究目的。作者和贡献者对因使用本软件或提供的信息而造成的任何损失、损害或后果不承担任何责任。
+**CN (中文):** 仅供教育目的。本仓库中的所有内容、代码和文档仅用于教育和研究目的。作者和贡献者对因使用本软件或提供的信息而造成的任何损失、损害或后果不承担任何责任。我们不对本软件的使用方式承担任何责任或风险。
 
 ---
 
