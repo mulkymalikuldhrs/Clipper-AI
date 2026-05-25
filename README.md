@@ -2,31 +2,45 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> An AI-powered project by Mulky Malikul Dhaher
+> An AI-powered clipboard management and text processing tool by Mulky Malikul Dhaher
 
 ---
 
 ## 🇬🇧 English
 
-Clipper-AI is an AI-powered project developed and maintained by **Mulky Malikul Dhaher**. This repository contains the source code and related resources.
+Clipper-AI is an AI-powered clipboard management and text processing project developed and maintained by **Mulky Malikul Dhaher**. This repository contains the source code and related resources.
 
-### Getting Started
+### Features (Planned)
+
+- AI-powered text clipping and summarization
+- Smart clipboard history management
+- Multi-language support
+- Cross-platform desktop integration
+
+### Installation
 
 ```bash
 git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
 cd Clipper-AI
 ```
 
+### Usage
+
+Project is in early development. See repository files for the latest status.
+
 ### Tech Stack
-See repository files for specific technology details.
+
+- AI/ML for text processing
+- Cross-platform desktop framework
+- See repository files for specific technology details
 
 ---
 
 ## 🇮🇩 Bahasa Indonesia
 
-Clipper-AI adalah proyek bertenaga AI yang dikembangkan dan dikelola oleh **Mulky Malikul Dhaher**. Repositori ini berisi kode sumber dan sumber daya terkait.
+Clipper-AI adalah proyek manajemen clipboard dan pemrosesan teks bertenaga AI yang dikembangkan dan dikelola oleh **Mulky Malikul Dhaher**. Repositori ini berisi kode sumber dan sumber daya terkait.
 
-### Memulai
+### Instalasi
 
 ```bash
 git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
@@ -37,9 +51,9 @@ cd Clipper-AI
 
 ## 🇨🇳 中文
 
-Clipper-AI 是由 **Mulky Malikul Dhaher** 开发和维护的AI驱动项目。本仓库包含源代码和相关资源。
+Clipper-AI 是由 **Mulky Malikul Dhaher** 开发和维护的AI驱动剪贴板管理和文本处理项目。本仓库包含源代码和相关资源。
 
-### 快速开始
+### 安装
 
 ```bash
 git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
@@ -85,4 +99,4 @@ GitHub: [https://github.com/mulkymalikuldhrs](https://github.com/mulkymalikuldhr
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-Copyright © 2026 Mulky Malikul Dhaher. All rights reserved.
+Copyright © 2025 Mulky Malikul Dhaher. All rights reserved.
