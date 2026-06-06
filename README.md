@@ -73,7 +73,7 @@ We welcome contributions from everyone! Whether you're a beginner or an experien
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
-**Contact:** mulkymalikuldhaher@email.com | Mulky Malikul Dhaher
+**Contact:** mulkymalikudhr@mail.com | Mulky Malikul Dhaher
 
 ---
 
@@ -89,7 +89,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## 📬 Contact
 
-**Mulky Malikul Dhaher** — [mulkymalikuldhaher@email.com](mailto:mulkymalikuldhaher@email.com)
+**Mulky Malikul Dhaher** — [mulkymalikudhr@mail.com](mailto:mulkymalikudhr@mail.com)
 
 GitHub: [https://github.com/mulkymalikuldhrs](https://github.com/mulkymalikuldhrs)
 
