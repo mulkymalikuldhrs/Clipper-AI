@@ -1,102 +1,140 @@
-# ✂️ Clipper-AI
+<!-- BANNER -->
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:1a0f00,50:2d1f00,100:3d2b00&fontColor=f97316&descColor=fbbf24&height=220&section=header&text=Clipper%20AI&fontSize=70&desc=AI%20Clipboard%20Manager&animation=fadeIn" />
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<!-- TYPING SVG -->
+<div align="center">
+  <a href="https://git.io/typing-svg">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=F97316&center=true&vCenter=true&width=600&lines=Smart+Clipboard+Management;AI-Powered+Categorization;Quick+Access+%2B+Search;Early+Stage+%E2%80%94+Accuracy+Varies" alt="Typing SVG" />
+  </a>
+</div>
 
-> An AI-powered clipboard management and text processing tool by Mulky Malikul Dhaher
+<br/>
+
+<!-- BADGES -->
+<div align="center">
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?style=for-the-badge&logo=electron&logoColor=white)](https://www.electronjs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
+
+</div>
 
 ---
 
-## 🇬🇧 English
+## Overview
 
-Clipper-AI is an AI-powered clipboard management and text processing project developed and maintained by **Mulky Malikul Dhaher**. This repository contains the source code and related resources.
+**Clipper AI** is an AI-powered clipboard manager that automatically categorizes, tags, and makes searchable everything you copy. Text snippets, URLs, code blocks, images — Clipper AI understands what you've copied and organizes it so you can find it later without digging through a chaotic clipboard history.
 
-### Features (Planned)
+## Features
 
-- AI-powered text clipping and summarization
-- Smart clipboard history management
-- Multi-language support
-- Cross-platform desktop integration
+### AI-Powered Organization
+- **AI Categorization** — Automatically classifies clipboard content (code, URLs, emails, addresses, notes, etc.)
+- **Smart Tags** — AI-generated tags for each clip for effortless retrieval
+- **Content Summarization** — Brief summaries of long copied text
+- **Code Detection** — Identifies programming language and adds syntax context
+
+### Search & Access
+- **Smart Search** — Find anything by content, category, or AI-generated tags
+- **Quick Paste** — Keyboard shortcuts for instant access to favorite clips
+- **Fuzzy Matching** — Find clips even with partial or approximate search terms
+- **Pin Favorites** — Pin frequently used clips for one-key access
+
+### Privacy & Security
+- **Privacy Mode** — Exclude sensitive apps from clipboard monitoring
+- **Auto-Clear** — Automatically remove clips containing sensitive patterns (passwords, tokens)
+- **Local-First** — All data stored locally by default
+- **Encryption** — Optional encryption for stored clipboard history
+
+### Sync & Sharing
+- **Cross-Device Sync** — Optional end-to-end encrypted sync between your devices
+- **Clip Sharing** — Share specific clips with teammates via secure links
+
+## Honest Notes
+
+- **Early Stage** — Clipper AI is under active development. Features may change and bugs are expected.
+- **AI Categorization Accuracy Varies** — The AI does a good job with common content types but may misclassify unusual or ambiguous content. Manual correction is sometimes needed.
+- **Platform Support** — Currently focused on desktop (Electron). Mobile support is planned but not yet available.
+- **Clipboard Access** — The app monitors your clipboard continuously. While privacy mode helps, be mindful of what you copy while the app is running.
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18+
+- LLM API key for AI categorization features
 
 ### Installation
 
 ```bash
 git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
 cd Clipper-AI
+npm install
+cp .env.example .env
 ```
 
-### Usage
+### Configuration
 
-Project is in early development. See repository files for the latest status.
+```env
+OPENAI_API_KEY=your_key
+SYNC_ENABLED=false
+ENCRYPTION_KEY=your_optional_key
+```
 
-### Tech Stack
-
-- AI/ML for text processing
-- Cross-platform desktop framework
-- See repository files for specific technology details
-
----
-
-## 🇮🇩 Bahasa Indonesia
-
-Clipper-AI adalah proyek manajemen clipboard dan pemrosesan teks bertenaga AI yang dikembangkan dan dikelola oleh **Mulky Malikul Dhaher**. Repositori ini berisi kode sumber dan sumber daya terkait.
-
-### Instalasi
+### Running
 
 ```bash
-git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
-cd Clipper-AI
+# Development
+npm run dev
+
+# Build desktop app
+npm run build:electron
 ```
 
----
+## Project Structure
 
-## 🇨🇳 中文
-
-Clipper-AI 是由 **Mulky Malikul Dhaher** 开发和维护的AI驱动剪贴板管理和文本处理项目。本仓库包含源代码和相关资源。
-
-### 安装
-
-```bash
-git clone https://github.com/mulkymalikuldhrs/Clipper-AI.git
-cd Clipper-AI
+```
+Clipper-AI/
+├── src/
+│   ├── main/           # Electron main process
+│   ├── renderer/       # UI components
+│   ├── lib/
+│   │   ├── clipboard/  # Clipboard monitoring
+│   │   ├── ai/         # AI categorization engine
+│   │   ├── search/     # Search & indexing
+│   │   ├── sync/       # Cross-device sync
+│   │   └── privacy/    # Privacy & encryption
+│   └── types/          # TypeScript definitions
+└── tests/              # Test suites
 ```
 
----
+## Contributing
 
-## 🤝 Contributors Welcome
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Submit a pull request
 
-We welcome contributions from everyone! Whether you're a beginner or an experienced developer, there are many ways to contribute:
+Especially welcome: better categorization models, new platform support, and UI improvements.
 
-- 🐛 Report bugs and issues
-- 💡 Suggest new features
-- 🔧 Submit pull requests with improvements
-- 📖 Improve documentation
+## Disclaimer
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+Clipper AI accesses your clipboard contents for categorization. While privacy mode excludes specified apps, be aware of what you copy. The authors are not responsible for any data exposure through the clipboard manager.
 
-**Contact:** mulkymalikudhr@mail.com | Mulky Malikul Dhaher
+## License
 
----
+**MIT License** — see [LICENSE](./LICENSE) for details.
 
-## ⚠️ Disclaimer
+## Author
 
-**EN (English):** For Education Purpose Only. All content, code, and documentation provided in this repository are intended solely for educational and research purposes. Nothing in this repository constitutes financial, investment, legal, or professional advice. The authors and contributors assume no responsibility or liability for any losses, damages, or consequences arising from the use of this software. We do not bear any responsibility or risk for how this software is used.
+<div align="center">
 
-**ID (Bahasa Indonesia):** Untuk Tujuan Pendidikan Saja. Semua konten, kode, dan dokumentasi dalam repositori ini hanya ditujukan untuk tujuan pendidikan dan penelitian. Penulis dan kontributor tidak bertanggung jawab atas risiko atau kerugian apa pun yang timbul dari penggunaan perangkat lunak atau informasi yang disediakan. Kami tidak menanggung tanggung jawab atau risiko atas penggunaan perangkat lunak ini.
+**Mulky Malikul Dhaher**
 
-**CN (中文):** 仅供教育目的。本仓库中的所有内容、代码和文档仅用于教育和研究目的。作者和贡献者对因使用本软件或提供的信息而造成的任何损失、损害或后果不承担任何责任。我们不对本软件的使用方式承担任何责任或风险。
+[![GitHub](https://img.shields.io/badge/GitHub-mulkymalikuldhrs-181717?style=flat-square&logo=github)](https://github.com/mulkymalikuldhrs)
+[![Email](https://img.shields.io/badge/Email-mulkymalikudhr@mail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:mulkymalikudhr@mail.com)
 
----
-
-## 📬 Contact
-
-**Mulky Malikul Dhaher** — [mulkymalikudhr@mail.com](mailto:mulkymalikudhr@mail.com)
-
-GitHub: [https://github.com/mulkymalikuldhrs](https://github.com/mulkymalikuldhrs)
+</div>
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
-Copyright © 2025 Mulky Malikul Dhaher. All rights reserved.
+<!-- FOOTER BANNER -->
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:1a0f00,50:2d1f00,100:3d2b00&fontColor=f97316&descColor=fbbf24&height=120&section=footer&text=&fontSize=0" />
