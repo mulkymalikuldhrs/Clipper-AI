@@ -1,4 +1,3 @@
-<img src="docs/banner.png" width="100%">
 
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:1a0f00,50:2d1f00,100:3d2b00&fontColor=f97316&descColor=fbbf24&height=220&section=header&text=Clipper%20AI&fontSize=70&desc=AI%20Clipboard%20Manager&animation=fadeIn" />
 
