@@ -106,6 +106,142 @@ Clipper-AI/
 └── tests/              # Test suites
 ```
 
+## Visual Architecture
+
+### Planned Architecture (NOT YET BUILT)
+
+```mermaid
+flowchart TB
+    subgraph Electron["🖥️ Electron Desktop App (PLANNED)"]
+        subgraph MainProcess["Main Process"]
+            ClipboardMonitor["📋 Clipboard Monitor<br/>OS-level clipboard events"]
+            IPC["🔌 IPC Bridge"]
+            TrayIcon["📌 System Tray<br/>Quick Access Menu"]
+        end
+
+        subgraph RendererProcess["Renderer Process (UI)"]
+            Dashboard["📊 Clip Dashboard<br/>Category View"]
+            SearchBar["🔍 Smart Search<br/>Fuzzy + AI-powered"]
+            Settings["⚙️ Settings<br/>Privacy & Sync"]
+        end
+
+        subgraph AIEngine["🤖 AI Engine (PLANNED)"]
+            Classifier["Content Classifier<br/>Code / URL / Email<br/>Note / Address / Image"]
+            Tagger["Smart Tagger<br/>Auto-generated labels"]
+            Summarizer["Summarizer<br/>Long text condensation"]
+            CodeDetector["Code Detector<br/>Language identification"]
+        end
+
+        subgraph DataLayer["💾 Data Layer (PLANNED)"]
+            LocalDB["SQLite / IndexedDB<br/>Local-first storage"]
+            Encryptor["AES-256 Encryption<br/>Optional privacy layer"]
+            SyncEngine["E2E Encrypted Sync<br/>Cross-device (PLANNED)"]
+        end
+    end
+
+    ClipboardMonitor --> Classifier
+    Classifier --> Tagger
+    Classifier --> Summarizer
+    Classifier --> CodeDetector
+    Tagger --> LocalDB
+    LocalDB --> Dashboard
+    LocalDB --> SearchBar
+    Dashboard --> IPC
+    IPC --> TrayIcon
+    LocalDB --> Encryptor
+    Encryptor --> SyncEngine
+
+    style Electron fill:#1a0f00,stroke:#f97316,color:#fef3c7
+    style MainProcess fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
+    style RendererProcess fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
+    style AIEngine fill:#3d2b00,stroke:#f97316,color:#fef3c7
+    style DataLayer fill:#3d2b00,stroke:#f97316,color:#fef3c7
+```
+
+### Planned Clipboard Pipeline (NOT YET BUILT)
+
+```mermaid
+flowchart LR
+    subgraph Capture["1️⃣ Capture"]
+        A[User Copies Content] --> B[OS Clipboard Event]
+        B --> C[Clipper Detects Change]
+    end
+
+    subgraph Analyze["2️⃣ AI Analysis"]
+        C --> D{Content Type?}
+        D -->|Code| E[Detect Language + Syntax]
+        D -->|URL| F[Extract Title + Favicon]
+        D -->|Email| G[Parse Sender + Subject]
+        D -->|Text| H[Summarize + Tag]
+        D -->|Image| I[OCR + Description]
+    end
+
+    subgraph Store["3️⃣ Store & Index"]
+        E --> J[Write to Local DB]
+        F --> J
+        G --> J
+        H --> J
+        I --> J
+        J --> K[Full-Text Search Index]
+        J --> L[Tag Index]
+    end
+
+    subgraph Retrieve["4️⃣ Retrieve"]
+        K --> M[Quick Search Results]
+        L --> M
+        M --> N[Keyboard Shortcut Paste]
+    end
+
+    style Capture fill:#1a0f00,stroke:#f97316,color:#fef3c7
+    style Analyze fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
+    style Store fill:#3d2b00,stroke:#f97316,color:#fef3c7
+    style Retrieve fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
+```
+
+### Implementation Status — BE HONEST
+
+```mermaid
+graph TD
+    subgraph Reality["🚨 ACTUAL STATUS — CONCEPT ONLY"]
+        direction TB
+
+        subgraph NotBuilt["❌ NOT IMPLEMENTED"]
+            N1["Electron App — 0%"]
+            N2["Clipboard Monitor — 0%"]
+            N3["AI Categorization — 0%"]
+            N4["Smart Search — 0%"]
+            N5["Local Storage — 0%"]
+            N6["Cross-Device Sync — 0%"]
+            N7["Privacy Mode — 0%"]
+            N8["Encryption — 0%"]
+        end
+
+        subgraph Built["✅ WHAT EXISTS"]
+            B1["README.md — This file"]
+            B2["LICENSE — MIT"]
+            B3["CONTRIBUTING.md — Template"]
+            B4["SECURITY.md — Template"]
+            B5["CHANGELOG.md — Empty"]
+        end
+    end
+
+    subgraph Verdict["⚠️ VERDICT"]
+        V["THIS IS VAPORWARE<br/>No source code exists.<br/>No application can be built or run.<br/>All features described above are<br/>ASPIRATIONAL and UNIMPLEMENTED."]
+    end
+
+    NotBuilt --> Verdict
+
+    style Reality fill:#1a0f00,stroke:#ef4444,color:#fecaca
+    style NotBuilt fill:#7f1d1d,stroke:#ef4444,color:#fecaca
+    style Built fill:#14532d,stroke:#22c55e,color:#bbf7d0
+    style Verdict fill:#7f1d1d,stroke:#ef4444,color:#fecaca
+    style V fill:#991b1b,stroke:#fca5a5,color:#fef2f2
+```
+
+> **Brutally Honest:** Clipper AI is vaporware. There is no source code, no working application, and no functional prototype. The features described in this README represent a concept and wish list — nothing more. The `npm install` and `npm run dev` commands listed above will not work because no code has been written. This project exists as an idea and documentation only.
+
+---
+
 ## Contributing
 
 1. Fork the repository
