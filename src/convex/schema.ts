@@ -1,0 +1,132 @@
+import { defineSchema, defineTable } from "convex/server";
+import { authTables } from "@convex-dev/auth/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  ...authTables,
+
+  // Convex Auth users table (standard fields) + app fields.
+  users: defineTable({
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    image: v.optional(v.string()),
+    isAnonymous: v.optional(v.boolean()),
+    onboarded: v.optional(v.boolean()),
+    role: v.optional(v.string()),
+    avatarSeed: v.optional(v.string()),
+  }).index("email", ["email"]),
+
+  // One snapshot per user — full mirror of konten.com state.
+  kontenSnapshots: defineTable({
+    userId: v.id("users"),
+    fetchedAt: v.number(),
+    source: v.string(), // "bridge" | "demo"
+    profile: v.optional(v.any()),
+    campaigns: v.optional(v.any()),
+    joined: v.optional(v.any()),
+    earningsSummary: v.optional(v.any()),
+    timeseries: v.optional(v.any()),
+    wallet: v.optional(v.any()),
+    featureFlags: v.optional(v.any()),
+    tier: v.optional(v.any()),
+    notifications: v.optional(v.number()),
+  }).index("by_userId", ["userId"]),
+
+  // Campaign cache with derived autopilot score.
+  kontenCampaigns: defineTable({
+    userId: v.id("users"),
+    extId: v.string(),
+    slug: v.string(),
+    title: v.string(),
+    brand: v.string(),
+    brandLogo: v.optional(v.string()),
+    category: v.optional(v.string()),
+    platforms: v.array(v.string()),
+    status: v.optional(v.string()),
+    campaignType: v.optional(v.string()),
+    ratePerMillion: v.optional(v.number()),
+    budget: v.optional(v.number()),
+    spent: v.optional(v.number()),
+    clippers: v.optional(v.number()),
+    minViews: v.optional(v.number()),
+    minDuration: v.optional(v.number()),
+    hashtags: v.optional(v.array(v.string())),
+    deadline: v.optional(v.string()),
+    remainingPct: v.optional(v.number()),
+    joined: v.boolean(),
+    score: v.number(),
+    raw: v.optional(v.any()),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_extId", ["userId", "extId"])
+    .index("by_userId_joined", ["userId", "joined"]),
+
+  kontenEarnings: defineTable({
+    userId: v.id("users"),
+    extVideoId: v.optional(v.string()),
+    campaignTitle: v.optional(v.string()),
+    platform: v.optional(v.string()),
+    videoUrl: v.optional(v.string()),
+    views: v.number(),
+    amount: v.number(),
+    status: v.optional(v.string()),
+    earnedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_earnedAt", ["userId", "earnedAt"]),
+
+  // Brief autopilot: production plan generated from a campaign brief.
+  autopilotPlans: defineTable({
+    userId: v.id("users"),
+    campaignExtId: v.string(),
+    campaignSlug: v.string(),
+    title: v.string(),
+    brand: v.string(),
+    hook: v.string(),
+    narasi: v.string(),
+    cta: v.string(),
+    caption: v.string(),
+    hashtags: v.array(v.string()),
+    durasiMin: v.number(),
+    durasiMax: v.number(),
+    materi: v.array(v.object({ title: v.string(), url: v.string() })),
+    elemenWajib: v.array(v.string()),
+    doDonts: v.array(v.string()),
+    // Parsed straight from the live konten.com brief (brief_detail).
+    boleh: v.optional(v.array(v.string())),
+    dilarang: v.optional(v.array(v.string())),
+    narasiPoints: v.optional(v.array(v.string())),
+    captionWajib: v.optional(v.string()),
+    targetAudience: v.optional(v.string()),
+    goal: v.optional(v.string()),
+    instruksiBrief: v.optional(v.string()),
+    judulFile: v.optional(v.string()),
+    platforms: v.optional(v.array(v.string())),
+    shotlist: v.array(v.object({ detik: v.string(), aksi: v.string() })),
+    complianceScore: v.number(),
+    status: v.string(), // draft | ready | shooting | done
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_campaign", ["userId", "campaignExtId"]),
+
+  planTasks: defineTable({
+    planId: v.id("autopilotPlans"),
+    label: v.string(),
+    category: v.string(), // materi | produksi | compliance | posting
+    done: v.boolean(),
+    order: v.number(),
+  }).index("by_planId", ["planId"]),
+
+  syncLogs: defineTable({
+    userId: v.id("users"),
+    source: v.string(),
+    status: v.string(), // ok | error
+    message: v.optional(v.string()),
+    pages: v.optional(v.number()),
+    at: v.number(),
+  }).index("by_userId", ["userId"]),
+});

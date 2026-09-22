@@ -1,228 +1,142 @@
+<p align="center">
+  <img src="public/sc-icon.svg" width="72" alt="Super Clipper" />
+</p>
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:1a0f00,50:2d1f00,100:3d2b00&fontColor=f97316&descColor=fbbf24&height=220&section=header&text=Clipper%20AI&fontSize=70&desc=AI%20Clipboard%20Manager&animation=fadeIn" />
+<h1 align="center">Super Clipper</h1>
 
-<div align="center">
-  <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=F97316&center=true&vCenter=true&width=600&lines=Smart+Clipboard+Management;AI-Powered+Categorization;Quick+Access+%2B+Search;VAPORWARE+%E2%80%94+0%25+Implementation" alt="Typing SVG" />
-  </a>
-</div>
+<p align="center">
+  <b>AI Autopilot untuk marketplace clipping konten.com</b><br/>
+  Auto-fetch campaign → susun rencana produksi → join → pantau analitik & earnings real-time.
+</p>
 
-<br/>
-
-<div align="center">
-
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?style=for-the-badge&logo=electron&logoColor=white)](https://www.electronjs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
-
-</div>
-
-<br/>
-
-<div align="center">
-
-![Status](https://img.shields.io/badge/Implementation-0%25-red?style=for-the-badge&logo=warning&logoColor=white)
-![Code](https://img.shields.io/badge/Source_Code-NONE-critical?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-VAPORWARE-critical?style=for-the-badge)
-
-</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/Stack-Vite_+_React_+_Convex-34d399?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Data-Field-tested_22_Sep_2026-22d3ee?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
+</p>
 
 ---
 
-## Overview
+## Apa ini?
 
-**Clipper AI** is an AI-powered clipboard manager that automatically categorizes, tags, and makes searchable everything you copy. Text snippets, URLs, code blocks, images — Clipper AI understands what you've copied and organizes it so you can find it later without digging through a chaotic clipboard history.
+**Super Clipper** adalah autopilot pribadi untuk clipper di [konten.com](https://konten.com):
+ia menyelami dashboard clipper-mu (pakai sesi akunmu **sendiri**), lalu:
 
-> **⚠️ BRUTALLY HONEST: This is vaporware.** There is no source code, no working application, and no functional prototype. All features described below are **aspirational and unimplemented**. This project exists as an idea and documentation only.
+| Modul | Fungsi |
+|---|---|
+| 🛰️ **Konten Bridge** | Login (email/password **atau cookies**) → tarik campaign, earnings, timeseries, wallet, tier → push ke workspace. |
+| 🎯 **Campaign Scanner** | Semua campaign aktif di-skor 0–100 (CPM 35% • sisa budget 30% • kompetisi 20% • syarat views 15%) dan diurutkan. |
+| 🎬 **Brief Autopilot** | Brief campaign dipecah otomatis jadi: hook 3 detik, shotlist berskala durasi, narasi wajib, CTA, caption + hashtag siap tempel, **daftar BOLEH vs DILARANG asli dari brief**, target audiens, checklist kepatuhan, dan skor kepatuhan. |
+| 📊 **Analitik** | Mirror `views-timeseries` harian + earnings per campaign + distribusi platform. |
+| 💰 **Earnings** | Total earned, on-hold, siap-withdraw, dan cek kesiapan withdraw vs aturan platform (min Rp50.000, fee Rp10.000). |
+| 🧪 **Demo Mode** | Satu klik mengisi workspace dengan **20 campaign asli + 114 materi** (dari 45 campaign yang di-crawl 22 Sep 2026). |
 
-## Planned Features
+## Kenapa aman?
 
-### AI-Powered Organization
-- **AI Categorization** — Automatically classifies clipboard content (code, URLs, emails, addresses, notes, etc.)
-- **Smart Tags** — AI-generated tags for each clip for effortless retrieval
-- **Content Summarization** — Brief summaries of long copied text
-- **Code Detection** — Identifies programming language and adds syntax context
+- Kredensial/cookies **hanya di mesinmu** (`.env.local`, di-gitignore) — bukan di cloud, bukan di repo.
+- Bridge hanya **membaca** dashboard milikmu dan menulis ke workspace-mu.
+- **Tanpa bot views/engagement** — justru melanggar aturan campaign.
+- Submit video tetap lewat konten.com (flag platform `submit_via_link` = false); Super Clipper menyiapkan semuanya sampai siap submit.
 
-### Search and Access
-- **Smart Search** — Find anything by content, category, or AI-generated tags
-- **Quick Paste** — Keyboard shortcuts for instant access to favorite clips
-- **Fuzzy Matching** — Find clips even with partial or approximate search terms
-- **Pin Favorites** — Pin frequently used clips for one-key access
+## Arsitektur
 
-### Privacy and Security
-- **Privacy Mode** — Exclude sensitive apps from clipboard monitoring
-- **Auto-Clear** — Automatically remove clips containing sensitive patterns (passwords, tokens)
-- **Local-First** — All data stored locally by default
-- **Encryption** — Optional encryption for stored clipboard history
-
-### Sync and Sharing
-- **Cross-Device Sync** — Optional end-to-end encrypted sync between your devices
-- **Clip Sharing** — Share specific clips with teammates via secure links
-
-## Visual Architecture
-
-### Planned Architecture (NOT YET BUILT)
-
-```mermaid
-flowchart TB
-    subgraph Electron["🖥️ Electron Desktop App (PLANNED)"]
-        subgraph MainProcess["Main Process"]
-            ClipboardMonitor["📋 Clipboard Monitor<br/>OS-level clipboard events"]
-            IPC["🔌 IPC Bridge"]
-            TrayIcon["📌 System Tray<br/>Quick Access Menu"]
-        end
-
-        subgraph RendererProcess["Renderer Process (UI)"]
-            Dashboard["📊 Clip Dashboard<br/>Category View"]
-            SearchBar["🔍 Smart Search<br/>Fuzzy + AI-powered"]
-            Settings["⚙️ Settings<br/>Privacy and Sync"]
-        end
-
-        subgraph AIEngine["🤖 AI Engine (PLANNED)"]
-            Classifier["Content Classifier<br/>Code / URL / Email<br/>Note / Address / Image"]
-            Tagger["Smart Tagger<br/>Auto-generated labels"]
-            Summarizer["Summarizer<br/>Long text condensation"]
-            CodeDetector["Code Detector<br/>Language identification"]
-        end
-
-        subgraph DataLayer["💾 Data Layer (PLANNED)"]
-            LocalDB["SQLite / IndexedDB<br/>Local-first storage"]
-            Encryptor["AES-256 Encryption<br/>Optional privacy layer"]
-            SyncEngine["E2E Encrypted Sync<br/>Cross-device (PLANNED)"]
-        end
-    end
-
-    ClipboardMonitor --> Classifier
-    Classifier --> Tagger
-    Classifier --> Summarizer
-    Classifier --> CodeDetector
-    Tagger --> LocalDB
-    LocalDB --> Dashboard
-    LocalDB --> SearchBar
-    Dashboard --> IPC
-    IPC --> TrayIcon
-    LocalDB --> Encryptor
-    Encryptor --> SyncEngine
-
-    style Electron fill:#1a0f00,stroke:#f97316,color:#fef3c7
-    style MainProcess fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
-    style RendererProcess fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
-    style AIEngine fill:#3d2b00,stroke:#f97316,color:#fef3c7
-    style DataLayer fill:#3d2b00,stroke:#f97316,color:#fef3c7
+```
+┌──────────────────────┐   Playwright (login/cookies)   ┌──────────────────────┐
+│  konten.com          │ ─────────────────────────────► │  scripts/bridge-sync │
+│  /clipper-dashboard  │   baca: /api/campaigns,        │  (mesin lokalmu)     │
+│  /clipper-earnings   │   + /api/campaigns/:slug       └──────────┬───────────┘
+│  /clipper-campaigns  │   (brief_detail lengkap!),     │ POST /ingest
+└──────────────────────┘   earnings, timeseries...     │ x-sc-token
+                                                                   │ x-sc-token
+                                                          ┌────────▼───────────┐
+                                                          │  Convex backend    │
+                                                          │  schema + scoring  │
+                                                          │  brief autopilot   │
+                                                          └────────┬───────────┘
+                                                                   │ realtime
+                                                          ┌────────▼───────────┐
+                                                          │  Super Clipper UI  │
+                                                          │  Vite + React      │
+                                                          └────────────────────┘
 ```
 
-### Planned Clipboard Pipeline (NOT YET BUILT)
+## Quickstart
 
-```mermaid
-flowchart LR
-    subgraph Capture["1️⃣ Capture"]
-        A[User Copies Content] --> B[OS Clipboard Event]
-        B --> C[Clipper Detects Change]
-    end
-
-    subgraph Analyze["2️⃣ AI Analysis"]
-        C --> D{Content Type?}
-        D -->|Code| E[Detect Language + Syntax]
-        D -->|URL| F[Extract Title + Favicon]
-        D -->|Email| G[Parse Sender + Subject]
-        D -->|Text| H[Summarize + Tag]
-        D -->|Image| I[OCR + Description]
-    end
-
-    subgraph Store["3️⃣ Store and Index"]
-        E --> J[Write to Local DB]
-        F --> J
-        G --> J
-        H --> J
-        I --> J
-        J --> K[Full-Text Search Index]
-        J --> L[Tag Index]
-    end
-
-    subgraph Retrieve["4️⃣ Retrieve"]
-        K --> M[Quick Search Results]
-        L --> M
-        M --> N[Keyboard Shortcut Paste]
-    end
-
-    style Capture fill:#1a0f00,stroke:#f97316,color:#fef3c7
-    style Analyze fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
-    style Store fill:#3d2b00,stroke:#f97316,color:#fef3c7
-    style Retrieve fill:#2d1f00,stroke:#fbbf24,color:#fef3c7
+```bash
+bun install
+bun convex dev --once     # provision backend + generate types
+bun run dev               # buka UI di port dev (Vite saja)
 ```
 
-### Implementation Status — BE HONEST
+> Di Freebuff, platform sudah menjalankan proses Convex dev sendiri. Karena itu
+> `scripts/dev.sh` **hanya** menjalankan Vite — jangan menambahkan `convex dev`
+> di sana, karena backend lokal yang kedua akan merebut port 3210 dan membuat
+> push fungsi/codegen platform gagal (UI jadi menampilkan kode lama).
+> Untuk dev manual di luar Freebuff: terminal 1 `bun run convex:dev`, terminal 2 `bun run dev`.
 
-```mermaid
-graph TD
-    subgraph Reality["🚨 ACTUAL STATUS — CONCEPT ONLY"]
-        direction TB
+Buat akun di halaman **/auth** → klik **Isi Data Demo** untuk melihat semua fitur dengan data nyata.
 
-        subgraph NotBuilt["❌ NOT IMPLEMENTED"]
-            N1["Electron App — 0%"]
-            N2["Clipboard Monitor — 0%"]
-            N3["AI Categorization — 0%"]
-            N4["Smart Search — 0%"]
-            N5["Local Storage — 0%"]
-            N6["Cross-Device Sync — 0%"]
-            N7["Privacy Mode — 0%"]
-            N8["Encryption — 0%"]
-        end
+## Setup Bridge (opsional, untuk data akunmu sendiri)
 
-        subgraph Built["✅ WHAT EXISTS"]
-            B1["README.md — This file"]
-            B2["LICENSE — MIT"]
-            B3["CONTRIBUTING.md — Template"]
-            B4["SECURITY.md — Template"]
-            B5["CHANGELOG.md — Empty"]
-        end
-    end
+1. Daftarkan token ingest:
+   ```bash
+   openssl rand -hex 24            # buat token
+   bun convex env set INGEST_TOKEN <token>
+   ```
+2. Isi `.env.local` (file ini di-gitignore):
+   ```
+   SUPERCLIPPER_URL=<Convex HTTP actions URL>/ingest
+   INGEST_TOKEN=<token di atas>
+   KONTEN_EMAIL=kamu@email.com
+   KONTEN_PASSWORD=********
+   # atau tanpa password — pakai cookies sesi:
+   KONTEN_COOKIES_JSON=[{...}]
+   ```
+3. Jalankan:
+   ```bash
+   bun scripts/bridge-sync.ts      # sekali, atau pasang di cron tiap 30 menit
+   ```
 
-    subgraph Verdict["⚠️ VERDICT"]
-        V["THIS IS VAPORWARE<br/>No source code exists.<br/>No application can be built or run.<br/>All features described above are<br/>ASPIRATIONAL and UNIMPLEMENTED."]
-    end
+## Hasil riset lapangan
 
-    NotBuilt --> Verdict
+Dokumen lengkap di [`research/RESEARCH.md`](research/RESEARCH.md) dan peta API di
+[`KONTEN_MAP.md`](KONTEN_MAP.md) — hasil otomasi nyata: login sesi sendiri +
+crawl **124 halaman** konten.com (semua route clipper, 24 halaman detail campaign,
+setiap `/brief`, blog, brands, legal) dengan **186 endpoint JSON** terindeks.
+Crawl dinyatakan tuntas: 0 link internal tersisa yang belum dikunjungi.
 
-    style Reality fill:#1a0f00,stroke:#ef4444,color:#fecaca
-    style NotBuilt fill:#7f1d1d,stroke:#ef4444,color:#fecaca
-    style Built fill:#14532d,stroke:#22c55e,color:#bbf7d0
-    style Verdict fill:#7f1d1d,stroke:#ef4444,color:#fecaca
-    style V fill:#991b1b,stroke:#fca5a5,color:#fef2f2
-```
+Contoh temuan yang jadi dasar fitur:
 
-> **Brutally Honest:** Clipper AI is vaporware. There is no source code, no working application, and no functional prototype. The features described in this README represent a concept and wish list — nothing more. The `npm install` and `npm run dev` commands listed above will not work because no code has been written. This project exists as an idea and documentation only.
+- **45 campaign** bisa dibaca lengkap dengan `brief_detail` (materi, narasi, CTA,
+  elemen wajib, do & don't, target audiens, caption wajib, durasi).
+- Campaign CPM bervariasi **Rp2.000–Rp5.000** per 1.000 views.
+- Top clip campaign film nasional: **6,56 juta views → Rp3.200.000** (approved).
+- `brief_detail.bolehDilakukan` / `dilarangDilakukan` = daftar do & don't resmi
+  brand (contoh IBU: 4 boleh, 5 dilarang) — dipakai langsung oleh Brief Autopilot.
+- Endpoint berubah antar waktu: `?limit=` sekarang ditolak (HTTP 400) dan
+  `/api/campaigns/:id/closure` mengembalikan 404 → bridge dibuat toleran dan
+  sisa budget dihitung dari `budget`/`spent`.
 
----
+## Status verifikasi
 
-## Contributing
+Diperiksa langsung di sesi ini:
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
+- `bun tsc -b --noEmit` bersih.
+- `parseBrief()` diuji terhadap brief asli campaign IBU (8 materi, 4 poin BOLEH,
+  5 poin DILARANG, shotlist berskala durasi 10–120 dtk, skor kepatuhan 100).
 
-Especially welcome: better categorization models, new platform support, and UI improvements.
+Belum terverifikasi secara live di environment ini: push fungsi Convex terakhir
+tercatat 22:21, karena proses `convex dev` lama (dari `dev.sh` versi sebelumnya)
+masih memegang port 3210 sehingga pengecekan/push otomatis platform gagal.
+`dev.sh` sudah diperbaiki; restart sesi dev/workspace diperlukan supaya fungsi
+terbaru benar-benar ter-deploy.
 
-## Disclaimer
+## Referensi konsep
 
-Clipper AI accesses your clipboard contents for categorization. While privacy mode excludes specified apps, be aware of what you copy. The authors are not responsible for any data exposure through the clipboard manager.
+- [OpenMontage](https://github.com/calesthio/OpenMontage) — pipeline produksi video agentic (roadmap: shotlist → render).
+- [HyperFrames](https://github.com/heygen-com/hyperframes) — HTML → video untuk agents (roadmap: bumper ending otomatis).
+- Clipcycle — service shorts hook-first (prinsip hook 3 detik dipakai di Brief Autopilot).
 
-## License
+## Lisensi
 
-**MIT License** — see [LICENSE](./LICENSE) for details.
-
-## Author
-
-<div align="center">
-
-**Mulky Malikul Dhaher**
-
-[![GitHub](https://img.shields.io/badge/GitHub-mulkymalikuldhrs-181717?style=flat-square&logo=github)](https://github.com/mulkymalikuldhrs)
-[![Email](https://img.shields.io/badge/Email-mulkymalikudhr@mail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:mulkymalikudhr@mail.com)
-
-</div>
-
----
-
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:1a0f00,50:2d1f00,100:3d2b00&fontColor=f97316&descColor=fbbf24&height=120&section=footer&text=&fontSize=0" />
+MIT — lihat [LICENSE](./LICENSE).

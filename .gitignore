@@ -1,50 +1,38 @@
-# Byte-compiled / optimized / dll files
-__pycache__/
-*.pyc
-*.pyd
-*.pyo
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Distribution / packaging
-.Python
-build/
-dist/
-wheels/
-*.egg
-
-# Environments
+node_modules
+dist
+dist-ssr
+*.local
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+.env.local
+.env.*.local
 
-# Editors
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
+# Convex
+.convex
+.bridge
+.turbo
 
-# OS
+# Research artifacts — NEVER commit session cookies, raw API dumps, or PII.
+# Only the curated markdown notes are tracked; everything else (cookies,
+# konten-map.json, konten-details.json, screenshots) stays local.
+research/*
+!research/RESEARCH.md
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-.Trashes
-Thumbs.db
-ehthumbs.db
-
-# Sensitive data
-*.db
-*.key
-*.sqlite
-*.sqlite3
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Logs
-logs/
+logs
 *.log
+npm-debug.log*
+bun.lockb.orig
 
-# Node
-node_modules/
+# tsbuildinfo
+*.tsbuildinfo
