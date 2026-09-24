@@ -4,6 +4,7 @@ import { MAX_CAMPAIGNS, validateIngestPayload } from "../src/convex/lib/ingest";
 import { chooseNextGoal, decideExperiment, scoreGoal } from "../src/convex/lib/organism";
 import { readNonSecretProviderConfig, validateProviderConfig } from "../src/lib/providerConfig";
 import { buildAutoShortsManifest } from "../src/lib/autoshorts";
+import { buildAutonomyReview } from "../src/lib/autonomy";
 
 describe("scoreCampaign", () => {
   test("keeps the weighted score within the expected range", () => {
@@ -114,6 +115,52 @@ describe("bounded organism policy", () => {
     expect(decideExperiment({ score: 0.8, baseline: 0.5, risk: 0.2, status: "running" })).toBe("adopted");
     expect(decideExperiment({ score: 0.55, baseline: 0.5, risk: 0.2, status: "running" })).toBe("rejected");
     expect(decideExperiment({ score: 0.9, baseline: 0.5, risk: 0.8, status: "running" })).toBe("rejected");
+  });
+});
+
+describe("campaign autonomy review", () => {
+  const campaign = {
+    extId: "campaign-1",
+    title: "Trailer",
+    brand: "IBU",
+    status: "active",
+    platforms: ["tiktok", "instagram"],
+    joined: true,
+    score: 90,
+    raw: { brief_detail: { cta: "Tonton" } },
+  };
+  const plan = {
+    campaignExtId: "campaign-1",
+    title: "Trailer",
+    brand: "IBU",
+    campaignSlug: "trailer",
+    hook: "Hook",
+    narasi: "Narrasi",
+    cta: "Tonton",
+    caption: "Caption",
+    hashtags: ["ibu"],
+    durasiMin: 10,
+    durasiMax: 60,
+    materi: [{ title: "Asset", url: "https://cdn.example/asset.mp4" }],
+    platforms: ["tiktok", "instagram"],
+    complianceScore: 100,
+    status: "done",
+  };
+
+  test("derives a review-required social handoff, never an auto-publish action", () => {
+    const review = buildAutonomyReview(campaign, plan, []);
+    expect(review.lifecycle).toBe("ready_for_review");
+    expect(review.decision).toBe("prepare_post");
+    expect(review.publishHandoff.status).toBe("review_required");
+    expect(review.publishHandoff.manifest?.candidates).toHaveLength(3);
+    expect(review.publishHandoff.note.toLowerCase()).toContain("review");
+  });
+
+  test("prefers measurement when earnings exist", () => {
+    const review = buildAutonomyReview(campaign, plan, [{ campaignTitle: "Trailer", views: 1000, amount: 25000 }]);
+    expect(review.lifecycle).toBe("earning");
+    expect(review.decision).toBe("measure_results");
+    expect(review.economicSignal).toEqual({ earnings: 25000, views: 1000, rows: 1 });
   });
 });
 

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2026-09-24
 
 ### Added
+- Autonomy queue per campaign: lifecycle, data readiness, economic signal, plan-specific decision, dan social handoff yang selalu `review_required`.
 - AutoShorts-compatible clean-room handoff: kandidat klip 9:16 (hook, core proof, CTA) dari plan campaign, manifest JSON, dan UI copy manifest tanpa menjalankan renderer atau publish.
 - Second research pass untuk OpenShorts, OpenClaw, OpenFang, Hermes, CORAL, Prime Agent,
   AWorld, AutoResearchClaw, LangGraph, AutoGen, dan VideoAgent; lihat `research/AGENT_RESEARCH.md`.

@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { decideExperiment, isSafeMode, type OrganismMode } from "./lib/organism";
+import { buildAutonomyReview } from "../lib/autonomy";
 
 const ORGANISM_MODES = ["observe", "review", "paused"] as const;
 
@@ -334,6 +335,38 @@ export const evaluateOrganismExperiment = mutation({
       at: now,
     });
     return decision;
+  },
+});
+
+export const getAutonomyReviews = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+    const [campaigns, plans, earnings] = await Promise.all([
+      ctx.db.query("kontenCampaigns").withIndex("by_userId", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("autopilotPlans").withIndex("by_userId", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("kontenEarnings").withIndex("by_userId", (q) => q.eq("userId", userId)).collect(),
+    ]);
+    return campaigns
+      .map((campaign) => buildAutonomyReview(campaign, plans.find((plan) => plan.campaignExtId === campaign.extId), earnings))
+      .sort((a, b) => b.dataReadiness - a.dataReadiness || b.complianceScore - a.complianceScore);
+  },
+});
+
+export const getAutonomySummary = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+    const snapshot = await ctx.db.query("kontenSnapshots").withIndex("by_userId", (q) => q.eq("userId", userId)).first();
+    const profile = await ctx.db.query("organismProfiles").withIndex("by_userId", (q) => q.eq("userId", userId)).first();
+    return {
+      profile,
+      coverage: snapshot?.coverage ?? null,
+      detailFetched: snapshot?.detailFetched ?? 0,
+      snapshotFetchedAt: snapshot?.fetchedAt ?? null,
+    };
   },
 });
 

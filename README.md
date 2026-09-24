@@ -36,6 +36,7 @@ Aplikasi tidak mengirim credential ke server. Bridge hanya mengirim data yang su
 | **Demo Mode** | Mengisi workspace dengan 20 campaign nyata dan 114 materi dari crawl lapangan. |
 | **Organism Kernel** | Bounded control plane untuk constitution, dynamic goals, capability registry, memory, experiments, dan pause/review controls. |
 | **AutoShorts Handoff** | Menghasilkan manifest kandidat klip 9:16 dari plan campaign: hook, core proof, CTA, source material, dan guardrails. |
+| **Autonomy Queue** | Menentukan lifecycle campaign, data readiness, economic signal, dan handoff publish yang selalu membutuhkan review. |
 
 Versi saat ini menggunakan parser brief deterministik berbasis data `brief_detail`; integrasi model generatif belum menjadi dependensi runtime. Istilah “AI Autopilot” di sini menggambarkan hasil kerja dan alur produk, bukan klaim bahwa semua keputusan saat ini dihasilkan oleh LLM.
 
@@ -158,9 +159,21 @@ belum mengirim request ke provider secara otomatis.
 Adapter provider eksternal harus tetap mendapat opt-in, quota, retention, cost limit, dan
 review keamanan sebelum diaktifkan.
 
+## Autonomy dan social handoff
+
+`/app/organism` sekarang menghitung antrean keputusan deterministik dari campaign, plan,
+brief, dan earnings yang sudah tersinkron. Setiap campaign memperoleh lifecycle (`observe`, `planned`,
+`ready_for_review`, `earning`, atau `needs_attention`), alasan keputusan, readiness data, dan
+economic signal. Jika plan lengkap, sistem membuat handoff|caption/manifest untuk TikTok atau
+Instagram dengan status `review_required`.
+
+Tidak ada auto-posting, account takeover, credential rotation, fake engagement, atau scraping
+terhadap API yang tidak diizinkan. Publisher eksternal harus memakai OAuth/API resmi, approval
+operator, rate limit, audit log, dan rollback.
+
 ## AutoShorts handoff
 
-Super Clipper mengadopsi **pola** AutoShorts untuk prepares clip candidates dari sumber
+Super Clipper mengadopsi **pola** AutoShorts untuk menyiapkan kandidat klip dari sumber
 long-form, tetapi tidak menyalin kode Tauri/Rust upstream atau menjalankan desktop renderer
 di dalam web console. Plan campaign dapat menyalin manifest JSON dengan tiga kandidat
 9:16: hook, core proof, dan CTA. Manifest adalah specification yang dapat diimpor ke

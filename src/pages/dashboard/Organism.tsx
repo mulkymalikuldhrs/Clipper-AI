@@ -30,6 +30,8 @@ const EXP_COLS = "minmax(0,1fr) 6rem 6rem 7rem";
 
 export default function Organism() {
   const organism = useQuery(api.queries.getOrganism, {});
+  const autonomyReviews = useQuery(api.queries.getAutonomyReviews, {});
+  const autonomySummary = useQuery(api.queries.getAutonomySummary, {});
   const initialize = useMutation(api.queries.initializeOrganism);
   const setMode = useMutation(api.queries.setOrganismMode);
   const addGoal = useMutation(api.queries.createOrganismGoal);
@@ -73,6 +75,7 @@ export default function Organism() {
   }
 
   const { profile, goals, capabilities, experiments, memories, events } = organism;
+  const reviews = autonomyReviews ?? [];
   const activeGoals = goals.filter((goal) => goal.status === "candidate" || goal.status === "selected");
   const nextGoal = activeGoals.find((goal) => goal.status === "selected") ?? activeGoals[0];
   const budgetPct = Math.min(100, Math.round((profile.actionsUsed / Math.max(1, profile.dailyActionBudget)) * 100));
@@ -168,6 +171,35 @@ export default function Organism() {
           { label: "Action budget", value: `${profile.actionsUsed}/${profile.dailyActionBudget}`, hint: `${budgetPct}% terpakai` },
         ]}
       />
+
+      <Panel
+        title="Campaign autonomy queue"
+        meta={`${reviews.length} campaign dievaluasi • ${reviews.filter((review) => review.publishHandoff.status === "review_required").length} handoff perlu review`}
+        flush
+      >
+        {reviews.length === 0 ? (
+          <p className="px-4 py-6 text-[13px] text-muted-foreground">Belum ada campaign untuk dievaluasi.</p>
+        ) : (
+          <div className="divide-y divide-border/60">
+            {reviews.slice(0, 12).map((review) => (
+              <div key={review.campaignExtId} className="grid gap-3 px-4 py-3 md:grid-cols-[minmax(0,1fr)_7rem_8rem_10rem] md:items-center">
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-medium">{review.campaignExtId}</p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{review.reason}</p>
+                </div>
+                <Status tone={review.lifecycle === "earning" ? "good" : review.lifecycle === "needs_attention" ? "warn" : "info"}>{review.lifecycle}</Status>
+                <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">{review.decision}</span>
+                <Status tone={review.publishHandoff.status === "review_required" ? "info" : "neutral"}>{review.publishHandoff.status}</Status>
+              </div>
+            ))}
+          </div>
+        )}
+        {autonomySummary?.coverage ? (
+          <div className="border-t border-border/60 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            coverage: {autonomySummary.detailFetched} detail brief • {autonomySummary.coverage && typeof autonomySummary.coverage === "object" ? Object.keys(autonomySummary.coverage).length : 0} signal groups
+          </div>
+        ) : null}
+      </Panel>
 
       {notice && (
         <div className="border border-primary/30 bg-primary/5 px-4 py-3 text-[13px] text-foreground">

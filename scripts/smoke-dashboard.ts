@@ -49,6 +49,8 @@ for (const f of [
   "src/pages/dashboard/Earnings.tsx",
   "src/pages/dashboard/Bridge.tsx",
   "src/pages/dashboard/Organism.tsx",
+  "src/lib/autonomy.ts",
+  "src/lib/autoshorts.ts",
 ]) {
   const now = new Date();
   try {
@@ -209,6 +211,17 @@ if (await autoshortsHandoff.count()) {
   if (!(await manifestButton.count())) problems.push("autopilot: AutoShorts manifest copy control did not render");
 } else {
   problems.push("autopilot: AutoShorts handoff did not render");
+}
+
+// Organism must expose deterministic lifecycle and review-gated social handoffs.
+await page.goto(`${BASE}/app/organism`, { waitUntil: "networkidle" });
+await page.waitForTimeout(1500);
+const autonomyQueue = page.getByText("Campaign autonomy queue", { exact: true });
+if (await autonomyQueue.count()) {
+  const handoff = page.getByText("review_required", { exact: true }).first();
+  if (!(await handoff.count())) problems.push("organism: no review-gated social handoff rendered");
+} else {
+  problems.push("organism: autonomy queue did not render");
 }
 
 // Campaign detail reachable from the scanner table.
