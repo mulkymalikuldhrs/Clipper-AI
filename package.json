@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Super Clipper — AI Autopilot untuk marketplace clipping konten.com: auto-fetch campaign, susun brief, join, analitik, dan earnings real-time.",
+  "description": "Super Clipper — venture operating system untuk workflow clipping: public product preview, campaign intelligence, production plans, analytics, earnings, dan review-gated social handoff.",
   "scripts": {
     "dev": "sh ./scripts/dev.sh",
     "convex:dev": "convex dev",

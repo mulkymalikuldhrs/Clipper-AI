@@ -11,4 +11,6 @@
 # second terminal.
 set -e
 
-exec vite --host 0.0.0.0 --port "${PORT:-5173}" --strictPort
+# 5173 may be occupied by a stale workspace process; use a collision-resistant
+# default while still honoring the platform-provided PORT when present.
+exec vite --host 0.0.0.0 --port "${PORT:-5174}" --strictPort

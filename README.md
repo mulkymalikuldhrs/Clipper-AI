@@ -5,8 +5,8 @@
 <h1 align="center">Super Clipper</h1>
 
 <p align="center">
-  <b>AI Autopilot untuk marketplace clipping konten.com</b><br/>
-  Tarik campaign → baca brief → susun rencana produksi → pantau performa dan earnings.
+  <b>Venture operating system untuk workflow clipping konten.com</b><br/>
+  Preview produk secara publik → Jelajahi command center → masuk ke workspace saat kamu siap.
 </p>
 
 <p align="center">
@@ -19,15 +19,22 @@
 
 ## Apa ini?
 
-**Super Clipper** adalah ruang kerja pribadi untuk clipper [konten.com](https://konten.com). Bridge lokal membaca dashboard clipper yang sedang kamu buka dengan sesi akun sendiri, lalu menormalkan data campaign, brief, earnings, dan timeseries ke workspace Convex milikmu.
+**Super Clipper** adalah operating console untuk workflow clipping [konten.com](https://konten.com). Halaman publik `/` adalah preview produk yang dapat dijelajahi tanpa login: command center, alur kerja, spesifikasi campaign, dan trust boundary. Login hanya diperlukan saat kamu memasuki protected workspace untuk memakai data pribadi, sinkronisasi, dan fitur operasional.
 
-Aplikasi tidak mengirim credential ke server. Bridge hanya mengirim data yang sudah dibaca ke endpoint ingest workspace. Video tetap dikirim dan disetujui melalui marketplace konten.com; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim atau memalsukan engagement.
+Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, lalu menormalkan data campaign, brief, earnings, dan timeseries ke workspace Convex milikmu. Aplikasi tidak mengirim credential ke server. Video tetap dikirim dan disetujui melalui marketplace konten.com; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim atau memalsukan engagement.
+
+## Akses awal tanpa login
+
+- Buka `/` untuk menjelajahi preview produk secara langsung.
+- Tidak ada form login atau session gate di landing page.
+- Klik **Buka workspace** atau **Mulai workspace** ketika siap masuk ke `/auth`.
+- Route `/app/*` tetap dilindungi oleh `RequireAuth`; pengunjung yang belum masuk diarahkan ke `/auth` dengan `returnTo` internal yang tervalidasi.
 
 | Modul | Fungsi |
 |---|---|
-| **Landing** | Halaman publik yang menjelaskan scope, data lapangan, batasan, dan alur ke auth. |
-| **Auth** | Sign up/sign in Convex Auth, dengan `returnTo` internal yang tervalidasi. |
-| **Konten Bridge** | Login dengan email/password atau cookies, lalu sync campaign, brief detail, joined, earnings, wallet, tier, dan timeseries. |
+| **Landing** | Preview publik tanpa login: command center, operating loop, campaign specs, dan trust boundary. |
+| **Auth** | Workspace-only entry untuk sign up/sign in Convex Auth, dengan `returnTo` internal yang tervalidasi. |
+| **Konten Bridge** | Sync read-only memakai sesi marketplace milikmu sendiri: campaign, brief detail, joined, earnings, wallet, tier, dan timeseries. |
 | **Campaign Scanner** | Cache campaign aktif dengan skor 0–100, filter, pencarian, dan sorting keyboard-friendly. |
 | **Brief Autopilot** | Mengubah `brief_detail` menjadi hook, shotlist, narasi, CTA, caption, hashtag, aturan boleh/dilarang, dan checklist tugas. |
 | **Campaign Detail** | Menampilkan ekonomi campaign, brief, materi, aturan kepatuhan, dan tombol membuat rencana. |
@@ -89,7 +96,7 @@ bun convex dev --once       # provision backend + generate types
 bun run dev                 # Vite saja
 ```
 
-Buka `http://localhost:5173`, buat akun, lalu gunakan **Isi data demo** dari halaman Bridge untuk melihat workspace terisi tanpa memakai kredensial marketplace.
+Buka `http://localhost:5174` (atau port yang diinjeksikan platform), jelajahi landing tanpa login, lalu gunakan **Mulai workspace** untuk membuat akun. Setelah masuk, gunakan **Isi data demo** dari halaman Bridge untuk melihat workspace terisi tanpa memakai kredensial marketplace.
 
 Untuk pengembangan di luar Freebuff, jalankan dua terminal secara terpisah:
 
@@ -107,8 +114,8 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 
 | Route | Akses | Isi |
 |---|---|---|
-| `/` | Publik | Landing dan CTA ke auth. |
-| `/auth` | Publik | Sign in/sign up dan seed demo opsional. |
+| `/` | Publik | Product-first landing preview, fully explorable tanpa login. |
+| `/auth` | Publik | Workspace-only sign in/sign up dan seed demo opsional. |
 | `/app` | Auth | Ringkasan campaign, earnings, sync, dan aktivitas. |
 | `/app/scanner` | Auth | Daftar campaign, skor, filter, sorting. |
 | `/app/autopilot` | Auth | Plan produksi per campaign yang diikuti. |
