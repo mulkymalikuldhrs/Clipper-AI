@@ -162,7 +162,11 @@ export default function Bridge() {
                 <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
                   {l.pages != null ? l.pages : "—"}
                 </span>
-                <Status tone={l.status === "ok" ? "good" : "bad"}>{l.status}</Status>
+                <Status
+                  tone={l.status === "ok" ? "good" : l.status === "pending" ? "info" : "bad"}
+                >
+                  {l.status}
+                </Status>
               </TableRow>
             ))}
           </TableShell>

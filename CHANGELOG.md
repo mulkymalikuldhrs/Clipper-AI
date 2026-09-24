@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-09-24
+
+### Added
+- Riset terstruktur 11 repository video/workflow dan keputusan reuse yang aman untuk Super Clipper.
+- Bounded ingest validation: body maksimal 1 MiB, source/email/snapshot tervalidasi, dan batas
+  collection campaign/joined/earnings.
+- Request ID UUID dari bridge, dedup sync, status `pending/ok/error`, duration, campaign count,
+  safe error code, serta retriable error log.
+- Cron housekeeping untuk memangkas sync log lebih tua dari 30 hari.
+
+### Changed
+- README dan PRD documenting provider opt-in boundaries, no auto-submit/auto-publish, dan
+  production limitations yang masih tersisa.
+- Bridge UI menampilkan status `pending` sebagai state berjalan, bukan error.
+
+### Quality
+- Unit test ingest validation ditambahkan; total suite 7 test / 21 assertions.
+- `bun tsc -b --noEmit`, `bun run typecheck:scripts`, `bun test`, `git diff --check`, dan
+  `bun run smoke` lulus. Convex codegen belum dapat diverifikasi karena local backend port 3210
+  masih aktif di workspace.
+
 ## [2.2.0] - 2026-09-23
 
 Landing dan Auth diseragamkan dengan bahasa visual **console** yang sudah dipakai dashboard.

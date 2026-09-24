@@ -124,9 +124,15 @@ export default defineSchema({
   syncLogs: defineTable({
     userId: v.id("users"),
     source: v.string(),
-    status: v.string(), // ok | error
+    status: v.string(), // pending | ok | error
+    requestId: v.optional(v.string()),
     message: v.optional(v.string()),
     pages: v.optional(v.number()),
+    campaignCount: v.optional(v.number()),
+    durationMs: v.optional(v.number()),
+    errorCode: v.optional(v.string()),
     at: v.number(),
-  }).index("by_userId", ["userId"]),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_requestId", ["userId", "requestId"]),
 });

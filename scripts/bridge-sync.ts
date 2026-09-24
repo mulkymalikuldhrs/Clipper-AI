@@ -8,6 +8,7 @@
  *   INGEST_TOKEN       = token registered as Convex env INGEST_TOKEN
  */
 import { chromium } from "playwright";
+import { randomUUID } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const BASE = "https://konten.com";
@@ -159,10 +160,11 @@ async function main() {
 
   // Politeness delay, then push
   const emailSafe = email;
+  const requestId = randomUUID();
   const res = await fetch(PUSH_URL, {
     method: "POST",
     headers: { "content-type": "application/json", "x-sc-token": TOKEN },
-    body: JSON.stringify({ email: emailSafe, source: "bridge", snapshot: snap }),
+    body: JSON.stringify({ email: emailSafe, source: "bridge", requestId, snapshot: snap }),
   });
   const out = (await res.json()) as { ok?: boolean; error?: string; campaigns?: number };
   if (!res.ok || out?.error) {

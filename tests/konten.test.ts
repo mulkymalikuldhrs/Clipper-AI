@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { parseBrief, scoreCampaign } from "../src/convex/lib/konten";
+import { MAX_CAMPAIGNS, validateIngestPayload } from "../src/convex/lib/ingest";
 
 describe("scoreCampaign", () => {
   test("keeps the weighted score within the expected range", () => {
@@ -28,6 +29,42 @@ describe("scoreCampaign", () => {
     });
 
     expect(score).toBe(35);
+  });
+});
+
+describe("validateIngestPayload", () => {
+  test("normalizes a bounded bridge request", () => {
+    const result = validateIngestPayload({
+      email: " CLIPPER@Example.COM ",
+      source: "bridge",
+      requestId: "sync-2026-09-24",
+      snapshot: { campaigns: [{ id: "1", slug: "one" }] },
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      value: {
+        email: "clipper@example.com",
+        source: "bridge",
+        requestId: "sync-2026-09-24",
+        snapshot: { campaigns: [{ id: "1", slug: "one" }] },
+      },
+    });
+  });
+
+  test("rejects unsupported sources and oversized campaign arrays", () => {
+    expect(validateIngestPayload({ email: "a@example.com", source: "demo" })).toEqual({
+      ok: false,
+      status: 400,
+      error: "unsupported ingest source",
+    });
+    const campaigns = Array.from({ length: MAX_CAMPAIGNS + 1 }, (_, id) => ({ id: String(id) }));
+    const result = validateIngestPayload({
+      email: "a@example.com",
+      snapshot: { campaigns },
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toContain("at most");
   });
 });
 

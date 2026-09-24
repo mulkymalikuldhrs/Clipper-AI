@@ -50,6 +50,17 @@
 - `bun tsc -b --noEmit` **bersih**. `parseBrief` diuji langsung terhadap brief IBU asli:
   8 materi, 4 BOLEH, 5 DILARANG, shotlist 0:00→2:00, skor kepatuhan 100.
 
+## Production-readiness research (24 Sep 2026)
+- Riset 11 repo: MoneyPrinterTurbo, MoneyPrinterV2, ShortGPT, VideoLingo, MoviePy, auto-editor,
+  auto-subtitle, ComfyUI, Trigger.dev, Inngest, Restate. Pola yang diimplementasikan: bounded
+  ingest, request ID/dedupe, operation status, retryable error, retention, dan human-in-the-loop.
+- `/ingest` sekarang menolak body >1 MiB, source/email/snapshot invalid, dan collection >500.
+  Bridge mengirim UUID `requestId`; campaign tetap upsert berdasarkan external ID.
+- `syncLogs` menyimpan `pending|ok|error`, duration, campaign count, error code, dan pesan bounded;
+  prune cron menghapus log >30 hari.
+- README + PRD menyimpan URL, license/risiko, keputusan reuse, dan non-goals (tanpa auto-submit,
+  auto-publish, fake engagement, atau provider cloud implisit).
+
 ## Blocker yang jujur harus disebut (belum selesai)
 - Fungsi Convex di deployment lokal **masih kode lama**: push fungsi terakhir 22:21
   (terlihat dari mtime blob di `.convex/local/default/.../modules/`), sedangkan kode baru

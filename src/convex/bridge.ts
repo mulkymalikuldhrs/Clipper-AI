@@ -14,6 +14,88 @@ export const ensureBridgeUser = internalMutation({
   },
 });
 
+export const beginSync = internalMutation({
+  args: {
+    userId: v.id("users"),
+    source: v.string(),
+    requestId: v.optional(v.string()),
+  },
+  handler: async (ctx, { userId, source, requestId }) => {
+    if (requestId) {
+      const existing = await ctx.db
+        .query("syncLogs")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .filter((q) => q.eq(q.field("requestId"), requestId))
+        .first();
+      if (existing) {
+        if (existing.status === "error") {
+          await ctx.db.patch(existing._id, {
+            status: "pending",
+            message: undefined,
+            errorCode: undefined,
+            at: Date.now(),
+          });
+          return { created: true as const, logId: existing._id, campaignCount: 0, status: "pending" };
+        }
+        return {
+          created: false as const,
+          logId: existing._id,
+          campaignCount: existing.campaignCount ?? 0,
+          status: existing.status,
+        };
+      }
+    }
+    const logId = await ctx.db.insert("syncLogs", {
+      userId,
+      source,
+      status: "pending",
+      requestId,
+      at: Date.now(),
+    });
+    return { created: true as const, logId, campaignCount: 0, status: "pending" };
+  },
+});
+
+export const finishSync = internalMutation({
+  args: {
+    logId: v.id("syncLogs"),
+    campaignCount: v.number(),
+    durationMs: v.number(),
+    message: v.optional(v.string()),
+  },
+  handler: async (ctx, { logId, campaignCount, durationMs, message }) => {
+    const log = await ctx.db.get(logId);
+    if (!log) return;
+    await ctx.db.patch(logId, {
+      status: "ok",
+      campaignCount,
+      durationMs,
+      message,
+      at: Date.now(),
+    });
+  },
+});
+
+export const failSync = internalMutation({
+  args: {
+    logId: v.id("syncLogs"),
+    durationMs: v.number(),
+    errorCode: v.string(),
+    message: v.optional(v.string()),
+  },
+  handler: async (ctx, { logId, durationMs, errorCode, message }) => {
+    const log = await ctx.db.get(logId);
+    if (!log) return;
+    await ctx.db.patch(logId, {
+      status: "error",
+      durationMs,
+      errorCode,
+      message,
+      at: Date.now(),
+    });
+  },
+});
+
 export const writeSnapshot = internalMutation({
   args: {
     userId: v.id("users"),

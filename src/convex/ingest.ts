@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { scoreCampaign } from "./lib/konten";
+import { MAX_CAMPAIGNS } from "./lib/ingest";
 
 type RawCampaign = {
   id?: string;
@@ -42,12 +43,29 @@ export const applySnapshot = internalAction({
     email: v.string(),
     source: v.string(),
     snapshot: v.any(),
+    requestId: v.optional(v.string()),
   },
-  handler: async (ctx, { email, source, snapshot }): Promise<{ ok: boolean; userId: string; campaigns: number; source: string }> => {
+  handler: async (ctx, { email, source, snapshot, requestId }): Promise<{ ok: boolean; userId: string; campaigns: number; source: string; deduped?: boolean }> => {
     const snap = snapshot as Snapshot;
     const userId = await ctx.runMutation(internal.bridge.ensureBridgeUser, { email });
+    const startedAt = Date.now();
+    const sync = await ctx.runMutation(internal.bridge.beginSync, {
+      userId,
+      source,
+      requestId,
+    });
+    if (!sync.created) {
+      return {
+        ok: true,
+        userId: String(userId),
+        campaigns: sync.campaignCount,
+        source,
+        deduped: true,
+      };
+    }
 
-    await ctx.runMutation(internal.bridge.writeSnapshot, {
+    try {
+      await ctx.runMutation(internal.bridge.writeSnapshot, {
       userId,
       source,
       profile: (snap.profile ?? undefined) as unknown,
@@ -65,8 +83,8 @@ export const applySnapshot = internalAction({
       (snap.joined?.campaigns ?? []).map((c) => c.id ?? "").filter(Boolean)
     );
     let campaignCount = 0;
-    for (const c of snap.campaigns ?? []) {
-      if (!c?.id || !c?.slug) continue;
+    for (const c of (snap.campaigns ?? []).slice(0, MAX_CAMPAIGNS)) {
+      if (!c || typeof c !== "object" || !c.id || !c.slug) continue;
       const score = scoreCampaign({
         ratePerMillion: c.rate_per_million,
         budget: c.budget,
@@ -101,6 +119,21 @@ export const applySnapshot = internalAction({
       });
       campaignCount++;
     }
-    return { ok: true, userId: String(userId), campaigns: campaignCount, source };
+      await ctx.runMutation(internal.bridge.finishSync, {
+        logId: sync.logId,
+        campaignCount,
+        durationMs: Date.now() - startedAt,
+        message: `Snapshot diterima: ${campaignCount} campaign.`,
+      });
+      return { ok: true, userId: String(userId), campaigns: campaignCount, source };
+    } catch (error) {
+      await ctx.runMutation(internal.bridge.failSync, {
+        logId: sync.logId,
+        durationMs: Date.now() - startedAt,
+        errorCode: "snapshot_apply_failed",
+        message: String(error).slice(0, 240),
+      });
+      throw error;
+    }
   },
 });
