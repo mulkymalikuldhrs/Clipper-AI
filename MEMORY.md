@@ -61,6 +61,20 @@
 - README + PRD menyimpan URL, license/risiko, keputusan reuse, dan non-goals (tanpa auto-submit,
   auto-publish, fake engagement, atau provider cloud implisit).
 
+## Autonomous organism kernel (24 Sep 2026)
+- Riset kedua mencakup OpenShorts, VideoAgent, CORAL, Prime Agent, Hermes, AWorld,
+  AutoResearchClaw, OpenClaw, OpenFang, Swarm, LangGraph, dan AutoGen.
+- Implementasi sekarang adalah fondasi bounded, bukan self-modifying unrestricted agent:
+  constitution, safe modes, dynamic goals, capability registry, memory, experiment ledger,
+  do-nothing decision, action budget, daily goal selection, and `/app/organism` dashboard.
+- Scheduler hanya memilih goal untuk review. Tidak ada shell, filesystem, browser, model,
+  spending, credential, account creation, or marketplace publishing tool di Convex runtime.
+- `research/AGENT_RESEARCH.md` menyimpan URL, pola, license/security caveat, dan keputusan reuse.
+- `research/HERMES_CANONICAL_CONTEXT.md` adalah strategic handoff: autonomous organization/venture
+  organism, bukan Quant-only, fixed task list, atau unrestricted self-modifier.
+- Organism UI punya optional local provider config: base URL/model di localStorage, API key hanya
+  di sessionStorage, tidak pernah dikirim ke Convex, dan adapter belum dipanggil otomatis.
+
 ## Blocker yang jujur harus disebut (belum selesai)
 - Fungsi Convex di deployment lokal **masih kode lama**: push fungsi terakhir 22:21
   (terlihat dari mtime blob di `.convex/local/default/.../modules/`), sedangkan kode baru

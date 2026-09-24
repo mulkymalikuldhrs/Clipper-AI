@@ -109,6 +109,8 @@ export const writeSnapshot = internalMutation({
     featureFlags: v.optional(v.any()),
     tier: v.optional(v.any()),
     notifications: v.optional(v.number()),
+    detailFetched: v.optional(v.number()),
+    coverage: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -128,6 +130,8 @@ export const writeSnapshot = internalMutation({
       featureFlags: args.featureFlags,
       tier: args.tier,
       notifications: args.notifications,
+      detailFetched: args.detailFetched,
+      coverage: args.coverage,
     };
     if (existing) {
       await ctx.db.patch(existing._id, data);

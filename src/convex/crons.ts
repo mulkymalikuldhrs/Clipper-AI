@@ -3,8 +3,13 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Daily housekeeping placeholder. Data refresh is push-based from scripts/bridge-sync.ts
-// (scheduled on the user's machine), so no heavy cron is needed here.
+// The kernel only selects a safe goal for review; it never executes external tools.
+crons.daily(
+  "plan-organism-goal",
+  { hourUTC: 18, minuteUTC: 15 },
+  internal.maintenance.planNextOrganismGoal
+);
+
 crons.daily(
   "prune-sync-logs",
   { hourUTC: 18, minuteUTC: 0 },

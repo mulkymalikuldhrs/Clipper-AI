@@ -9,6 +9,7 @@ import CampaignDetail from "@/pages/dashboard/CampaignDetail";
 import Analytics from "@/pages/dashboard/Analytics";
 import EarningsPage from "@/pages/dashboard/Earnings";
 import Bridge from "@/pages/dashboard/Bridge";
+import Organism from "@/pages/dashboard/Organism";
 import RequireAuth from "@/components/auth/RequireAuth";
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="analytics" element={<Analytics />} />
         <Route path="earnings" element={<EarningsPage />} />
         <Route path="bridge" element={<Bridge />} />
+        <Route path="organism" element={<Organism />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

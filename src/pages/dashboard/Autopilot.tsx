@@ -20,6 +20,7 @@ import {
   toneForScore,
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
+import { buildAutoShortsManifest } from "@/lib/autoshorts";
 import { Check, ExternalLink, Play, Zap } from "lucide-react";
 
 const MATERI_COLS = "minmax(0,1fr) 7rem 5rem";
@@ -298,6 +299,7 @@ function PlanView({
           <MonoLabel className="text-primary">hook 3 detik pertama</MonoLabel>
           <p className="mt-1 text-[13px] leading-relaxed">{plan.hook}</p>
         </div>
+        <AutoShortsHandoff plan={plan} />
       </Panel>
 
       <Tabs defaultValue="shotlist">
@@ -542,6 +544,60 @@ function PlanView({
           </div>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function AutoShortsHandoff({ plan }: { plan: PlanData["plan"] }) {
+  const manifest = buildAutoShortsManifest({
+    title: plan.title,
+    brand: plan.brand,
+    campaignSlug: plan.campaignSlug,
+    hook: plan.hook,
+    durasiMin: plan.durasiMin,
+    durasiMax: plan.durasiMax,
+    materi: plan.materi,
+    narasi: plan.narasi,
+    cta: plan.cta,
+    platforms: plan.platforms,
+  });
+  const [copied, setCopied] = useState(false);
+
+  async function copyManifest() {
+    await navigator.clipboard.writeText(JSON.stringify(manifest, null, 2));
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  }
+
+  return (
+    <div className="mt-5 border-t border-border/60 pt-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <MonoLabel>AutoShorts handoff</MonoLabel>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+            {manifest.candidates.length} kandidat 9:16 siap specification. Manifest ini hanya
+            handing off pekerjaan lokal; tidak menjalankan renderer atau memposting video.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => void copyManifest()}>
+          {copied ? "Tersalin" : "Copy manifest JSON"}
+        </Button>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        {manifest.candidates.map((candidate) => (
+          <div key={candidate.id} className="border border-border/70 bg-background/40 p-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-primary">
+              {candidate.label}
+            </p>
+            <p className="mt-1 font-mono text-[12px] tabular-nums text-muted-foreground">
+              {candidate.startSec}s–{candidate.endSec}s • {candidate.durationSec}s
+            </p>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
+              {candidate.hook}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

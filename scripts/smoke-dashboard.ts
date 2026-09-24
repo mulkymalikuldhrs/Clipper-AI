@@ -24,6 +24,7 @@ const ROUTES: [string, string][] = [
   ["analytics", "/app/analytics"],
   ["earnings", "/app/earnings"],
   ["bridge", "/app/bridge"],
+  ["organism", "/app/organism"],
 ];
 
 const EMAIL = `smoke+${Date.now()}@superclipper.app`;
@@ -36,6 +37,7 @@ mkdirSync(OUT, { recursive: true });
 for (const f of [
   "src/components/shared.tsx",
   "src/components/layout/DashboardLayout.tsx",
+  "src/App.tsx",
   "src/pages/Landing.tsx",
   "src/pages/Auth.tsx",
   "src/components/auth/RequireAuth.tsx",
@@ -46,6 +48,7 @@ for (const f of [
   "src/pages/dashboard/Analytics.tsx",
   "src/pages/dashboard/Earnings.tsx",
   "src/pages/dashboard/Bridge.tsx",
+  "src/pages/dashboard/Organism.tsx",
 ]) {
   const now = new Date();
   try {
@@ -196,6 +199,17 @@ if (await seed.count()) {
 
 console.log("\n=== DESKTOP 1440x950 ===");
 for (const [name, route] of ROUTES) await visit(name, route, true, report);
+
+// The Autopilot plan must expose a local-first AutoShorts handoff for each generated plan.
+await page.goto(`${BASE}/app/autopilot`, { waitUntil: "networkidle" });
+await page.waitForTimeout(1500);
+const autoshortsHandoff = page.getByText("AutoShorts handoff", { exact: true });
+if (await autoshortsHandoff.count()) {
+  const manifestButton = page.getByRole("button", { name: "Copy manifest JSON" }).first();
+  if (!(await manifestButton.count())) problems.push("autopilot: AutoShorts manifest copy control did not render");
+} else {
+  problems.push("autopilot: AutoShorts handoff did not render");
+}
 
 // Campaign detail reachable from the scanner table.
 await page.goto(`${BASE}/app/scanner`, { waitUntil: "networkidle" });

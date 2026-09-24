@@ -34,6 +34,8 @@ Aplikasi tidak mengirim credential ke server. Bridge hanya mengirim data yang su
 | **Analytics** | Mirror timeseries views, earnings per campaign, dan distribusi platform. |
 | **Earnings** | Ringkasan total earned, on-hold, siap withdraw, nilai baris, dan status syarat payout. |
 | **Demo Mode** | Mengisi workspace dengan 20 campaign nyata dan 114 materi dari crawl lapangan. |
+| **Organism Kernel** | Bounded control plane untuk constitution, dynamic goals, capability registry, memory, experiments, dan pause/review controls. |
+| **AutoShorts Handoff** | Menghasilkan manifest kandidat klip 9:16 dari plan campaign: hook, core proof, CTA, source material, dan guardrails. |
 
 Versi saat ini menggunakan parser brief deterministik berbasis data `brief_detail`; integrasi model generatif belum menjadi dependensi runtime. Istilah “AI Autopilot” di sini menggambarkan hasil kerja dan alur produk, bukan klaim bahwa semua keputusan saat ini dihasilkan oleh LLM.
 
@@ -70,10 +72,13 @@ Versi saat ini menggunakan parser brief deterministik berbasis data `brief_detai
 
 - `src/convex/`: schema, auth, ingest HTTP, query, campaign mutations, dan generator plan.
 - `src/convex/lib/konten.ts`: normalisasi payload, scoring campaign, dan parser brief.
+- `src/lib/autoshorts.ts`: clean-room manifest kandidat klip 9:16 untuk handoff ke renderer lokal.
 - `src/pages/dashboard/`: shell console dan route produk.
 - `src/components/shared.tsx`: primitif UI bersama (`Panel`, `TableShell`, `Status`, `Meter`, `Score`, dan lainnya).
 - `scripts/bridge-sync.ts`: runner bridge lokal untuk session/cookies konten.com.
 - `scripts/smoke-dashboard.ts`: smoke test browser lintas route desktop/mobile.
+- `research/AGENT_RESEARCH.md`: riset kedua untuk OpenShorts, agent runtime, self-evolution, dan safety patterns.
+- `research/HERMES_CANONICAL_CONTEXT.md`: canonical strategic context untuk autonomous organization / venture organism.
 
 ## Quickstart
 
@@ -110,6 +115,7 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 | `/app/analytics` | Auth | Timeseries dan performa. |
 | `/app/earnings` | Auth | Earnings dan payout readiness. |
 | `/app/bridge` | Auth | Konfigurasi dan status sinkronisasi. |
+| `/app/organism` | Auth | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
 
 ## Setup Bridge (opsional)
 
@@ -136,6 +142,33 @@ Bridge memerlukan sesi marketplace milikmu. Jangan memasukkan credential ke repo
    ```
 
 `SUPERCLIPPER_URL` dan token harus diberikan ke proses Convex melalui konfigurasi environment. Jangan membuat file env baru di repository ini.
+
+## Konfigurasi provider lokal (opsional)
+
+Halaman **Organism** menyediakan form mudah untuk mengganti `Base URL`, `Model`, dan `API key`
+untuk adapter OpenAI-compatible di masa depan. Form hanya melakukan validasi konfigurasi; kernel
+belum mengirim request ke provider secara otomatis.
+
+- Base URL dan model disimpan di `localStorage` browser.
+- API key hanya disimpan di `sessionStorage` browser saat ini.
+- API key tidak pernah dikirim ke Convex atau disimpan di repository.
+- API key boleh dikosongkan untuk model lokal seperti Ollama.
+- Gunakan tombol **Hapus konfigurasi** untuk membersihkan key dari browser.
+
+Adapter provider eksternal harus tetap mendapat opt-in, quota, retention, cost limit, dan
+review keamanan sebelum diaktifkan.
+
+## AutoShorts handoff
+
+Super Clipper mengadopsi **pola** AutoShorts untuk prepares clip candidates dari sumber
+long-form, tetapi tidak menyalin kode Tauri/Rust upstream atau menjalankan desktop renderer
+di dalam web console. Plan campaign dapat menyalin manifest JSON dengan tiga kandidat
+9:16: hook, core proof, dan CTA. Manifest adalah specification yang dapat diimpor ke
+pipeline lokal AutoShorts atau renderer lain setelah operator memeriksa transcript,
+caption, hak musik, footage, dan aturan campaign.
+
+Manifest tidak menjalankan ffmpeg, model provider, media upload, auto-submit, atau auto-publish.
+Bagian itu tetap menjadi langkah lokal yang eksplisit dan dapat ditinjau.
 
 ## Data dan provenance
 
@@ -229,6 +262,9 @@ menyebutnya selesai hanya karena operation log sudah ada.
 - **Plan collaboration:** simpan versi plan, catatan reviewer, dan export shotlist/caption.
 - **Quality loop:** baca hasil clip, evaluasi hook, dan re-rank brief berdasarkan performa aktual.
 - **Account safety:** rotasi secret, scope token yang lebih ketat, dan konfirmasi UI untuk setiap sync.
+- **Bounded organism:** scheduler memilih goal untuk review; tidak menjalankan shell, model, filesystem, spending, atau publisher.
+- **Canonical context:** realitas repository mengalahkan klaim dokumentasi; evidence, unknown state, capability graph, dan do-nothing selalu dipertimbangkan.
+- **Capability expansion:** renderer/TTS/model eksternal hanya setelah opt-in, quota, license review, dan rollback.
 
 ## Lisensi
 

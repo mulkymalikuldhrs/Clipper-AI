@@ -33,7 +33,10 @@ const GROUPS: { section: string; items: { to: string; label: string; end?: boole
       { to: "/app/earnings", label: "Earnings" },
     ],
   },
-  { section: "Sistem", items: [{ to: "/app/bridge", label: "Bridge" }] },
+  { section: "Sistem", items: [
+    { to: "/app/bridge", label: "Bridge" },
+    { to: "/app/organism", label: "Organism" },
+  ] },
 ];
 
 export default function DashboardLayout() {

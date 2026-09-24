@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { parseBrief, scoreCampaign } from "../src/convex/lib/konten";
 import { MAX_CAMPAIGNS, validateIngestPayload } from "../src/convex/lib/ingest";
+import { chooseNextGoal, decideExperiment, scoreGoal } from "../src/convex/lib/organism";
+import { readNonSecretProviderConfig, validateProviderConfig } from "../src/lib/providerConfig";
+import { buildAutoShortsManifest } from "../src/lib/autoshorts";
 
 describe("scoreCampaign", () => {
   test("keeps the weighted score within the expected range", () => {
@@ -65,6 +68,75 @@ describe("validateIngestPayload", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain("at most");
+  });
+});
+
+describe("local provider config", () => {
+  test("validates an OpenAI-compatible local endpoint", () => {
+    expect(
+      validateProviderConfig({ baseUrl: "http://localhost:11434/v1/", model: "qwen2.5:14b", apiKey: "" })
+    ).toEqual({ ok: true, value: { baseUrl: "http://localhost:11434/v1", model: "qwen2.5:14b", apiKey: "" } });
+  });
+
+  test("rejects unsafe URLs and preserves non-secret settings on malformed storage", () => {
+    expect(validateProviderConfig({ baseUrl: "ftp://example.com", model: "x", apiKey: "" }).ok).toBe(false);
+    expect(validateProviderConfig({ baseUrl: "https://example.com/v1?key=secret", model: "x", apiKey: "" }).ok).toBe(false);
+    expect(readNonSecretProviderConfig("not-json")).toEqual({ baseUrl: "", model: "" });
+    expect(readNonSecretProviderConfig(JSON.stringify({ baseUrl: "https://example.com/v1", model: "local", apiKey: "never-read" }))).toEqual({ baseUrl: "https://example.com/v1", model: "local" });
+  });
+});
+
+describe("bounded organism policy", () => {
+  test("ranks goals by value, learning, feasibility, cost, and risk", () => {
+    const score = scoreGoal({
+      impact: 0.9,
+      confidence: 0.8,
+      learning: 0.7,
+      cost: 0.2,
+      risk: 0.1,
+      feasibility: 0.9,
+    });
+    expect(score).toBeGreaterThan(70);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+
+  test("selects one safe goal and treats do nothing as valid", () => {
+    const base = { impact: 0.5, confidence: 0.5, learning: 0.5, cost: 0.5, risk: 0.5, feasibility: 0.5 };
+    const choice = chooseNextGoal([
+      { _id: "safe", title: "safe", status: "candidate", ...base },
+      { _id: "risky", title: "risky", status: "candidate", ...base, impact: 1, risk: 0.95 },
+    ]);
+    expect(choice?._id).toBe("safe");
+    expect(chooseNextGoal([{ _id: "blocked", title: "blocked", status: "candidate", ...base, risk: 0.9 }])).toBeNull();
+  });
+
+  test("adopts only measured low-risk improvements", () => {
+    expect(decideExperiment({ score: 0.8, baseline: 0.5, risk: 0.2, status: "running" })).toBe("adopted");
+    expect(decideExperiment({ score: 0.55, baseline: 0.5, risk: 0.2, status: "running" })).toBe("rejected");
+    expect(decideExperiment({ score: 0.9, baseline: 0.5, risk: 0.8, status: "running" })).toBe("rejected");
+  });
+});
+
+describe("AutoShorts handoff", () => {
+  test("creates bounded 9:16 candidate specifications without rendering or publishing", () => {
+    const manifest = buildAutoShortsManifest({
+      title: "Trailer",
+      brand: "IBU",
+      campaignSlug: "ibu-trailer",
+      hook: "Hook from brief",
+      durasiMin: 10,
+      durasiMax: 120,
+      materi: [{ title: "Trailer utama", url: "https://cdn.example/trailer.mp4" }],
+      narasi: "Tunjukkan konflik utama",
+      cta: "Tonton trailer lengkapnya",
+      platforms: ["tiktok", "instagram"],
+    });
+    expect(manifest.schema).toBe("super-clipper/autoshorts-manifest");
+    expect(manifest.localFirst).toBe(true);
+    expect(manifest.externalModelUsed).toBe(false);
+    expect(manifest.candidates).toHaveLength(3);
+    expect(manifest.candidates.every((candidate) => candidate.aspectRatio === "9:16")).toBe(true);
+    expect(manifest.candidates.every((candidate) => candidate.status === "spec")).toBe(true);
   });
 });
 

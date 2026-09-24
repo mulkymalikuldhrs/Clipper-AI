@@ -31,6 +31,8 @@ export default defineSchema({
     featureFlags: v.optional(v.any()),
     tier: v.optional(v.any()),
     notifications: v.optional(v.number()),
+    detailFetched: v.optional(v.number()),
+    coverage: v.optional(v.any()),
   }).index("by_userId", ["userId"]),
 
   // Campaign cache with derived autopilot score.
@@ -135,4 +137,75 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_userId_requestId", ["userId", "requestId"]),
+
+  // Bounded organism kernel: identity, world signals, goals, capabilities, and experiments.
+  organismProfiles: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    mode: v.string(), // observe | review | paused
+    constitution: v.array(v.string()),
+    dailyActionBudget: v.number(),
+    actionsUsed: v.number(),
+    lastEvaluatedAt: v.optional(v.number()),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  organismGoals: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    rationale: v.string(),
+    status: v.string(), // candidate | selected | active | completed | rejected
+    impact: v.number(),
+    confidence: v.number(),
+    learning: v.number(),
+    cost: v.number(),
+    risk: v.number(),
+    feasibility: v.number(),
+    source: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  organismCapabilities: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    kind: v.string(),
+    status: v.string(), // available | missing | quarantined | blocked
+    trust: v.number(),
+    source: v.string(),
+    notes: v.optional(v.string()),
+    lastUsedAt: v.optional(v.number()),
+  }).index("by_userId", ["userId"]),
+
+  organismExperiments: defineTable({
+    userId: v.id("users"),
+    goalId: v.optional(v.id("organismGoals")),
+    title: v.string(),
+    hypothesis: v.string(),
+    variant: v.string(),
+    status: v.string(), // proposed | running | adopted | rejected
+    baseline: v.number(),
+    score: v.number(),
+    risk: v.number(),
+    evidence: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  organismMemories: defineTable({
+    userId: v.id("users"),
+    kind: v.string(), // lesson | observation | decision
+    content: v.string(),
+    source: v.string(),
+    confidence: v.number(),
+    createdAt: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  organismEvents: defineTable({
+    userId: v.id("users"),
+    type: v.string(),
+    message: v.string(),
+    metadata: v.optional(v.any()),
+    at: v.number(),
+  }).index("by_userId", ["userId"]),
 });

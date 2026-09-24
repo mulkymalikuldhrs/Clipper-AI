@@ -149,6 +149,18 @@ async function main() {
   }
   snap.campaigns = enriched;
   snap.detailFetched = detailed;
+  snap.coverage = {
+    profile: true,
+    featureFlags: true,
+    earningsSummary: true,
+    timeseries: true,
+    wallet: true,
+    tier: true,
+    joined: true,
+    campaignList: campaigns.length,
+    campaignDetails: detailed,
+    earningsRows: 0,
+  };
   console.log(`[bridge] brief_detail diambil untuk ${detailed}/${campaigns.length} campaign`);
 
   // Catatan: endpoint /api/campaigns/:id/closure mengembalikan 404 sejak
@@ -157,6 +169,10 @@ async function main() {
   // Earnings rows
   const earnings = (await inPageFetch(page, "/api/earnings")) as { earnings?: Record<string, unknown>[] };
   snap.earningsRows = earnings?.earnings ?? [];
+  snap.coverage = {
+    ...((snap.coverage ?? {}) as Record<string, unknown>),
+    earningsRows: (snap.earningsRows as unknown[]).length,
+  };
 
   // Politeness delay, then push
   const emailSafe = email;

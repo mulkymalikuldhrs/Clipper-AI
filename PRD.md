@@ -264,6 +264,41 @@ Acceptance criteria:
 4. An internal apply failure creates an `error` log without exposing credentials or raw stack traces in the HTTP response.
 5. The Bridge UI displays pending, successful, and failed statuses without treating pending as success.
 
+### FR-9 — Bounded organism kernel
+
+- Keep a user-scoped organism profile with an immutable-ish constitution, mode, and daily action budget.
+- Represent dynamic goals as candidates scored by impact, confidence, learning, feasibility, cost, and risk.
+- Treat `do nothing` as a valid result when no safe candidate exists.
+- Maintain a capability registry with `available`, `missing`, `quarantined`, and `blocked` states.
+- Keep experiments measurable with hypothesis, baseline, score, risk, evidence, and adopted/rejected outcome.
+- Keep memory user-scoped, bounded, provenance-tagged, and confidence-scored.
+- Allow only `observe`, `review`, and `paused` modes in this slice; the kernel never executes external tools.
+- Use scheduled jobs only to select a goal for review, not to mutate source code, call a model, spend money, or publish content.
+
+Acceptance criteria:
+
+1. A new workspace can initialize the kernel without a second backend or external credential.
+2. The UI exposes constitution, action budget, goal queue, capability gaps, memory, and experiment outcomes.
+3. A daily scheduler selects at most one safe goal and records the decision, including a do-nothing event when appropriate.
+4. Experiment adoption requires at least 0.10 measured improvement and risk no higher than 0.5.
+5. No route or mutation exposes shell, filesystem, browser, provider, spending, or marketplace publishing capability.
+
+### FR-10 — Local provider configuration
+
+- Provide a protected Organism UI for an optional OpenAI-compatible base URL, model name, and API key.
+- Validate URL scheme, length, and unsafe URL components before saving.
+- Store only non-secret base URL/model in browser local storage.
+- Store an API key only in browser session storage; never send it to Convex or the repository.
+- Keep the provider disconnected from automatic execution until explicit opt-in, quota, retention, and security review are implemented.
+- Provide a single clear/remove control and clear status showing whether local configuration exists.
+
+Acceptance criteria:
+
+1. A user can replace the base URL and model from `/app/organism` without editing source files.
+2. Invalid protocols, URLs containing credentials/query/hash, missing model, and oversized values are rejected.
+3. Reloading the page restores non-secret settings but not the session API key.
+4. No provider request is made by the bounded organism kernel.
+
 ---
 
 ## 8. Data model and ownership
@@ -277,6 +312,12 @@ Acceptance criteria:
 | `autopilotPlans` | Generated plan and normalized brief output. | Indexed by user and campaign external ID. |
 | `planTasks` | Ordered checklist items belonging to a plan. | Verified through parent plan ownership. |
 | `syncLogs` | Recent bridge sync status, request ID, duration, campaign count, and safe error details. | Indexed by user and user/request ID; pruned after 30 days. |
+| `organismProfiles` | Constitution, safe mode, action budget, and evaluation timestamp. | One profile per user. |
+| `organismGoals` | Dynamic goal candidates with value, learning, feasibility, cost, risk, and lifecycle. | Indexed by user. |
+| `organismCapabilities` | Capability inventory with trust, source, and availability state. | Indexed by user. |
+| `organismExperiments` | Measurable experiment ledger and adoption decisions. | Indexed by user. |
+| `organismMemories` | Bounded provenance-tagged lessons and decisions. | Indexed by user. |
+| `organismEvents` | Observable decisions, mode changes, experiment outcomes, and do-nothing events. | Indexed by user. |
 
 All user-facing queries must return only records owned by the authenticated user. A missing record and an unauthorized record should be safe to treat as not found where appropriate.
 
@@ -324,6 +365,11 @@ The score is a triage heuristic, not a forecast or guarantee.
 - Validate auth ownership on queries and mutations.
 - Keep external source links clearly external and use safe `rel` attributes.
 - Do not claim that demo data or generated content is marketplace approval.
+- Treat repository/runtime reality as authoritative over stale documentation or prior agent claims.
+- Distinguish known, unknown, assumption, unverified, contradicted, and stale state.
+- Prefer reuse, evidence, reversibility, and do-nothing over unnecessary new components.
+- The organism kernel must not expose host execution, shell, filesystem, browser, model, spending, or publishing tools.
+- Capability adoption requires provenance, risk, and a human-visible decision.
 
 ### Reliability
 
@@ -357,12 +403,13 @@ The score is a triage heuristic, not a forecast or guarantee.
 ### Shipped in the current MVP
 
 - Public landing and auth pages using the operations-console language.
-- Protected dashboard with Ringkasan, Scanner, Autopilot, Campaign Detail, Analytics, Earnings, and Bridge routes.
+- Protected dashboard with Ringkasan, Scanner, Autopilot, Campaign Detail, Analytics, Earnings, Bridge, and Organism routes.
 - Convex Auth and user-scoped campaign/earnings/plan data.
 - Bridge ingest and demo seed path.
 - Bounded, token-authenticated ingest with request ID deduplication, operation status, and 30-day log retention.
 - Full campaign `brief_detail` parsing and production plan generation.
 - Campaign scoring and joined-state filtering.
+- Bounded organism kernel with constitution, dynamic goals, capability registry, memory, experiment ledger, and safe scheduler.
 - Desktop/mobile smoke harness.
 - Bun unit tests for scoring and brief parsing.
 - CI typecheck and unit-test steps.
@@ -414,7 +461,14 @@ The score is a triage heuristic, not a forecast or guarantee.
 - Next: integration fixtures for endpoint drift.
 - Next: migration/versioning strategy for normalized payloads.
 
-### M5 — Collaborative production loop — future
+### M5 — Organism kernel foundation — in progress
+
+- Completed: constitution, dynamic goal policy, capability registry, memory, experiment ledger, safe modes, and daily goal selection.
+- Next: add richer world-model signals from verified performance and cost data.
+- Next: add human review gates and richer experiment metrics.
+- Future: optional external capability adapters only after sandbox, quota, retention, and rollback review.
+
+### M6 — Collaborative production loop — future
 
 - Plan history and reviewer notes.
 - Exportable shotlist/caption/rule sheets.
@@ -455,7 +509,9 @@ The score is a triage heuristic, not a forecast or guarantee.
 ## 15. Research basis and reuse policy
 
 The production-readiness decisions in this PRD were informed by the following repository
-reviews. They are references, not vendored dependencies:
+reviews. They are references, not vendored dependencies. The full second-pass research record is in
+[`research/AGENT_RESEARCH.md`](research/AGENT_RESEARCH.md). The governing strategic context is
+[`research/HERMES_CANONICAL_CONTEXT.md`](research/HERMES_CANONICAL_CONTEXT.md).
 
 1. [harry0703/MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo) — pipeline stages, batch/history, example config, same-origin CORS, and bounded batch.
 2. [FujiwaraChoki/MoneyPrinterV2](https://github.com/FujiwaraChoki/MoneyPrinterV2) — modular automation and scheduler boundaries; its AGPL-3.0 license and outreach/auto-post scope are not reused.
@@ -468,6 +524,18 @@ reviews. They are references, not vendored dependencies:
 9. [triggerdotdev/trigger.dev](https://github.com/triggerdotdev/trigger.dev) — durable tasks, retries, checkpointing, concurrency, and human-in-the-loop.
 10. [inngest/inngest](https://github.com/inngest/inngest) — event/step retries, concurrency keys, rate limits, and run history.
 11. [restatedev/restate](https://github.com/restatedev/restate) — durable execution, exactly-once messaging, state, and observability.
+12. [mutonby/openshorts](https://github.com/mutonby/openshorts) — self-hostable clip pipeline, local model endpoint, async jobs, explicit GPU/model boundaries.
+13. [HKUDS/VideoAgent](https://github.com/HKUDS/VideoAgent) — intent decomposition, graph planning, adaptive feedback, and self-evaluation.
+14. [Human-Agent-Society/CORAL](https://github.com/Human-Agent-Society/CORAL) — isolated worktrees, grader daemon, shared knowledge, and bounded self-evolution.
+15. [PrimeIntellect-ai/prime-agent](https://github.com/PrimeIntellect-ai/prime-agent) — continual harness, memory, subagents, bounded autonomy, and refinement snapshots.
+16. [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) — memory, skill lifecycle, schedules, isolated subagents, and local execution boundaries.
+17. [inclusionAI/AWorld](https://github.com/inclusionAI/AWorld) — build → evaluate → evolve and evaluator-defined quality.
+18. [aiming-lab/AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw) — time-decayed lessons, verification, pivot/refine/proceed, and human intervention modes.
+19. [openclaw/openclaw](https://github.com/openclaw/openclaw) — local-first gateway, deterministic policy, untrusted inbound input, and sandbox guidance.
+20. [RightNow-AI/openfang](https://github.com/RightNow-AI/openfang) — autonomous hands, manifests, approval gates, audit trail, and resource metering.
+21. [openai/swarm](https://github.com/openai/swarm) — lightweight handoffs, tool boundaries, context variables, and turn limits; educational/superseded status noted.
+22. [langchain-ai/langgraph](https://github.com/langchain-ai/langgraph) — durable stateful execution, checkpoints, memory, and observability.
+23. [microsoft/autogen](https://github.com/microsoft/autogen) — message-driven agents, MCP, and bounded tool iterations; maintenance-mode warning noted.
 
 No external code is copied into the application. License compatibility, provider terms,
 asset rights, and data-retention obligations must be reviewed again before any future

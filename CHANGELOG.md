@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2026-09-24
 
 ### Added
+- AutoShorts-compatible clean-room handoff: kandidat klip 9:16 (hook, core proof, CTA) dari plan campaign, manifest JSON, dan UI copy manifest tanpa menjalankan renderer atau publish.
+- Second research pass untuk OpenShorts, OpenClaw, OpenFang, Hermes, CORAL, Prime Agent,
+  AWorld, AutoResearchClaw, LangGraph, AutoGen, dan VideoAgent; lihat `research/AGENT_RESEARCH.md`.
+- Bounded organism kernel: constitution, safe modes, dynamic goal queue, capability registry,
+  provenance-tagged memory, experiment ledger, do-nothing policy, daily goal selection, dan UI `/app/organism`.
+- Canonical strategic context untuk autonomous organization / venture organism disimpan di
+  `research/HERMES_CANONICAL_CONTEXT.md`.
+- Local provider config UI di Organism: base URL/model via localStorage, API key hanya di
+  sessionStorage, validasi URL aman, dan clear control tanpa secret ke Convex.
+- Unit tests untuk goal scoring, safe selection, experiment adoption, dan validasi organism policy.
+
+### Safety boundary
+- Kernel tidak menjalankan shell, filesystem, browser, model provider, filesystem mutation,
+  spending, credential rotation, account creation, atau marketplace publishing.
+- Semua perubahan tetap berada di Convex dan memerlukan deployment/codegen Convex baru.
+
+### Added
 - Riset terstruktur 11 repository video/workflow dan keputusan reuse yang aman untuk Super Clipper.
 - Bounded ingest validation: body maksimal 1 MiB, source/email/snapshot tervalidasi, dan batas
   collection campaign/joined/earnings.

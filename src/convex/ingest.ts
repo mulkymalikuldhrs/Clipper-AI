@@ -35,8 +35,65 @@ type Snapshot = {
   featureFlags?: Record<string, unknown>;
   tier?: unknown;
   notifications?: number;
+  detailFetched?: number;
+  coverage?: Record<string, unknown>;
+  earningsRows?: unknown[];
   closureByCampaignId?: Record<string, number>;
 };
+
+type RawEarning = {
+  id?: string | number;
+  video_id?: string | number;
+  videoId?: string | number;
+  extVideoId?: string | number;
+  campaign_id?: string | number;
+  campaign_title?: string;
+  campaignTitle?: string;
+  platform?: string;
+  video_url?: string;
+  videoUrl?: string;
+  views?: number | string;
+  amount?: number | string;
+  earnings?: number | string;
+  status?: string;
+  earned_at?: string | number;
+  earnedAt?: string | number;
+  created_at?: string | number;
+};
+
+function numberOr(value: unknown, fallback = 0): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function earnedAtOr(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return Date.now();
+}
+
+function normalizeEarnings(rows: unknown[] | undefined) {
+  return (rows ?? []).slice(0, 500).flatMap((value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+    const row = value as RawEarning;
+    const amount = numberOr(row.amount ?? row.earnings);
+    const views = numberOr(row.views);
+    if (amount === 0 && views === 0) return [];
+    return [{
+      extVideoId: String(row.extVideoId ?? row.videoId ?? row.video_id ?? row.id ?? "unknown"),
+      campaignTitle: row.campaignTitle ?? row.campaign_title,
+      platform: row.platform,
+      videoUrl: row.videoUrl ?? row.video_url,
+      views,
+      amount,
+      status: row.status,
+      earnedAt: earnedAtOr(row.earnedAt ?? row.earned_at ?? row.created_at),
+    }];
+  });
+}
 
 export const applySnapshot = internalAction({
   args: {
@@ -77,7 +134,13 @@ export const applySnapshot = internalAction({
       featureFlags: (snap.featureFlags ?? undefined) as unknown,
       tier: (snap.tier ?? undefined) as unknown,
       notifications: snap.notifications,
+      detailFetched: snap.detailFetched,
+      coverage: snap.coverage,
     });
+    const earnings = normalizeEarnings(snap.earningsRows);
+    if (earnings.length > 0 || snap.earningsRows !== undefined) {
+      await ctx.runMutation(internal.bridge.replaceEarnings, { userId, rows: earnings });
+    }
 
     const joinedIds = new Set<string>(
       (snap.joined?.campaigns ?? []).map((c) => c.id ?? "").filter(Boolean)
