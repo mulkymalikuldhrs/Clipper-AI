@@ -43,7 +43,7 @@ export default function Bridge() {
       <PageHeader
         eyebrow="Bridge"
         title="Sambungan akun konten.com"
-        meta="Bridge berjalan di mesinmu dengan Playwright: login memakai kredensial atau cookies milikmu, membaca dashboard clipper, lalu push ke workspace ini."
+        meta="Bridge berjalan di mesinmu dengan Playwright: memakai sesi marketplace milikmu, membaca dashboard clipper, lalu push ke workspace ini."
         actions={
           <Button variant="outline" size="sm" onClick={() => seedDemo({})}>
             <Sparkles className="h-3.5 w-3.5" /> Isi data demo
@@ -123,7 +123,7 @@ export default function Bridge() {
 
         <Panel title="Cara sync" meta="tiga langkah" flush>
           <div className="divide-y divide-border/60">
-            <Step n="01" title="Daftarkan token ingest">
+            <Step n="01" title="Siapkan token ingest">
               <CodeBlock code={TOKEN_SNIPPET} />
             </Step>
             <Step n="02" title="Isi kredensial bridge">

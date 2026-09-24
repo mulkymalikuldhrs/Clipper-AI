@@ -1,19 +1,10 @@
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, Link } from "react-router-dom";
 import { useQuery } from "convex/react";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Status } from "@/components/shared";
 import { cn, timeAgo } from "@/lib/utils";
-import { Scissors, ChevronDown, LogOut, ArrowUpRight } from "lucide-react";
+import { Scissors, ArrowUpRight } from "lucide-react";
 
 type NavItem = { to: string; label: string; end?: boolean; count?: number };
 
@@ -40,12 +31,9 @@ const GROUPS: { section: string; items: { to: string; label: string; end?: boole
 ];
 
 export default function DashboardLayout() {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
-  const viewer = useQuery(api.users.getViewer, {});
   const snapshot = useQuery(api.queries.getSnapshot, {});
   const campaigns = useQuery(api.queries.listCampaigns, {});
-  const { signOut } = useAuthActions();
 
   const counts = {
     campaigns: campaigns?.length ?? 0,
@@ -158,45 +146,11 @@ export default function DashboardLayout() {
 
             <span className="hidden h-4 w-px bg-border lg:block" />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-md border border-border px-2 py-1 text-left transition-colors hover:bg-secondary/40">
-                  <span className="grid h-6 w-6 place-items-center rounded-sm bg-secondary font-mono text-[10px] font-semibold">
-                    {(viewer?.name ?? "C").slice(0, 2).toUpperCase()}
-                  </span>
-                  <span className="hidden max-w-32 truncate text-[12px] sm:block">
-                    {viewer?.name ?? "Clipper"}
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="font-mono text-[10px] font-normal uppercase tracking-[0.12em] text-muted-foreground">
-                  Akun
-                </DropdownMenuLabel>
-                <div className="px-2 pb-1.5">
-                  <p className="truncate text-[13px] font-medium">{viewer?.name ?? "Clipper"}</p>
-                  <p className="truncate text-[11px] text-muted-foreground">{viewer?.email ?? ""}</p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => navigate("/app/bridge")}>
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                  Status bridge & sync
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={async () => {
-                    try {
-                      await signOut();
-                    } finally {
-                      navigate("/");
-                    }
-                  }}
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  Keluar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button asChild variant="ghost" size="sm" className="h-7 px-2 font-mono text-[10px] uppercase tracking-[0.12em]">
+              <Link to="/">
+                Preview publik <ArrowUpRight className="h-3 w-3" />
+              </Link>
+            </Button>
           </div>
         </header>
 

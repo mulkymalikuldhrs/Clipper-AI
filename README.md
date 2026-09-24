@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Venture operating system untuk workflow clipping konten.com</b><br/>
-  Preview produk secara publik → Jelajahi command center → masuk ke workspace saat kamu siap.
+  Preview produk secara publik → Jelajahi command center → buka console tanpa akun.
 </p>
 
 <p align="center">
@@ -19,21 +19,21 @@
 
 ## Apa ini?
 
-**Super Clipper** adalah operating console untuk workflow clipping [konten.com](https://konten.com). Halaman publik `/` adalah preview produk yang dapat dijelajahi tanpa login: command center, alur kerja, spesifikasi campaign, dan trust boundary. Login hanya diperlukan saat kamu memasuki protected workspace untuk memakai data pribadi, sinkronisasi, dan fitur operasional.
+**Super Clipper** adalah operating console untuk workflow clipping [konten.com](https://konten.com). Halaman publik `/` dan console `/app` dapat dijelajahi tanpa login atau pendaftaran: command center, alur kerja, spesifikasi campaign, dan trust boundary tersedia langsung.
 
 Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, lalu menormalkan data campaign, brief, earnings, dan timeseries ke workspace Convex milikmu. Aplikasi tidak mengirim credential ke server. Video tetap dikirim dan disetujui melalui marketplace konten.com; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim atau memalsukan engagement.
 
-## Akses awal tanpa login
+## Public console, no account required
 
 - Buka `/` untuk menjelajahi preview produk secara langsung.
-- Tidak ada form login atau session gate di landing page.
-- Klik **Buka workspace** atau **Mulai workspace** ketika siap masuk ke `/auth`.
-- Route `/app/*` tetap dilindungi oleh `RequireAuth`; pengunjung yang belum masuk diarahkan ke `/auth` dengan `returnTo` internal yang tervalidasi.
+- Klik **Buka workspace** atau **Mulai eksplorasi** untuk membuka console tanpa form login atau pendaftaran.
+- Route `/app/*` dapat diakses langsung; `/auth` hanya menjadi redirect ke landing page.
+- Credential marketplace tetap hanya dipakai oleh bridge lokal dan tidak pernah ditampilkan di console.
 
 | Modul | Fungsi |
 |---|---|
-| **Landing** | Preview publik tanpa login: command center, operating loop, campaign specs, dan trust boundary. |
-| **Auth** | Workspace-only entry untuk sign up/sign in Convex Auth, dengan `returnTo` internal yang tervalidasi. |
+| **Landing** | Preview publik tanpa akun: command center, operating loop, campaign specs, dan trust boundary. |
+| **Console** | Console `/app` terbuka tanpa autentikasi untuk menjelajahi data dan alur operasi. |
 | **Konten Bridge** | Sync read-only memakai sesi marketplace milikmu sendiri: campaign, brief detail, joined, earnings, wallet, tier, dan timeseries. |
 | **Campaign Scanner** | Cache campaign aktif dengan skor 0–100, filter, pencarian, dan sorting keyboard-friendly. |
 | **Brief Autopilot** | Mengubah `brief_detail` menjadi hook, shotlist, narasi, CTA, caption, hashtag, aturan boleh/dilarang, dan checklist tugas. |
@@ -96,7 +96,7 @@ bun convex dev --once       # provision backend + generate types
 bun run dev                 # Vite saja
 ```
 
-Buka `http://localhost:5174` (atau port yang diinjeksikan platform), jelajahi landing tanpa login, lalu gunakan **Mulai workspace** untuk membuat akun. Setelah masuk, gunakan **Isi data demo** dari halaman Bridge untuk melihat workspace terisi tanpa memakai kredensial marketplace.
+Buka `http://localhost:5174` (atau port yang diinjeksikan platform), lalu jelajahi landing dan console tanpa membuat akun. Gunakan **Isi data demo** dari halaman Bridge untuk melihat workspace contoh tanpa memakai kredensial marketplace.
 
 Untuk pengembangan di luar Freebuff, jalankan dua terminal secara terpisah:
 
@@ -114,16 +114,15 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 
 | Route | Akses | Isi |
 |---|---|---|
-| `/` | Publik | Product-first landing preview, fully explorable tanpa login. |
-| `/auth` | Publik | Workspace-only sign in/sign up dan seed demo opsional. |
-| `/app` | Auth | Ringkasan campaign, earnings, sync, dan aktivitas. |
-| `/app/scanner` | Auth | Daftar campaign, skor, filter, sorting. |
-| `/app/autopilot` | Auth | Plan produksi per campaign yang diikuti. |
-| `/app/campaign/:id` | Auth | Detail ekonomi dan brief campaign. |
-| `/app/analytics` | Auth | Timeseries dan performa. |
-| `/app/earnings` | Auth | Earnings dan payout readiness. |
-| `/app/bridge` | Auth | Konfigurasi dan status sinkronisasi. |
-| `/app/organism` | Auth | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
+| `/` | Publik | Product-first landing preview, fully explorable tanpa akun. |
+| `/app` | Publik | Ringkasan campaign, earnings, sync, dan aktivitas tanpa autentikasi. |
+| `/app/scanner` | Publik | Daftar campaign, skor, filter, sorting. |
+| `/app/autopilot` | Publik | Plan produksi per campaign yang diikuti. |
+| `/app/campaign/:id` | Publik | Detail ekonomi dan brief campaign. |
+| `/app/analytics` | Publik | Timeseries dan performa. |
+| `/app/earnings` | Publik | Earnings dan payout readiness. |
+| `/app/bridge` | Publik | Konfigurasi dan status sinkronisasi. |
+| `/app/organism` | Publik | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
 
 ## Setup Bridge (opsional)
 

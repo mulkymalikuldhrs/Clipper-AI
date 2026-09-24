@@ -1,20 +1,20 @@
 /**
- * Smoke test — renders the public pages and every authenticated route in a real
- * browser and reports page errors, console errors, empty renders, and overflow.
+ * Smoke test — renders the public pages and console routes in a real browser and
+ * reports page errors, console errors, empty renders, and overflow.
  *
- * Usage: bun scripts/smoke-dashboard.ts        (expects the dev preview on :5173)
+ * Usage: SMOKE_URL=http://127.0.0.1:5174 bun scripts/smoke-dashboard.ts
  * Output: research/shots/*.png + a text report on stdout.
  */
 import { chromium } from "playwright";
 import { mkdirSync, utimesSync } from "node:fs";
 
-const BASE = process.env.SMOKE_URL ?? "http://127.0.0.1:5173";
+const BASE = process.env.SMOKE_URL ?? "http://127.0.0.1:5174";
 const OUT = "research/shots";
 
-/** Public routes, checked in the signed-out state before signup. */
+/** Public routes, checked without any account or authentication form. */
 const PUBLIC: [string, string][] = [
   ["landing", "/"],
-  ["auth", "/auth"],
+  ["auth-redirect", "/auth"],
 ];
 
 const ROUTES: [string, string][] = [
@@ -27,9 +27,6 @@ const ROUTES: [string, string][] = [
   ["organism", "/app/organism"],
 ];
 
-const EMAIL = `smoke+${Date.now()}@superclipper.app`;
-const PASS = "test12345";
-
 mkdirSync(OUT, { recursive: true });
 
 // Vite picks up writes from the workspace sync layer by mtime; bumping it before the
@@ -39,8 +36,6 @@ for (const f of [
   "src/components/layout/DashboardLayout.tsx",
   "src/App.tsx",
   "src/pages/Landing.tsx",
-  "src/pages/Auth.tsx",
-  "src/components/auth/RequireAuth.tsx",
   "src/pages/dashboard/DashboardHome.tsx",
   "src/pages/dashboard/Scanner.tsx",
   "src/pages/dashboard/Autopilot.tsx",
@@ -155,113 +150,21 @@ function print(rows: Row[]) {
   }
 }
 
-/* ------------------------------------------------------------ signed out */
-
-console.log("\n=== PUBLIC 1440x950 (signed out) ===");
+console.log("\n=== PUBLIC 1440x950 (no account) ===");
 for (const [name, route] of PUBLIC) await visit(name, route, true, publicReport);
+const publicText = (await page.evaluate(() => document.body?.innerText ?? "")).toLowerCase();
+if (/(akses akun|masuk ke ruang kerja|belum punya akun|daftar|sign in|sign up)/.test(publicText)) {
+  problems.push("public: authentication UI is still visible");
+}
 print(publicReport);
-
-/* -------------------------------------------------------------- sign up */
-
-console.log(`\n[smoke] signing up ${EMAIL}`);
-await page.goto(`${BASE}/auth?returnTo=//example.com`, { waitUntil: "networkidle" });
-try {
-  await page.waitForSelector("#email", { timeout: 20000 });
-} catch {
-  const text = await page.evaluate(() => document.body?.innerText ?? "(no body text)");
-  console.log("=== AUTH PAGE DID NOT RENDER ===");
-  console.log(text.slice(0, 800) || "(empty)");
-  console.log("=== PROBLEMS ===");
-  console.log(problems.join("\n") || "(none)");
-  await page.screenshot({ path: `${OUT}/auth-failure.png`, fullPage: false });
-  await browser.close();
-  process.exit(1);
-}
-await page.click("text=Daftar");
-await page.fill("#name", "Smoke Tester");
-await page.fill("#email", EMAIL);
-await page.fill("#password", PASS);
-await page.click('button[type="submit"]');
-await page.waitForURL("**/app", { timeout: 45000 });
-await page.waitForTimeout(5000);
-
-// Seed the real crawl dataset so every panel has content.
-await page.goto(`${BASE}/app/bridge`, { waitUntil: "networkidle" });
-await page.waitForTimeout(1500);
-const seed = page.locator("text=Isi data demo").first();
-if (await seed.count()) {
-  await seed.click();
-  console.log("[smoke] demo data seeded, waiting for propagation");
-  await page.waitForTimeout(6000);
-} else {
-  console.log("[smoke] WARNING: seed button not found");
-}
 
 /* -------------------------------------------------------------- desktop */
 
 console.log("\n=== DESKTOP 1440x950 ===");
 for (const [name, route] of ROUTES) await visit(name, route, true, report);
 
-// The Autopilot plan must expose a local-first AutoShorts handoff for each generated plan.
-await page.goto(`${BASE}/app/autopilot`, { waitUntil: "networkidle" });
-await page.waitForTimeout(1500);
-const autoshortsHandoff = page.getByText("AutoShorts handoff", { exact: true });
-if (await autoshortsHandoff.count()) {
-  const manifestButton = page.getByRole("button", { name: "Copy manifest JSON" }).first();
-  if (!(await manifestButton.count())) problems.push("autopilot: AutoShorts manifest copy control did not render");
-} else {
-  problems.push("autopilot: AutoShorts handoff did not render");
-}
-
-// Organism must expose deterministic lifecycle and review-gated social handoffs.
-await page.goto(`${BASE}/app/organism`, { waitUntil: "networkidle" });
-await page.waitForTimeout(1500);
-const autonomyQueue = page.getByText("Campaign autonomy queue", { exact: true });
-if (await autonomyQueue.count()) {
-  const handoff = page.getByText("review_required", { exact: true }).first();
-  if (!(await handoff.count())) problems.push("organism: no review-gated social handoff rendered");
-} else {
-  problems.push("organism: autonomy queue did not render");
-}
-
-// Campaign detail reachable from the scanner table.
-await page.goto(`${BASE}/app/scanner`, { waitUntil: "networkidle" });
-await page.waitForTimeout(1500);
-
-// The scanner sort controls must remain keyboard-stable across a re-render.
-const scoreHeader = page.getByRole("button", { name: "skor", exact: true }).first();
-if (await scoreHeader.count()) {
-  await scoreHeader.focus();
-  await page.keyboard.press("Enter");
-  const focused = await page.evaluate(() => (document.activeElement as HTMLElement | null)?.innerText ?? "");
-  if (!focused.toLowerCase().includes("skor")) {
-    problems.push("scanner: sort header lost keyboard focus after re-render");
-  }
-} else {
-  problems.push("scanner: score sort header did not render");
-}
-
-const firstRow = page.locator('a[href^="/app/campaign/"]').first();
-let detailHref: string | null = null;
-if (await firstRow.count()) {
-  const href = (detailHref = await firstRow.getAttribute("href"));
-  const before = problems.length;
-  await page.goto(`${BASE}${href}`, { waitUntil: "networkidle" });
-  await page.waitForTimeout(2000);
-  const text = await mainText(page);
-  await page.screenshot({ path: `${OUT}/campaign-detail.png`, fullPage: true });
-  report.push({
-    route: href ?? "/app/campaign/*",
-    chars: text.length,
-    problems: problems.length - before,
-    overflow: 0,
-    offenders: [],
-    chain: [],
-    top: text.split("\n").filter(Boolean).slice(0, 18).join("\n    "),
-  });
-} else {
-  problems.push("scanner: no campaign rows rendered");
-}
+// Public console route checks are intentionally account-free. Data panels may
+// show their empty state until an operator runs the local bridge.
 print(report);
 
 /* --------------------------------------------------------------- mobile */
@@ -273,7 +176,6 @@ report.length = 0;
 publicReport.length = 0;
 for (const [name, route] of PUBLIC) await visit(`mobile-${name}`, route, false, publicReport);
 for (const [name, route] of ROUTES) await visit(`mobile-${name}`, route, false, report);
-if (detailHref) await visit("mobile-campaign-detail", detailHref, false, report);
 print([...publicReport, ...report]);
 
 console.log("\n=== PROBLEMS ===");

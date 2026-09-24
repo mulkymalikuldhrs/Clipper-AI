@@ -94,7 +94,7 @@ export default function Landing() {
               <a href="#command-center">Lihat preview</a>
             </Button>
             <Button asChild size="sm" className="shadow-none">
-              <Link to="/auth">
+              <Link to="/app">
                 Buka workspace <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
@@ -108,7 +108,7 @@ export default function Landing() {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <Status tone="primary">live product preview</Status>
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">no login required to explore</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">public product preview</span>
               </div>
               <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.04] tracking-[-0.04em] md:text-6xl">
                 Your next winning clip,
@@ -124,11 +124,11 @@ export default function Landing() {
                   </a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="shadow-none">
-                  <Link to="/auth">Mulai workspace</Link>
+                  <Link to="/app">Mulai eksplorasi</Link>
                 </Button>
               </div>
               <p className="mt-4 font-mono text-[11px] text-muted-foreground/80">
-                explore first • sign in only when you enter the protected workspace
+                explore freely • open the public console
               </p>
             </div>
 
@@ -136,7 +136,7 @@ export default function Landing() {
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <div>
                   <MonoLabel>super-clipper / command center</MonoLabel>
-                  <p className="mt-1 text-[12px] text-muted-foreground">Preview operating loop tanpa login gate</p>
+                  <p className="mt-1 text-[12px] text-muted-foreground">Preview operating loop tanpa autentikasi</p>
                 </div>
                 <Status tone="good">signal ready</Status>
               </div>
@@ -248,10 +248,10 @@ export default function Landing() {
               <div>
                 <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /><MonoLabel>start with signal</MonoLabel></div>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight">Buka workspace saat kamu siap.</h2>
-                <p className="mt-2 max-w-xl text-[13px] leading-6 text-muted-foreground">Preview publik tetap terbuka. Login hanya diperlukan untuk workspace, sinkronisasi akun, dan data pribadi.</p>
+                <p className="mt-2 max-w-xl text-[13px] leading-6 text-muted-foreground">Preview publik tetap terbuka. Jelajahi console, data contoh, dan operating loop tanpa akun.</p>
               </div>
               <div className="mt-6 flex flex-wrap gap-2 md:mt-0">
-                <Button asChild className="shadow-none"><Link to="/auth">Masuk ke workspace <ArrowRight className="h-4 w-4" /></Link></Button>
+                <Button asChild className="shadow-none"><Link to="/app">Buka console <ArrowRight className="h-4 w-4" /></Link></Button>
                 <Button asChild variant="outline" className="shadow-none"><a href="#command-center"><CirclePlay className="h-4 w-4" /> Lihat lagi</a></Button>
               </div>
             </div>
