@@ -9,6 +9,7 @@ import Analytics from "@/pages/dashboard/Analytics";
 import EarningsPage from "@/pages/dashboard/Earnings";
 import Bridge from "@/pages/dashboard/Bridge";
 import Organism from "@/pages/dashboard/Organism";
+import SocialAccounts from "@/pages/dashboard/SocialAccounts";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="earnings" element={<EarningsPage />} />
         <Route path="bridge" element={<Bridge />} />
         <Route path="organism" element={<Organism />} />
+        <Route path="accounts" element={<SocialAccounts />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

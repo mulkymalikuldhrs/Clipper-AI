@@ -44,7 +44,7 @@ export default function EarningsPage() {
         <PageHeader eyebrow="Earnings" title="Saldo & payout" />
         <EmptyState
           title="Belum ada data earnings"
-          description="Sync bridge atau isi data demo untuk melihat saldo, status pemrosesan, dan kesiapan withdraw."
+          description="Sync bridge untuk melihat saldo, status pemrosesan, dan kesiapan withdraw."
         />
       </div>
     );

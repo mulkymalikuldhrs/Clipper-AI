@@ -60,7 +60,7 @@ export default function Analytics() {
         <PageHeader eyebrow="Analitik" title="Tren views & earnings" />
         <EmptyState
           title="Belum ada data analitik"
-          description="Jalankan bridge sync atau isi data demo dari halaman Bridge untuk melihat timeseries views dan earnings per campaign."
+          description="Jalankan bridge sync untuk melihat timeseries views dan earnings per campaign."
         />
       </div>
     );

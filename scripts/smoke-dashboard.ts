@@ -24,6 +24,7 @@ const ROUTES: [string, string][] = [
   ["analytics", "/app/analytics"],
   ["earnings", "/app/earnings"],
   ["bridge", "/app/bridge"],
+  ["accounts", "/app/accounts"],
   ["organism", "/app/organism"],
 ];
 
@@ -43,6 +44,7 @@ for (const f of [
   "src/pages/dashboard/Analytics.tsx",
   "src/pages/dashboard/Earnings.tsx",
   "src/pages/dashboard/Bridge.tsx",
+  "src/pages/dashboard/SocialAccounts.tsx",
   "src/pages/dashboard/Organism.tsx",
   "src/lib/autonomy.ts",
   "src/lib/autoshorts.ts",
@@ -165,6 +167,14 @@ for (const [name, route] of ROUTES) await visit(name, route, true, report);
 
 // Public console route checks are intentionally account-free. Data panels may
 // show their empty state until an operator runs the local bridge.
+await page.goto(`${BASE}/app/accounts`, { waitUntil: "networkidle" });
+await page.getByLabel("Nama akun").fill("Smoke Studio");
+await page.getByLabel("Handle").fill("@smoke-studio");
+await page.getByLabel("Profile URL").fill("https://example.com/smoke-studio");
+await page.getByRole("button", { name: "Simpan akun" }).click();
+if (!(await page.getByText("Smoke Studio", { exact: true }).count())) {
+  problems.push("accounts: local account configuration did not render");
+}
 print(report);
 
 /* --------------------------------------------------------------- mobile */

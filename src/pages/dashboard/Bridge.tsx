@@ -1,6 +1,5 @@
-import { useQuery, useAction } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Button } from "@/components/ui/button";
 import {
   CopyButton,
   KeyValue,
@@ -13,7 +12,7 @@ import {
   TableShell,
 } from "@/components/shared";
 import { formatNumber, timeAgo } from "@/lib/utils";
-import { Database, ShieldCheck, Sparkles, Terminal } from "lucide-react";
+import { Database, ShieldCheck, Terminal } from "lucide-react";
 
 const LOG_COLS = "5rem minmax(0,0.6fr) minmax(0,1fr) 4.5rem 5rem";
 
@@ -36,7 +35,6 @@ const RUN_SNIPPET = `bun scripts/bridge-sync.ts      # sekali jalan
 export default function Bridge() {
   const snapshot = useQuery(api.queries.getSnapshot, {});
   const logs = useQuery(api.queries.getSyncLogs, {});
-  const seedDemo = useAction(api.demo.seedDemo);
 
   return (
     <div className="space-y-6">
@@ -44,11 +42,7 @@ export default function Bridge() {
         eyebrow="Bridge"
         title="Sambungan akun konten.com"
         meta="Bridge berjalan di mesinmu dengan Playwright: memakai sesi marketplace milikmu, membaca dashboard clipper, lalu push ke workspace ini."
-        actions={
-          <Button variant="outline" size="sm" onClick={() => seedDemo({})}>
-            <Sparkles className="h-3.5 w-3.5" /> Isi data demo
-          </Button>
-        }
+        actions={<Status tone="good">live bridge only</Status>}
       />
 
       <MetricStrip
@@ -69,7 +63,7 @@ export default function Bridge() {
           },
           {
             label: "Status ingest",
-            value: snapshot ? (snapshot.source === "bridge" ? "live" : "demo") : "kosong",
+            value: snapshot ? (snapshot.source === "bridge" ? "live" : "external") : "kosong",
           },
         ]}
       />
@@ -96,16 +90,14 @@ export default function Bridge() {
             </KeyValueList>
           </Panel>
 
-          <Panel title="Data demo">
+          <Panel title="Sumber data">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Satu klik mengisi workspace dengan{" "}
-              <span className="text-foreground">20 campaign asli + 114 materi</span> hasil crawl
-              halaman clipper konten.com. Campaign dan brief-nya nyata; angka earnings serta wallet
-              hanya contoh supaya semua halaman bisa dicoba tanpa sync.
+              Tidak ada data mock di console. Campaign, brief, analytics, dan earnings hanya muncul setelah
+              bridge lokal membaca sesi marketplace milikmu dan mengirim snapshot nyata.
             </p>
-            <Button className="mt-4 w-full" size="sm" onClick={() => seedDemo({})}>
-              <Sparkles className="h-3.5 w-3.5" /> Isi data demo
-            </Button>
+            <div className="mt-4 border border-border bg-background/40 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+              source policy: bridge / own session only
+            </div>
           </Panel>
 
           <Panel title="Prinsip keamanan" className="border-emerald-500/25">

@@ -40,7 +40,7 @@ Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, lalu meno
 | **Campaign Detail** | Menampilkan ekonomi campaign, brief, materi, aturan kepatuhan, dan tombol membuat rencana. |
 | **Analytics** | Mirror timeseries views, earnings per campaign, dan distribusi platform. |
 | **Earnings** | Ringkasan total earned, on-hold, siap withdraw, nilai baris, dan status syarat payout. |
-| **Demo Mode** | Mengisi workspace dengan 20 campaign nyata dan 114 materi dari crawl lapangan. |
+| **Data policy** | Tidak ada mock atau seed data di console; semua snapshot berasal dari bridge lokal. |
 | **Organism Kernel** | Bounded control plane untuk constitution, dynamic goals, capability registry, memory, experiments, dan pause/review controls. |
 | **AutoShorts Handoff** | Menghasilkan manifest kandidat klip 9:16 dari plan campaign: hook, core proof, CTA, source material, dan guardrails. |
 | **Autonomy Queue** | Menentukan lifecycle campaign, data readiness, economic signal, dan handoff publish yang selalu membutuhkan review. |
@@ -96,7 +96,7 @@ bun convex dev --once       # provision backend + generate types
 bun run dev                 # Vite saja
 ```
 
-Buka `http://localhost:5174` (atau port yang diinjeksikan platform), lalu jelajahi landing dan console tanpa membuat akun. Gunakan **Isi data demo** dari halaman Bridge untuk melihat workspace contoh tanpa memakai kredensial marketplace.
+Buka `http://localhost:5174` (atau port yang diinjeksikan platform), lalu jelajahi landing dan console tanpa membuat akun. Untuk melihat data, jalankan bridge lokal dengan sesi marketplace milikmu sendiri; console tidak lagi menyediakan seed atau data demo.
 
 Untuk pengembangan di luar Freebuff, jalankan dua terminal secara terpisah:
 
@@ -123,6 +123,7 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 | `/app/earnings` | Publik | Earnings dan payout readiness. |
 | `/app/bridge` | Publik | Konfigurasi dan status sinkronisasi. |
 | `/app/organism` | Publik | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
+| `/app/accounts` | Publik | Konfigurasi metadata akun TikTok/Instagram dan status OAuth resmi. |
 
 ## Setup Bridge (opsional)
 
@@ -149,6 +150,17 @@ Bridge memerlukan sesi marketplace milikmu. Jangan memasukkan credential ke repo
    ```
 
 `SUPERCLIPPER_URL` dan token harus diberikan ke proses Convex melalui konfigurasi environment. Jangan membuat file env baru di repository ini.
+
+## Social accounts dan publishing
+
+Halaman `/app/accounts` menyimpan metadata akun TikTok dan Instagram di browser. Access token tidak
+disimpan di localStorage, sessionStorage, source code, atau payload UI.
+
+Autonomy dapat menyiapkan queue, manifest, caption, dan checklist secara otomatis, tetapi publish
+menunggu `review_required` sampai tersedia OAuth resmi, media valid, dan policy platform. Integrasi
+publisher harus memakai API resmi TikTok Content Posting API dan Instagram Graph API, dengan
+server-side token exchange, audit log, rate limit, retry policy, dan rollback. Credential scraping,
+account takeover, fake engagement, dan upload dari browser tidak diizinkan.
 
 ## Konfigurasi provider lokal (opsional)
 
@@ -196,8 +208,7 @@ Riset lapangan yang menjadi fondasi fitur tersimpan di `research/RESEARCH.md` da
 - 124 halaman clipper terpetakan.
 - 186 endpoint JSON terindeks.
 - 45 campaign memiliki `brief_detail` lengkap.
-- Demo memakai 20 campaign dan 114 materi dari crawl tersebut.
-- Angka earnings pada demo adalah data contoh untuk tampilan, bukan jaminan earnings aktual.
+- 124 halaman dan 186 endpoint adalah peta riset, bukan data mock yang disuntikkan ke console.
 
 Endpoint marketplace dapat berubah. Bridge dan parser harus diperlakukan sebagai integrasi toleran: validasi payload, pertahankan bentuk mentah di `raw`, dan gunakan fallback yang aman ketika field tidak tersedia.
 
@@ -212,7 +223,7 @@ bun test                   # Unit test scoreCampaign + parseBrief
 bun run smoke              # Playwright desktop/mobile smoke test
 ```
 
-`bun run smoke` membutuhkan preview Vite yang sudah berjalan dan backend yang dapat menerima signup/seed. Harness membuat akun smoke sementara, mengisi demo, memeriksa landing/auth dan semua route dashboard pada viewport 1440px serta 390px, lalu gagal non-zero jika menemukan page error, console error, route kosong, atau overflow horizontal. Screenshots disimpan di `research/shots/`.
+`bun run smoke` membutuhkan preview Vite yang sudah berjalan. Harness memeriksa landing, console, dan route social accounts pada viewport 1440px serta 390px, lalu gagal non-zero jika menemukan page error, console error, route kosong, atau overflow horizontal. Screenshots disimpan di `research/shots/`.
 
 CI menjalankan typecheck aplikasi, typecheck harness, dan unit test. Smoke browser tetap command manual/lokal karena membutuhkan deployment Convex dan menulis data uji ke workspace.
 

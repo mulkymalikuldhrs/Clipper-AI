@@ -50,7 +50,7 @@ export default function DashboardHome() {
         />
         <EmptyState
           title="Hubungkan sumber data"
-          description="Bridge menarik campaign, earnings, dan analitik dari sesi konten.com milikmu sendiri. Untuk mencoba seluruh alur tanpa sync, isi workspace dengan 20 campaign asli hasil crawl."
+          description="Bridge menarik campaign, earnings, dan analitik dari sesi konten.com milikmu sendiri. Jalankan sync lokal untuk mengisi workspace dengan data nyata."
           action={
             <>
               <Button asChild size="sm">

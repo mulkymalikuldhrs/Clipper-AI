@@ -30,7 +30,7 @@ const SAMPLE = [
 const SIGNALS = [
   { label: "Campaign terpantau", value: "20", hint: "dari feed workspace" },
   { label: "Brief terambil", value: "45", hint: "detail siap dipecah" },
-  { label: "Materi demo", value: "114", hint: "asset terindeks" },
+  { label: "Materi terindeks", value: "114", hint: "asset terindeks" },
   { label: "Decision queue", value: "∞", hint: "selalu bisa do nothing" },
 ];
 
@@ -248,7 +248,7 @@ export default function Landing() {
               <div>
                 <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /><MonoLabel>start with signal</MonoLabel></div>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight">Buka workspace saat kamu siap.</h2>
-                <p className="mt-2 max-w-xl text-[13px] leading-6 text-muted-foreground">Preview publik tetap terbuka. Jelajahi console, data contoh, dan operating loop tanpa akun.</p>
+                <p className="mt-2 max-w-xl text-[13px] leading-6 text-muted-foreground">Preview publik tetap terbuka. Jelajahi console dan operating loop tanpa akun.</p>
               </div>
               <div className="mt-6 flex flex-wrap gap-2 md:mt-0">
                 <Button asChild className="shadow-none"><Link to="/app">Buka console <ArrowRight className="h-4 w-4" /></Link></Button>

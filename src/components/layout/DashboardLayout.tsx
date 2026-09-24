@@ -26,6 +26,7 @@ const GROUPS: { section: string; items: { to: string; label: string; end?: boole
   },
   { section: "Sistem", items: [
     { to: "/app/bridge", label: "Bridge" },
+    { to: "/app/accounts", label: "Social accounts" },
     { to: "/app/organism", label: "Organism" },
   ] },
 ];
