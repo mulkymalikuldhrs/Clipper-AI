@@ -2,9 +2,37 @@
 
 ## Status
 - Repo: `mulkymalikuldhrs/Clipper-AI` (Vite + React + Tailwind + Convex + Convex Auth, Bun).
-- Fase: **upgrade "super clipper" tahap lanjut selesai di sisi kode**. Crawl konten.com
-  diperdalam sampai tuntas dan Brief Autopilot sekarang memakai brief asli (materi, narasi,
-  CTA, do & don't, target audiens).
+- Fase: upgrade "super clipper" selesai di sisi kode + **seluruh UI di-rewrite** (23 Sep 2026)
+  menjadi console operasional padat data — dashboard, landing, dan auth.
+
+## Console language (23 Sep 2026)
+- Satu bahasa visual untuk semua halaman publik maupun dashboard: garis rambut 1px, tanpa
+  shadow/gradient/glow/kotak ikon, angka monospace `tabular-nums`, label mono uppercase 10px,
+  warna hanya untuk makna. Tombol/`Input` shadcn diberi `shadow-none` di halaman publik.
+- `Landing.tsx` dan `Auth.tsx` sekarang memakai primitif dari `src/components/shared.tsx`
+  (bukan `Card`/`Badge`), jadi UI baru harus mengikuti kosakata yang sama.
+- Kelas dekoratif (`text-gradient`, `border-glow`, `glass`, `grid-bg`, `animate-pulse-glow`,
+  `blur-3xl`, `bg-gradient`) sudah **nol pemakaian** di seluruh `src/**/*.tsx`. Utilitas itu masih
+  ada di `src/index.css` (jangan dihapus — bagian dari fondasi template).
+- Verifikasi: `bun scripts/smoke-dashboard.ts` merender `/`, `/auth`, dan 7 route dashboard pada
+  1440px + 390px → 0 page/console error, 0 overflow (bukti terakhir: landing 3781 char, auth 183).
+
+## Dashboard console (23 Sep 2026)
+- Bahasa visual baru ada di `src/components/shared.tsx` — satu-satunya tempat primitif UI
+  dashboard. Aturan yang harus dijaga: 1px hairline, tanpa shadow/gradient/ikon dekoratif,
+  angka monospace `tabular-nums`, label mono uppercase 10px, warna hanya untuk makna.
+- `KpiCard` dan `ScoreRing` dihapus; daftar kartu diganti tabel (`TableShell`/`TableRow`).
+- Verifikasi nyata: `bun scripts/smoke-dashboard.ts` merender 7 route pada 1440px dan 390px →
+  0 page/console error, 0 overflow horizontal (screenshot di `research/shots/`, di-gitignore).
+- Jebakan Vite di workspace ini: hasil transform lama kadang masih disajikan untuk file yang
+  ditulis lewat layer sync (gejala `does not provide an export named ...` atau UI versi lama).
+  Solusinya `touch` file terkait; script smoke sudah melakukannya otomatis.
+
+## Quality checks (24 Sep 2026)
+- `bun test` menutupi helper murni `scoreCampaign` dan `parseBrief` di `tests/konten.test.ts`.
+- `bun run typecheck` mencakup aplikasi; `bun run typecheck:scripts` mencakup harness Playwright.
+- `bun run smoke` sekarang gagal non-zero bila ada route kosong, overflow, atau page/console error.
+  Smoke juga memverifikasi `returnTo` eksternal ditolak dan fokus tombol sort Scanner bertahan.
 
 ## Yang terverifikasi di sesi ini
 - Deep crawl tuntas: **124 halaman**, **186 endpoint** JSON, 0 link internal tersisa

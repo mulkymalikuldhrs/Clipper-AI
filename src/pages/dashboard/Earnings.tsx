@@ -1,127 +1,196 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageHeader, KpiCard, EmptyState } from "@/components/shared";
-import { formatRupiah, formatNumber, timeAgo } from "@/lib/utils";
-import { Wallet, Clock, TrendingUp, Eye, ExternalLink, ShieldAlert, CircleDot } from "lucide-react";
+import {
+  EmptyState,
+  KeyValue,
+  KeyValueList,
+  Meter,
+  MetricStrip,
+  PageHeader,
+  Panel,
+  PanelLoading,
+  Status,
+  TableRow,
+  TableShell,
+} from "@/components/shared";
+import { formatNumber, formatRupiah, timeAgo } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
+
+const ROW_COLS = "minmax(0,1fr) 6.5rem 7rem 7rem 8rem";
+
+function statusTone(status?: string) {
+  if (status === "approved") return "good" as const;
+  if (status === "diproses") return "info" as const;
+  return "warn" as const;
+}
 
 export default function EarningsPage() {
   const snapshot = useQuery(api.queries.getSnapshot, {});
   const earnings = useQuery(api.queries.getEarnings, {});
-  const loading = snapshot === undefined || earnings === undefined;
 
-  if (loading) {
-    return <div className="h-64 animate-pulse rounded-xl bg-muted" />;
+  if (snapshot === undefined || earnings === undefined) {
+    return (
+      <div className="space-y-6">
+        <div className="h-16 border-b border-border" />
+        <PanelLoading />
+      </div>
+    );
   }
 
   if (!snapshot) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Earnings" icon={Wallet} />
+        <PageHeader eyebrow="Earnings" title="Saldo & payout" />
         <EmptyState
-          icon={Wallet}
           title="Belum ada data earnings"
-          description="Jalankan bridge sync atau isi demo data dari halaman Bridge."
+          description="Sync bridge atau isi data demo untuk melihat saldo, status pemrosesan, dan kesiapan withdraw."
         />
       </div>
     );
   }
 
   const s = (snapshot.earningsSummary ?? {}) as Record<string, number>;
-  const settings = (
-    snapshot.featureFlags as { settings?: Record<string, unknown> } | undefined
-  )?.settings;
+  const settings = (snapshot.featureFlags as { settings?: Record<string, unknown> } | undefined)
+    ?.settings;
   const minWithdraw = Number(settings?.min_withdrawal_idr ?? 50000);
   const fee = Number(settings?.withdrawal_fee_idr ?? 10000);
   const available = s.available ?? 0;
   const canWithdraw = available >= minWithdraw;
+  const progressToMin = minWithdraw > 0 ? (available / minWithdraw) * 100 : 100;
+  const rows = earnings ?? [];
+  const totalAmount = rows.reduce((sum, e) => sum + e.amount, 0);
+  const totalViews = rows.reduce((sum, e) => sum + e.views, 0);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Earnings & Payout"
-        subtitle="Mirror wallet konten.com: earned, on hold, siap withdraw."
-        icon={Wallet}
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Total Earned" value={formatRupiah(s.totalEarned)} sub={`bulan ini ${formatRupiah(s.thisMonth)}`} icon={TrendingUp} />
-        <KpiCard label="Siap Withdraw" value={formatRupiah(available)} icon={Wallet} accent="cyan" />
-        <KpiCard label="On Hold" value={formatRupiah(s.onHold)} sub="belum melewati views floor" icon={Clock} accent="amber" />
-        <KpiCard label="Total Views" value={formatNumber(s.totalViews)} icon={Eye} />
-      </div>
-
-      <Card className={canWithdraw ? "border-emerald-500/30" : "border-amber-500/30"}>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle className="text-base flex items-center gap-2">
-              {canWithdraw ? <CircleDot className="h-4 w-4 text-emerald-400" /> : <ShieldAlert className="h-4 w-4 text-amber-400" />}
-              Kesiapan Withdraw
-            </CardTitle>
-            <CardDescription>
-              Aturan platform: minimum {formatRupiah(minWithdraw)} + fee {formatRupiah(fee)} per penarikan.
-            </CardDescription>
-          </div>
-          <Badge variant={canWithdraw ? "success" : "warning"}>
-            {canWithdraw ? "SIAP" : "BELUM CUKUP"}
-          </Badge>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm text-muted-foreground">Saldo tersedia</span>
-            <span className="text-2xl font-bold">{formatRupiah(available)}</span>
-          </div>
-          <div className="flex items-baseline justify-between text-sm">
-            <span className="text-muted-foreground">Estimasi diterima jika withdraw sekarang</span>
-            <span className="font-semibold">{formatRupiah(Math.max(0, available - fee))}</span>
-          </div>
-          {!canWithdraw && (
-            <p className="text-xs text-muted-foreground">
-              Butuh {formatRupiah(minWithdraw - available)} lagi untuk mencapai minimum penarikan.
-            </p>
-          )}
+        eyebrow="Earnings"
+        title="Saldo & payout"
+        meta={`${rows.length} baris earnings tersinkron • aturan platform: minimum ${formatRupiah(minWithdraw)} dan fee ${formatRupiah(fee)} per penarikan`}
+        actions={
           <Button asChild variant="outline" size="sm">
             <a href="https://konten.com/clipper-earnings" target="_blank" rel="noreferrer">
-              Buka halaman earnings konten.com <ExternalLink className="h-3.5 w-3.5" />
+              Halaman earnings konten.com <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </Button>
-        </CardContent>
-      </Card>
+        }
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Riwayat Earnings</CardTitle>
-          <CardDescription>{earnings?.length ?? 0} baris tersinkron</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          {(earnings ?? []).length === 0 ? (
-            <p className="p-6 text-sm text-muted-foreground text-center">Belum ada baris earnings.</p>
+      <MetricStrip
+        items={[
+          {
+            label: "Total earned",
+            value: formatRupiah(s.totalEarned),
+            hint: `bulan ini ${formatRupiah(s.thisMonth)}`,
+          },
+          {
+            label: "Siap withdraw",
+            value: formatRupiah(available),
+            hint: canWithdraw ? "memenuhi minimum" : `kurang ${formatRupiah(Math.max(0, minWithdraw - available))}`,
+          },
+          {
+            label: "On hold",
+            value: formatRupiah(s.onHold),
+            hint: "belum melewati views floor",
+          },
+          {
+            label: "Views dibayar",
+            value: formatNumber(totalViews),
+            hint: `${rows.length} baris`,
+          },
+          {
+            label: "Nilai baris",
+            value: formatRupiah(totalAmount),
+            hint: "akumulasi 100 baris terakhir",
+          },
+        ]}
+      />
+
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <Panel title="Kesiapan withdraw">
+          <div className="flex items-baseline justify-between">
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              saldo tersedia
+            </span>
+            <span className="font-mono text-xl font-semibold tabular-nums">
+              {formatRupiah(available)}
+            </span>
+          </div>
+          <Meter
+            value={Math.min(100, progressToMin)}
+            tone={canWithdraw ? "good" : "warn"}
+            className="mt-3 h-1.5"
+          />
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+            {canWithdraw
+              ? "ambang minimum tercapai"
+              : `${Math.min(100, Math.round(progressToMin))}% dari ${formatRupiah(minWithdraw)}`}
+          </p>
+
+          <KeyValueList className="mt-4">
+            <KeyValue label="estimasi diterima" mono>
+              {formatRupiah(Math.max(0, available - fee))}
+            </KeyValue>
+            <KeyValue label="fee per penarikan" mono>
+              {formatRupiah(fee)}
+            </KeyValue>
+            <KeyValue label="status">
+              <Status tone={canWithdraw ? "good" : "warn"}>
+                {canWithdraw ? "siap ditarik" : "belum cukup"}
+              </Status>
+            </KeyValue>
+            <KeyValue label="platform" mono>
+              konten.com
+            </KeyValue>
+          </KeyValueList>
+        </Panel>
+
+        <Panel title="Baris earnings" meta={`${rows.length} baris`} flush>
+          {rows.length === 0 ? (
+            <p className="px-4 py-6 text-[13px] text-muted-foreground">
+              Belum ada baris earnings. Sync bridge untuk menarik riwayat dari akunmu.
+            </p>
           ) : (
-            <div className="divide-y divide-border">
-              {earnings!.map((e) => (
-                <div key={e._id} className="flex items-center gap-4 px-6 py-3.5">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{e.campaignTitle ?? "—"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {e.platform ?? "-"} • {formatNumber(e.views)} views • {timeAgo(e.earnedAt)}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      e.status === "approved" ? "success" : e.status === "diproses" ? "info" : "warning"
-                    }
-                  >
-                    {e.status ?? "-"}
-                  </Badge>
-                  <p className="text-sm font-semibold w-28 text-right">{formatRupiah(e.amount)}</p>
-                </div>
+            <TableShell
+              cols={ROW_COLS}
+              minWidth="46rem"
+              head={[
+                "campaign",
+                "platform",
+                "views",
+                "waktu",
+                <span key="n" className="block text-right">
+                  nominal
+                </span>,
+              ]}
+            >
+              {rows.slice(0, 40).map((e) => (
+                <TableRow key={e._id} cols={ROW_COLS}>
+                  <span className="min-w-0">
+                    <span className="block truncate">{e.campaignTitle ?? "—"}</span>
+                    <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
+                      <Status tone={statusTone(e.status)}>{e.status ?? "—"}</Status>
+                    </span>
+                  </span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                    {e.platform ?? "—"}
+                  </span>
+                  <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
+                    {formatNumber(e.views)}
+                  </span>
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    {timeAgo(e.earnedAt)}
+                  </span>
+                  <span className="text-right font-mono text-[12px] font-semibold tabular-nums">
+                    {formatRupiah(e.amount)}
+                  </span>
+                </TableRow>
               ))}
-            </div>
+            </TableShell>
           )}
-        </CardContent>
-      </Card>
+        </Panel>
+      </div>
     </div>
   );
 }

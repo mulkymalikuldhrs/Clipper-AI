@@ -1,34 +1,44 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { PageHeader, EmptyState } from "@/components/shared";
-import { cn } from "@/lib/utils";
 import {
-  Clapperboard,
-  Zap,
-  CheckCircle2,
-  Circle,
-  ExternalLink,
-  FileText,
-  ListChecks,
-  Clock,
-} from "lucide-react";
+  Bullets,
+  CopyButton,
+  EmptyState,
+  Meter,
+  MonoLabel,
+  PageHeader,
+  Panel,
+  PanelLoading,
+  Status,
+  TableRow,
+  TableShell,
+  toneForScore,
+} from "@/components/shared";
+import { cn } from "@/lib/utils";
+import { Check, ExternalLink, Play, Zap } from "lucide-react";
+
+const MATERI_COLS = "minmax(0,1fr) 7rem 5rem";
+
+function planErrorMessage(error: unknown): string {
+  return error instanceof Error
+    ? error.message.replace("Uncaught Error: ", "")
+    : "Rencana belum bisa disusun. Coba lagi.";
+}
 
 export default function Autopilot() {
   const joined = useQuery(api.queries.listCampaigns, { joined: true });
   const [selectedExtId, setSelectedExtId] = useState<string | null>(null);
+  const [planError, setPlanError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const createPlan = useMutation(api.brief.createPlan);
   const toggleTask = useMutation(api.brief.toggleTask);
   const setPlanStatus = useMutation(api.brief.setPlanStatus);
 
-  // Active campaign defaults to the first joined campaign so the query always runs.
   const activeExtId = selectedExtId ?? joined?.[0]?.extId ?? null;
   const active = joined?.find((c) => c.extId === activeExtId) ?? null;
   const planData = useQuery(
@@ -38,40 +48,60 @@ export default function Autopilot() {
 
   // Autopilot: susun rencana otomatis begitu campaign terpilih (sekali per campaign).
   const attempted = useRef<Set<string>>(new Set());
-  const creating = useRef(false);
+  const creatingRef = useRef(false);
   useEffect(() => {
-    if (!active || planData !== null || creating.current) return;
+    if (!active || planData !== null || creatingRef.current) return;
     if (attempted.current.has(active.extId)) return;
     attempted.current.add(active.extId);
-    creating.current = true;
+    creatingRef.current = true;
+    setCreating(true);
+    setPlanError(null);
     createPlan({ campaignId: active._id })
-      .catch(() => {})
+      .catch((error) => {
+        setPlanError(planErrorMessage(error));
+      })
       .finally(() => {
-        creating.current = false;
+        creatingRef.current = false;
+        setCreating(false);
       });
   }, [active, planData, createPlan]);
 
-  const loading = joined === undefined;
-
-  if (loading) {
-    return <div className="h-64 animate-pulse rounded-xl bg-muted" />;
+  async function handleManualCreate() {
+    if (!active || creating) return;
+    setCreating(true);
+    setPlanError(null);
+    try {
+      await createPlan({ campaignId: active._id });
+    } catch (error) {
+      setPlanError(planErrorMessage(error));
+    } finally {
+      setCreating(false);
+    }
   }
 
-  if (!joined || joined.length === 0) {
+  if (joined === undefined) {
+    return (
+      <div className="space-y-6">
+        <div className="h-16 border-b border-border" />
+        <PanelLoading />
+      </div>
+    );
+  }
+
+  if (joined.length === 0) {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Brief Autopilot"
-          subtitle="Ubah brief campaign jadi rencana produksi siap eksekusi."
-          icon={Clapperboard}
+          eyebrow="Autopilot"
+          title="Rencana produksi"
+          meta="Brief campaign dipecah jadi shotlist, hook, caption, dan checklist kepatuhan."
         />
         <EmptyState
-          icon={Clapperboard}
           title="Belum ada campaign diikuti"
-          description="Tandai campaign sebagai diikuti di Scanner dulu, lalu buat rencana produksinya di sini."
+          description="Tandai satu campaign sebagai diikuti di Scanner. Autopilot lalu membaca brief-nya dan menyusun rencana produksi siap eksekusi."
           action={
-            <Button asChild>
-              <Link to="/app/scanner">Buka Scanner</Link>
+            <Button asChild size="sm">
+              <Link to="/app/scanner">Buka scanner</Link>
             </Button>
           }
         />
@@ -85,49 +115,60 @@ export default function Autopilot() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Brief Autopilot"
-        subtitle="Rencana produksi otomatis dari brief campaign: hook, shotlist, caption, checklist kepatuhan."
-        icon={Clapperboard}
+        eyebrow="Autopilot"
+        title="Rencana produksi"
+        meta={`${joined.length} campaign diikuti • rencana dibuat otomatis dari brief asli konten.com`}
+        actions={
+          active && (
+            <Button asChild variant="ghost" size="sm">
+              <Link to={`/app/campaign/${active._id}`}>
+                Brief lengkap <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          )
+        }
       />
 
-      {/* Campaign selector */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
         {joined.map((c) => (
           <button
             key={c._id}
             onClick={() => setSelectedExtId(c.extId)}
             data-testid="campaign-tab"
             className={cn(
-              "shrink-0 rounded-lg border px-4 py-2 text-left transition-colors max-w-xs",
+              "shrink-0 rounded-md border px-3 py-1.5 text-left transition-colors",
               activeExtId === c.extId
-                ? "border-primary/50 bg-primary/10"
-                : "hover:border-primary/30 bg-card"
+                ? "border-primary/40 bg-primary/10"
+                : "border-border text-muted-foreground hover:text-foreground"
             )}
           >
-            <p className="text-sm font-medium truncate">{c.title}</p>
-            <p className="text-xs text-muted-foreground truncate">
+            <span className="block max-w-56 truncate text-[12px]">{c.title}</span>
+            <span className="mt-0.5 block font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground/70">
               {c.brand} • skor {c.score}
-            </p>
+            </span>
           </button>
         ))}
       </div>
 
       {!extId ? null : !plan ? (
-        <div className="h-64 animate-pulse rounded-xl bg-muted" />
+        <PanelLoading />
       ) : plan === null ? (
-        <EmptyState
-          icon={Zap}
-          title="Rencana belum dibuat"
-          description={`Autopilot akan membaca brief "${active?.title ?? "campaign"}" lalu menyusun shotlist, hook, caption, dan checklist lengkap.`}
-          action={
-            <Button
-              onClick={() => active && createPlan({ campaignId: active._id })}
-              disabled={!active}
-            >
-              <Zap className="h-4 w-4" /> Susun Rencana Sekarang
-            </Button>
-          }
-        />
+        <div className="space-y-3">
+          {planError && (
+            <div role="alert" className="border border-red-300/40 bg-red-300/5 px-4 py-3 text-[13px] text-red-200">
+              {planError}
+            </div>
+          )}
+          <EmptyState
+            title="Rencana belum dibuat"
+            description={`Autopilot akan membaca brief "${active?.title ?? "campaign"}" lalu menyusun shotlist, hook, caption, dan checklist kepatuhan.`}
+            action={
+              <Button onClick={handleManualCreate} disabled={!active || creating} size="sm">
+                <Zap className="h-3.5 w-3.5" /> {creating ? "Menyusun…" : "Susun rencana sekarang"}
+              </Button>
+            }
+          />
+        </div>
       ) : (
         <PlanView
           data={plan}
@@ -184,331 +225,331 @@ function PlanView({
   const doneCount = tasks.filter((t) => t.done).length;
   const progress = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
 
+  const groups = useMemo(() => {
+    const map = new Map<string, typeof tasks>();
+    for (const t of tasks) {
+      const list = map.get(t.category) ?? [];
+      list.push(t);
+      map.set(t.category, list);
+    }
+    return [...map.entries()];
+  }, [tasks]);
+
   return (
     <div className="space-y-6">
-      {/* Header card */}
-      <Card className="border-glow">
-        <CardHeader className="flex-row items-start justify-between space-y-0">
-          <div>
-            <CardTitle className="text-lg">{plan.title}</CardTitle>
-            <CardDescription className="mt-1">
-              {plan.brand} • durasi target {plan.durasiMin}–{plan.durasiMax} detik
-            </CardDescription>
-            {(plan.targetAudience || plan.goal || plan.platforms?.length) && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {plan.targetAudience && (
-                  <Badge variant="secondary" className="text-[10px]">
-                    Audiens: {plan.targetAudience}
-                  </Badge>
-                )}
-                {plan.goal && (
-                  <Badge variant="secondary" className="text-[10px]">
-                    Tujuan: {plan.goal}
-                  </Badge>
-                )}
-                {(plan.platforms ?? []).map((p) => (
-                  <Badge key={p} variant="outline" className="text-[10px] uppercase">
-                    {p}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={plan.status === "done" ? "success" : plan.status === "draft" ? "warning" : "info"}
-            >
-              {plan.status.toUpperCase()}
-            </Badge>
+      <Panel
+        title="Rencana aktif"
+        meta={`${plan.durasiMin}–${plan.durasiMax} detik`}
+        actions={
+          <label className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              status
+            </span>
             <select
               value={plan.status}
               onChange={(e) => onSetStatus(e.target.value)}
-              className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
+              className="h-7 rounded-md border border-input bg-transparent px-2 font-mono text-[11px] uppercase tracking-[0.1em] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <option value="draft">draft</option>
               <option value="ready">ready</option>
               <option value="shooting">shooting</option>
               <option value="done">done</option>
             </select>
+          </label>
+        }
+      >
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-[15px] font-semibold tracking-tight">{plan.title}</h3>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+              {plan.brand}
+              {plan.platforms?.length ? ` • ${plan.platforms.join("/")}` : ""}
+              {plan.targetAudience ? ` • audiens: ${plan.targetAudience}` : ""}
+              {plan.goal ? ` • tujuan: ${plan.goal}` : ""}
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-              <span>Progres produksi</span>
-              <span className="font-mono">
-                {doneCount}/{tasks.length} • skor kepatuhan {plan.complianceScore}
-              </span>
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <MonoLabel>kepatuhan</MonoLabel>
+              <p
+                className={cn(
+                  "mt-1 font-mono text-lg font-semibold tabular-nums",
+                  toneForScore(plan.complianceScore) === "good"
+                    ? "text-emerald-300"
+                    : toneForScore(plan.complianceScore) === "warn"
+                      ? "text-amber-300"
+                      : "text-red-300"
+                )}
+              >
+                {plan.complianceScore}
+              </p>
             </div>
-            <Progress value={progress} />
+            <div className="w-40">
+              <MonoLabel>progres {progress}%</MonoLabel>
+              <Meter value={progress} tone={progress === 100 ? "good" : "primary"} className="mt-2" />
+              <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">
+                {doneCount}/{tasks.length} tugas
+              </p>
+            </div>
           </div>
+        </div>
 
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
-            <p className="text-[10px] font-mono uppercase text-primary mb-1">Hook rekomendasi (3 dtk pertama)</p>
-            <p className="text-sm">{plan.hook}</p>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="mt-5 border-l-2 border-primary/60 pl-3.5">
+          <MonoLabel className="text-primary">hook 3 detik pertama</MonoLabel>
+          <p className="mt-1 text-[13px] leading-relaxed">{plan.hook}</p>
+        </div>
+      </Panel>
 
       <Tabs defaultValue="shotlist">
-        <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="shotlist">Shotlist</TabsTrigger>
-          <TabsTrigger value="narasi">Narasi & CTA</TabsTrigger>
-          <TabsTrigger value="caption">Caption</TabsTrigger>
-          <TabsTrigger value="materi">Materi ({plan.materi.length})</TabsTrigger>
-          <TabsTrigger value="tasks">Checklist ({doneCount}/{tasks.length})</TabsTrigger>
-          <TabsTrigger value="rules">Aturan</TabsTrigger>
+        <TabsList className="no-scrollbar h-auto w-full justify-start gap-1 overflow-x-auto rounded-none border-b border-border bg-transparent p-0">
+          {[
+            { v: "shotlist", label: `Shotlist ${plan.shotlist.length}` },
+            { v: "narasi", label: "Narasi & CTA" },
+            { v: "caption", label: "Caption" },
+            { v: "materi", label: `Materi ${plan.materi.length}` },
+            { v: "tasks", label: `Checklist ${doneCount}/${tasks.length}` },
+            { v: "rules", label: "Aturan" },
+          ].map((t) => (
+            <TabsTrigger
+              key={t.v}
+              value={t.v}
+              className="rounded-none border-b-2 border-transparent bg-transparent px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none"
+            >
+              {t.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="shotlist">
-          <Card>
-            <CardContent className="p-0">
-              <div className="divide-y divide-border">
+          <Panel
+            title="Shotlist"
+            meta={`total ${plan.durasiMax} detik`}
+            flush
+          >
+            {plan.shotlist.length === 0 ? (
+              <p className="px-4 py-5 text-[13px] text-muted-foreground">
+                Brief ini tidak mencantumkan struktur shot.
+              </p>
+            ) : (
+              <ol className="divide-y divide-border/60">
                 {plan.shotlist.map((s, i) => (
-                  <div key={i} className="flex gap-4 p-4">
-                    <Badge variant="outline" className="font-mono shrink-0 w-fit">
+                  <li
+                    key={i}
+                    className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-4 px-4 py-3"
+                  >
+                    <span className="flex items-center gap-2 font-mono text-[11px] tabular-nums text-muted-foreground">
+                      <Play className="h-3 w-3 text-primary/70" />
                       {s.detik}
-                    </Badge>
-                    <p className="text-sm">{s.aksi}</p>
-                  </div>
+                    </span>
+                    <span className="text-[13px] leading-relaxed">{s.aksi}</span>
+                  </li>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+              </ol>
+            )}
+          </Panel>
         </TabsContent>
 
         <TabsContent value="narasi">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" /> Narasi wajib
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {(plan.narasiPoints?.length ?? 0) > 0 ? (
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    {plan.narasiPoints!.map((n, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="text-primary">▸</span>
-                        <span>{n}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm whitespace-pre-line text-muted-foreground">{plan.narasi}</p>
-                )}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" /> CTA akhir video
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm font-medium whitespace-pre-line">{plan.cta}</p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
+            <Panel title="Narasi wajib" meta="aturan brief">
+              {(plan.narasiPoints?.length ?? 0) > 0 ? (
+                <Bullets items={plan.narasiPoints!} ordered />
+              ) : (
+                <p className="whitespace-pre-line text-[13px] leading-relaxed text-muted-foreground">
+                  {plan.narasi}
+                </p>
+              )}
+            </Panel>
+            <Panel title="CTA akhir video" meta="harus terlihat">
+              <p className="text-[13px] leading-relaxed text-foreground">{plan.cta}</p>
+              {plan.captionWajib && (
+                <div className="mt-4 border-t border-border pt-4">
+                  <MonoLabel>caption wajib dari brand</MonoLabel>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+                    {plan.captionWajib}
+                  </p>
+                </div>
+              )}
+            </Panel>
           </div>
         </TabsContent>
 
         <TabsContent value="caption">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Caption siap tempel</CardTitle>
-              <CardDescription>Sudah termasuk hook, ajakan, dan semua hashtag wajib.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="whitespace-pre-wrap rounded-lg border bg-background/60 p-4 text-sm font-mono">
-                {plan.caption}
-              </pre>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {plan.hashtags.map((h) => (
-                  <Badge key={h} variant="outline" className="font-mono text-[10px]">
-                    #{h}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <Panel
+            title="Caption siap tempel"
+            meta="hook + ajakan + hashtag"
+            actions={<CopyButton text={plan.caption} />}
+          >
+            <pre className="whitespace-pre-wrap rounded-md border border-border bg-background/50 p-3.5 font-mono text-[12px] leading-relaxed">
+              {plan.caption}
+            </pre>
+            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5">
+              {plan.hashtags.map((h) => (
+                <span key={h} className="font-mono text-[11px] text-primary">
+                  #{h}
+                </span>
+              ))}
+            </div>
+          </Panel>
         </TabsContent>
 
         <TabsContent value="materi">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Materi & referensi</CardTitle>
-              <CardDescription>Buka satu per satu, tandai di checklist setelah diunduh.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-2">
-              {plan.materi.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Detail materi tidak tersedia di snapshot — buka halaman campaign untuk daftar lengkap.
-                </p>
-              )}
-              {plan.materi.map((m) => (
-                <a
-                  key={m.url}
-                  href={m.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between rounded-lg border p-3 hover:border-primary/40 transition-colors"
-                >
-                  <span className="text-sm font-medium">{m.title}</span>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                </a>
-              ))}
-            </CardContent>
-          </Card>
+          <Panel
+            title="Materi & referensi"
+            meta={`${plan.materi.length} file dari brief`}
+            flush
+          >
+            {plan.materi.length === 0 ? (
+              <p className="px-4 py-5 text-[13px] text-muted-foreground">
+                Snapshot ini tidak menyertakan daftar materi. Buka halaman campaign untuk brief
+                lengkap.
+              </p>
+            ) : (
+              <TableShell cols={MATERI_COLS} minWidth="30rem" head={["materi", "sumber", "aksi"]}>
+                {plan.materi.map((m) => (
+                  <TableRow key={m.url} cols={MATERI_COLS}>
+                    <span className="truncate text-[13px]">{m.title}</span>
+                    <span className="truncate font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
+                      {host(m.url)}
+                    </span>
+                    <a
+                      href={m.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      buka <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </TableRow>
+                ))}
+              </TableShell>
+            )}
+          </Panel>
         </TabsContent>
 
         <TabsContent value="tasks">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <ListChecks className="h-4 w-4 text-primary" /> Checklist produksi
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1.5">
-              {tasks.map((t) => (
-                <button
-                  key={t._id}
-                  onClick={() => onToggleTask(t._id)}
-                  className="flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left hover:border-primary/40 transition-colors"
-                >
-                  {t.done ? (
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-                  )}
-                  <span className={cn("text-sm flex-1", t.done && "line-through text-muted-foreground")}>
-                    {t.label}
-                  </span>
-                  <Badge variant="secondary" className="text-[10px] shrink-0">
-                    {t.category}
-                  </Badge>
-                </button>
-              ))}
-            </CardContent>
-          </Card>
+          <Panel
+            title="Checklist produksi"
+            meta={`${doneCount}/${tasks.length} selesai`}
+            actions={
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                {progress}%
+              </span>
+            }
+          >
+            {groups.length === 0 ? (
+              <p className="text-[13px] text-muted-foreground">Belum ada tugas.</p>
+            ) : (
+              <div className="space-y-5">
+                {groups.map(([category, list]) => (
+                  <div key={category}>
+                    <MonoLabel>
+                      {category} • {list.filter((t) => t.done).length}/{list.length}
+                    </MonoLabel>
+                    <div className="mt-2 divide-y divide-border/60 border-y border-border/60">
+                      {list.map((t) => (
+                        <button
+                          key={t._id}
+                          onClick={() => onToggleTask(t._id)}
+                          className="flex w-full items-start gap-3 py-2.5 text-left transition-colors hover:bg-secondary/30"
+                        >
+                          <span
+                            className={cn(
+                              "mt-0.5 grid h-3.5 w-3.5 shrink-0 place-items-center rounded-sm border",
+                              t.done ? "border-primary bg-primary/20" : "border-border"
+                            )}
+                          >
+                            {t.done && <Check className="h-2.5 w-2.5 text-primary" />}
+                          </span>
+                          <span
+                            className={cn(
+                              "text-[13px] leading-relaxed",
+                              t.done ? "text-muted-foreground/60 line-through" : "text-muted-foreground"
+                            )}
+                          >
+                            {t.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Panel>
         </TabsContent>
 
         <TabsContent value="rules">
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Elemen wajib</CardTitle>
-                  <CardDescription>Harus ada di video kamu.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    {plan.elemenWajib.length === 0 && (
-                      <li className="text-muted-foreground">Tidak ada data dari brief.</li>
-                    )}
-                    {plan.elemenWajib.map((e, i) => (
-                      <li key={i} className="flex gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span>{e}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base text-emerald-300">Yang BOLEH dilakukan</CardTitle>
-                  <CardDescription>Diambil langsung dari brief campaign.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    {(plan.boleh ?? []).length === 0 && (
-                      <li className="text-muted-foreground">Brief tidak mencantumkan poin khusus.</li>
-                    )}
-                    {(plan.boleh ?? []).map((b, i) => (
-                      <li key={i} className="flex gap-2">
-                        <Badge variant="success" className="mt-0.5 h-fit shrink-0 text-[10px]">
-                          BOLEH
-                        </Badge>
-                        <span className="text-muted-foreground">{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+          <div className="space-y-6">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
+              <Panel title="Elemen wajib" meta="harus ada di video">
+                <Bullets items={plan.elemenWajib} ordered empty="Brief tidak mencantumkan elemen wajib." />
+              </Panel>
+              <Panel title="Boleh dilakukan" meta="dari brief brand">
+                <Bullets items={plan.boleh ?? []} tone="good" empty="Brief tidak mencantumkan poin khusus." />
+              </Panel>
             </div>
 
-            <Card className="border-destructive/40">
-              <CardHeader>
-                <CardTitle className="text-base text-destructive">Yang DILARANG</CardTitle>
-                <CardDescription>
-                  Clip yang melanggar ini berisiko ditolak dan tidak dibayar.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  {(plan.dilarang ?? []).length === 0 && (
-                    <li className="text-muted-foreground">
-                      Brief tidak mencantumkan larangan khusus — tetap patuhi aturan platform.
-                    </li>
-                  )}
-                  {(plan.dilarang ?? []).map((d, i) => (
-                    <li key={i} className="flex gap-2">
-                      <Badge variant="destructive" className="mt-0.5 h-fit shrink-0 text-[10px]">
-                        JANGAN
-                      </Badge>
-                      <span className="text-muted-foreground">{d}</span>
-                    </li>
-                  ))}
-                </ul>
-                {(plan.dilarang ?? []).length === 0 && (
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    {plan.doDonts.map((d, i) => (
-                      <li key={i}>• {d}</li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
+            <Panel
+              title="Dilarang"
+              meta="clip yang melanggar berisiko ditolak & tidak dibayar"
+              className="border-red-500/25"
+            >
+              {(plan.dilarang ?? []).length > 0 ? (
+                <Bullets items={plan.dilarang ?? []} tone="bad" />
+              ) : plan.doDonts.length > 0 ? (
+                <Bullets items={plan.doDonts} tone="bad" />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">
+                  Brief tidak mencantumkan larangan khusus — tetap patuhi aturan platform.
+                </p>
+              )}
+            </Panel>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Referensi brief</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
+            <Panel title="Referensi brief">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {plan.judulFile && (
-                  <p>
-                    <span className="text-muted-foreground">Judul file: </span>
-                    <span className="font-medium">{plan.judulFile}</span>
-                  </p>
+                  <div>
+                    <MonoLabel>judul file</MonoLabel>
+                    <p className="mt-1.5 text-[13px] text-muted-foreground">{plan.judulFile}</p>
+                  </div>
                 )}
+                <div>
+                  <MonoLabel>status rencana</MonoLabel>
+                  <p className="mt-1.5">
+                    <Status tone={plan.status === "done" ? "good" : "info"}>{plan.status}</Status>
+                  </p>
+                </div>
                 {plan.instruksiBrief && (
-                  <p>
-                    <span className="text-muted-foreground">Instruksi: </span>
-                    {plan.instruksiBrief}
-                  </p>
+                  <div className="sm:col-span-2">
+                    <MonoLabel>instruksi</MonoLabel>
+                    <p className="mt-1.5 whitespace-pre-line text-[13px] leading-relaxed text-muted-foreground">
+                      {plan.instruksiBrief}
+                    </p>
+                  </div>
                 )}
-                {plan.captionWajib && (
-                  <p>
-                    <span className="text-muted-foreground">Caption wajib: </span>
-                    {plan.captionWajib}
-                  </p>
-                )}
-                <Button asChild variant="outline" size="sm" className="mt-2">
-                  <a
-                    href={`https://konten.com/clipper-campaigns/${plan.campaignSlug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Brief lengkap di konten.com <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+              <Button asChild variant="outline" size="sm" className="mt-4">
+                <a
+                  href={`https://konten.com/clipper-campaigns/${plan.campaignSlug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Brief lengkap di konten.com <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </Button>
+            </Panel>
           </div>
         </TabsContent>
       </Tabs>
     </div>
   );
+}
+
+function host(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "konten.com";
+  }
 }

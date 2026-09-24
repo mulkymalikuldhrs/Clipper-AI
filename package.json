@@ -9,7 +9,10 @@
     "convex:dev": "convex dev",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "typecheck": "tsc -b --noEmit"
+    "smoke": "bun scripts/smoke-dashboard.ts",
+    "test": "bun test",
+    "typecheck": "tsc -b --noEmit",
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json --noEmit"
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.95",

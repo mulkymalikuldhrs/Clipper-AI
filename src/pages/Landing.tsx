@@ -1,117 +1,154 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { useConvexAuth } from "convex/react";
+import { Button } from "@/components/ui/button";
 import {
-  Scissors,
-  Radar,
-  Clapperboard,
-  BarChart3,
-  Wallet,
-  Cable,
-  ArrowRight,
-  Zap,
-  ShieldCheck,
-  TrendingUp,
-  Target,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+  Bullets,
+  KeyValue,
+  KeyValueList,
+  MetricStrip,
+  MonoLabel,
+  Panel,
+  Score,
+  Status,
+  TableRow,
+  TableShell,
+} from "@/components/shared";
+import { ArrowRight, Scissors } from "lucide-react";
+
+const SHELL = "mx-auto w-full max-w-6xl px-4 md:px-8";
+
+const NAV = [
+  { href: "#fitur", label: "Fitur" },
+  { href: "#cara", label: "Cara kerja" },
+  { href: "#statistik", label: "Data lapangan" },
+];
+
+const SAMPLE = [
+  { title: "Owner — Artha ldt", score: 92, cpm: "Rp5.000", budget: "100%", clippers: "135" },
+  { title: "Growlab — Beyond The Podcast", score: 81, cpm: "Rp3.000", budget: "100%", clippers: "154" },
+  { title: "Bevan — Education Clips", score: 64, cpm: "Rp3.000", budget: "91%", clippers: "4.681" },
+  { title: "IBU, Bagaimana aku Tanpamu", score: 41, cpm: "Rp2.000", budget: "31%", clippers: "11.936" },
+];
+
+const HERO_COLS = "8rem minmax(0,1fr) 4.5rem 5rem 4.5rem 5.5rem";
+
+const FACTS = [
+  { label: "Crawl terverifikasi", value: "124", hint: "halaman clipper konten.com" },
+  { label: "Endpoint dipetakan", value: "186", hint: "campaign, brief, earnings, analitik" },
+  { label: "Campaign ber-brief", value: "45", hint: "brief_detail lengkap" },
+  { label: "Data demo", value: "20 / 114", hint: "campaign asli / materi" },
+];
 
 const FEATURES = [
   {
-    icon: Radar,
-    title: "Campaign Scanner",
-    desc: "Tarik semua campaign aktif konten.com, hitung skor peluang: CPM, sisa budget, kompetisi clipper, dan syarat minimum views.",
+    id: "01",
+    title: "Campaign scanner",
+    desc: "Seluruh campaign aktif konten.com ditarik dan diberi skor 0–100: CPM, sisa budget, jumlah clipper pesaing, dan syarat minimum views.",
   },
   {
-    icon: Clapperboard,
-    title: "Brief Autopilot",
-    desc: "Brief campaign diubah otomatis jadi rencana produksi: hook, shotlist per detik, narasi wajib, caption + hashtag, checklist kepatuhan.",
+    id: "02",
+    title: "Brief autopilot",
+    desc: "Brief diubah jadi rencana produksi: hook, shotlist per detik, narasi wajib, caption + hashtag, dan checklist kepatuhan.",
   },
   {
-    icon: BarChart3,
-    title: "Analitik Views",
-    desc: "Mirror timeseries views harian dan leaderboard top-clips untuk tahu apa yang sedang menang di campaign.",
+    id: "03",
+    title: "Analitik views",
+    desc: "Timeseries views harian dan leaderboard top-clip, supaya jelas apa yang sedang menang di tiap campaign.",
   },
   {
-    icon: Wallet,
-    title: "Earnings Real-time",
-    desc: "Pantau pending, diproses, dan withdraw-ready langsung dari dashboard — plus proyeksi payout per campaign.",
+    id: "04",
+    title: "Earnings mirror",
+    desc: "Pending, diproses, dan withdraw-ready tercermin langsung dari dashboard, plus proyeksi payout per campaign.",
   },
   {
-    icon: Cable,
-    title: "Bridge Aman",
-    desc: "Sinkronisasi lewat sesi akunmu sendiri (email/password atau cookies) via bridge lokal. Tanpa API tanpa izin, tanpa data pihak ketiga.",
+    id: "05",
+    title: "Bridge sesi sendiri",
+    desc: "Sync lewat sesi akunmu (email/password atau cookies) dari mesinmu sendiri. Tanpa API tanpa izin, tanpa data pihak ketiga.",
   },
   {
-    icon: ShieldCheck,
-    title: "Compliance Guard",
-    desc: "Cek do & don'ts dari setiap brief sebelum kamu buang waktu produksi: elemen wajib, durasi, platform, aturan brand.",
+    id: "06",
+    title: "Compliance guard",
+    desc: "Do & don'ts tiap brief diperiksa sebelum masuk produksi: elemen wajib, durasi, platform, dan aturan brand.",
   },
 ];
 
 const STEPS = [
   {
-    n: "01",
+    id: "01",
     title: "Hubungkan akun",
-    desc: "Login atau tempel cookies sesi konten.com milikmu. Bridge menarik data campaign, earnings, dan analitik secara berkala.",
+    desc: "Masuk, lalu jalankan bridge di mesinmu dengan kredensial atau cookies konten.com milikmu. Bridge membaca dashboard clipper secara berkala.",
   },
   {
-    n: "02",
-    title: "Pilih campaign terbaik",
-    desc: "Scanner memberi skor 0–100 untuk tiap campaign. Join yang layak, lewati yang jebakan. Join bisa dilakukan otomatis dari halaman detail.",
+    id: "02",
+    title: "Saring campaign",
+    desc: "Scanner mengurutkan peluang berdasarkan skor. Join yang layak langsung dari halaman detail; lewati yang cuma menghabiskan waktu.",
   },
   {
-    n: "03",
-    title: "Produksi ikut autopilot",
-    desc: "Brief dipecah jadi shotlist, hook, caption, dan checklist. Kau tinggal eksekusi; submit ke konten.com, dan earnings tampil real-time.",
+    id: "03",
+    title: "Produksi ikut rencana",
+    desc: "Brief dipecah jadi shotlist, hook, caption, dan checklist. Video tetap kamu submit di konten.com — earnings-nya muncul di sini.",
   },
 ];
 
-const STATS = [
-  { value: "Rp5.000", label: "CPM tertinggi terpantau" },
-  { value: "Rp3.200.000", label: "Payout top clip terverifikasi" },
-  { value: "11.900+", label: "Clipper di 1 campaign besar" },
-  { value: "0", label: "Detik buang waktu di campaign zonk" },
+const CAPABILITIES = [
+  "Baca brief: elemen wajib, narasi, CTA, hashtag, durasi",
+  "Skor dan urutkan campaign berdasarkan peluang payout",
+  "Susun shotlist per detik plus checklist produksi",
+  "Mirror earnings dan views setiap bridge sync",
+];
+
+const LIMITS = [
+  "Tanpa bot views atau engagement — melanggar aturan campaign",
+  "Tanpa akses akun orang lain — hanya sesimu sendiri",
+  "Tanpa submit otomatis tanpa konfirmasi kamu",
+  "Tanpa menyimpan password di cloud — ada di bridge lokal",
 ];
 
 export default function Landing() {
   const { isAuthenticated } = useConvexAuth();
 
   return (
-    <div className="min-h-screen">
-      {/* Nav */}
-      <header className="sticky top-0 z-40 glass border-b border-border">
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/15 border border-primary/30 grid place-items-center">
-              <Scissors className="h-4 w-4 text-primary" />
-            </div>
-            <span className="font-bold tracking-tight">Super Clipper</span>
-            <Badge variant="success" className="ml-1 hidden sm:inline-flex font-mono text-[10px]">
-              v2.0
-            </Badge>
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+        <div className={`${SHELL} flex h-14 items-center justify-between gap-4`}>
+          <Link to="/" className="flex items-center gap-2.5">
+            <span className="grid h-7 w-7 place-items-center rounded-md border border-primary/25 bg-primary/10">
+              <Scissors className="h-3.5 w-3.5 text-primary" />
+            </span>
+            <span className="leading-none">
+              <span className="block text-[13px] font-semibold tracking-tight">Super Clipper</span>
+              <span className="mt-0.5 block font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+                console v2
+              </span>
+            </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#fitur" className="hover:text-foreground transition-colors">Fitur</a>
-            <a href="#cara" className="hover:text-foreground transition-colors">Cara Kerja</a>
-            <a href="#statistik" className="hover:text-foreground transition-colors">Data Lapangan</a>
+
+          <nav className="hidden items-center gap-6 md:flex">
+            {NAV.map((n) => (
+              <a
+                key={n.href}
+                href={n.href}
+                className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {n.label}
+              </a>
+            ))}
           </nav>
+
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <Button asChild size="sm">
-                <Link to="/app">Buka Dashboard</Link>
+              <Button asChild size="sm" className="shadow-none">
+                <Link to="/app">
+                  Buka dashboard <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Button asChild variant="ghost" size="sm" className="hidden shadow-none sm:inline-flex">
                   <Link to="/auth">Masuk</Link>
                 </Button>
-                <Button asChild size="sm">
-                  <Link to="/auth">Mulai Gratis</Link>
+                <Button asChild size="sm" className="shadow-none">
+                  <Link to="/auth">Mulai gratis</Link>
                 </Button>
               </>
             )}
@@ -119,264 +156,263 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 grid-bg opacity-60" />
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[42rem] rounded-full bg-primary/15 blur-3xl animate-pulse-glow" />
-        <div className="container relative py-20 md:py-28">
-          <div className="max-w-3xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center"
-            >
-              <Badge variant="outline" className="font-mono text-xs border-primary/40 text-primary gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" />
-                AUTOPILOT UNTUK MARKETPLACE CLIPPING KONTEN.COM
-              </Badge>
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.08 }}
-              className="mt-6 text-4xl md:text-6xl font-black tracking-tight leading-[1.05]"
-            >
-              Berhenti menebak campaign.
-              <br />
-              <span className="text-gradient">Mulai potong yang menghasilkan.</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.16 }}
-              className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto"
-            >
-              Super Clipper menyelami dashboard konten.com untukmu: fetch campaign, baca brief,
-              susun rencana produksi, pantau analitik dan earnings — otomatis, terstruktur,
-              dan berbasis data lapangan nyata.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.24 }}
-              className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
-            >
-              <Button asChild size="lg" className="text-base px-8 h-12">
-                <Link to="/auth">
-                  Aktifkan Autopilot <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 px-8 text-base">
-                <a href="#fitur">Lihat Kemampuan</a>
-              </Button>
-            </motion.div>
-            <p className="mt-4 text-xs font-mono text-muted-foreground">
-              Gratis • data demo langsung aktif • bridge pakai sesi akunmu sendiri
-            </p>
-          </div>
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="border-b border-border">
+          <div className={`${SHELL} grid gap-10 py-14 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-14`}>
+            <div className="min-w-0">
+              <Status tone="primary">Autopilot untuk marketplace clipping konten.com</Status>
+              <h1 className="mt-5 text-3xl font-semibold leading-[1.1] tracking-tight md:text-[2.75rem]">
+                Berhenti menebak campaign.
+                <br />
+                Mulai memotong yang menghasilkan.
+              </h1>
+              <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                Super Clipper menyelami dashboard clipper konten.com milikmu: menarik campaign,
+                membaca brief, menyusun rencana produksi, lalu memantau analitik dan earnings —
+                terstruktur, dan berbasis data lapangan nyata.
+              </p>
 
-          {/* Hero mock */}
-          <motion.div
-            initial={{ opacity: 0, y: 32 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.35 }}
-            className="mt-16 max-w-4xl mx-auto"
-          >
-            <Card className="border-glow overflow-hidden">
-              <div className="flex items-center gap-1.5 border-b border-border bg-secondary/40 px-4 py-2.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/70" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
-                <span className="ml-3 font-mono text-[11px] text-muted-foreground">
-                  super-clipper / scanner — 6 campaign terpantau
+              <div className="mt-7 flex flex-wrap items-center gap-2">
+                <Button asChild size="lg" className="h-10 shadow-none">
+                  <Link to="/auth">
+                    Aktifkan autopilot <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="h-10 shadow-none">
+                  <a href="#fitur">Lihat kemampuan</a>
+                </Button>
+              </div>
+
+              <p className="mt-4 font-mono text-[11px] text-muted-foreground/80">
+                gratis • data demo langsung aktif • bridge memakai sesi akunmu sendiri
+              </p>
+
+              <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border/70 sm:grid-cols-4">
+                {FACTS.map((f) => (
+                  <div key={f.label} className="bg-card px-4 py-3.5">
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      {f.label}
+                    </dt>
+                    <dd className="mt-1.5 font-mono text-[17px] font-semibold tabular-nums tracking-tight">
+                      {f.value}
+                    </dd>
+                    <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground/80">
+                      {f.hint}
+                    </p>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            {/* Product surface — built from the same primitives as the console itself */}
+            <div className="min-w-0 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <MonoLabel>super-clipper / scanner</MonoLabel>
+                <span className="font-mono text-[10px] text-muted-foreground/70">
+                  4 dari 45 campaign
                 </span>
               </div>
-              <CardContent className="p-0">
-                <div className="divide-y divide-border font-mono text-xs md:text-sm">
-                  {[
-                    { t: "Owner — Artha ldt", s: 92, cpm: "Rp5rb", b: "100%", c: "135" },
-                    { t: "Growlab — Beyond The Podcast", s: 81, cpm: "Rp3rb", b: "100%", c: "154" },
-                    { t: "Bevan — Education Clips", s: 64, cpm: "Rp3rb", b: "91%", c: "4.681" },
-                    { t: "IBU, Bagaimana aku Tanpamu", s: 41, cpm: "Rp2rb", b: "31%", c: "11.936" },
-                  ].map((r) => (
-                    <div key={r.t} className="flex items-center gap-3 px-4 md:px-6 py-3.5">
-                      <span
-                        className="h-8 w-8 rounded-full grid place-items-center text-[11px] font-bold shrink-0"
-                        style={{
-                          background: `conic-gradient(${r.s >= 70 ? "#34d399" : r.s >= 45 ? "#fbbf24" : "#f87171"} ${r.s * 3.6}deg, hsl(190 30% 14%) 0deg)`,
-                        }}
-                      >
-                        <span className="h-6 w-6 rounded-full bg-card grid place-items-center">{r.s}</span>
-                      </span>
-                      <span className="flex-1 truncate font-sans font-medium">{r.t}</span>
-                      <span className="hidden sm:inline text-muted-foreground">CPM {r.cpm}</span>
-                      <span className="hidden md:inline text-muted-foreground">budget {r.b}</span>
-                      <span className="hidden lg:inline text-muted-foreground">{r.c} clipper</span>
-                      <Badge variant={r.s >= 70 ? "success" : r.s >= 45 ? "warning" : "destructive"}>
-                        {r.s >= 70 ? "LAYAK" : r.s >= 45 ? "Pertimbangkan" : "Zonk"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="fitur" className="container py-20">
-        <div className="max-w-2xl">
-          <Badge variant="outline" className="font-mono text-xs">FITUR</Badge>
-          <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight">
-            Satu autopilot, seluruh siklus clipping.
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Dirancang dari hasil pemetaan nyata halaman clipper konten.com — bukan tebakan fitur.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
-            >
-              <Card className="h-full hover:border-primary/40 transition-colors">
-                <CardContent className="p-6">
-                  <div className="h-10 w-10 rounded-xl bg-primary/12 border border-primary/25 grid place-items-center">
-                    <f.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <h3 className="mt-4 font-semibold">{f.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="cara" className="border-y border-border bg-card/30">
-        <div className="container py-20">
-          <div className="max-w-2xl">
-            <Badge variant="outline" className="font-mono text-xs">CARA KERJA</Badge>
-            <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight">
-              Dari login sampai Rupahan, tiga langkah.
-            </h2>
-          </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map((s, i) => (
-              <motion.div
-                key={s.n}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="relative rounded-xl border bg-card p-6"
+              <Panel
+                flush
+                className="border-border"
+                meta="pratinjau tampilan asli dashboard"
+                title="Peluang terbuka"
               >
-                <span className="font-mono text-4xl font-bold text-primary/25">{s.n}</span>
-                <h3 className="mt-3 font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-                {i < 2 && (
-                  <ArrowRight className="hidden md:block absolute -right-4 top-1/2 h-5 w-5 text-primary/40" />
-                )}
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Compliance strip */}
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-5">
-              <div className="flex items-center gap-2 text-emerald-300 font-semibold text-sm">
-                <CheckCircle2 className="h-4 w-4" /> Yang autopilot kerjakan
-              </div>
-              <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-                <li>• Baca brief: elemen wajib, narasi, CTA, hashtag, durasi</li>
-                <li>• Skor & urutkan campaign berdasarkan peluang payout</li>
-                <li>• Susun shotlist per detik + checklist produksi</li>
-                <li>• Mirror earnings & views setiap kali bridge sync</li>
-              </ul>
-            </div>
-            <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-5">
-              <div className="flex items-center gap-2 text-red-300 font-semibold text-sm">
-                <XCircle className="h-4 w-4" /> Yang kami tidak lakukan
-              </div>
-              <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-                <li>• Tanpa bot views / engagement (melanggar aturan campaign)</li>
-                <li>• Tanpa akses akun orang lain — hanya sesimu sendiri</li>
-                <li>• Tanpa submit otomatis tanpa konfirmasi kamu</li>
-                <li>• Tanpa menyimpan password di cloud — ada di bridge lokal</li>
-              </ul>
+                <TableShell
+                  cols={HERO_COLS}
+                  minWidth="38rem"
+                  head={["id", "campaign", "skor", "cpm", "budget", "clipper"]}
+                >
+                  {SAMPLE.map((r, i) => (
+                    <TableRow key={r.title} cols={HERO_COLS}>
+                      <span className="font-mono text-[11px] tabular-nums text-muted-foreground/70">
+                        {String(i + 1).padStart(3, "0")}
+                      </span>
+                      <span className="truncate font-medium">{r.title}</span>
+                      <Score value={r.score} meterClassName="w-8" />
+                      <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
+                        {r.cpm}
+                      </span>
+                      <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
+                        {r.budget}
+                      </span>
+                      <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
+                        {r.clippers}
+                      </span>
+                    </TableRow>
+                  ))}
+                </TableShell>
+              </Panel>
+              <p className="font-mono text-[10px] leading-relaxed text-muted-foreground/70">
+                contoh baris dari crawl 22 Sep 2026 — skor, CPM, dan sisa budget dihitung dari data
+                clipper asli
+              </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Stats */}
-      <section id="statistik" className="container py-20">
-        <div className="max-w-2xl">
-          <Badge variant="outline" className="font-mono text-xs">DATA LAPANGAN</Badge>
-          <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight">
-            Angka nyata dari crawl 22 Sep 2026.
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Autopilot ini dilatih memahami struktur asli platform: budget, CPM, kompetisi, sampai closure budget.
+        {/* Features */}
+        <section id="fitur" className="scroll-mt-16 border-b border-border">
+          <div className={`${SHELL} py-14 md:py-20`}>
+            <SectionHead
+              eyebrow="Fitur"
+              title="Satu konsol, seluruh siklus clipping."
+              lead="Disusun dari pemetaan nyata halaman clipper konten.com — bukan tebakan fitur."
+            />
+            <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border/70 md:grid-cols-2 lg:grid-cols-3">
+              {FEATURES.map((f) => (
+                <article key={f.id} className="bg-card p-5">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono text-[10px] tabular-nums text-primary">{f.id}</span>
+                    <h3 className="text-[14px] font-medium tracking-tight">{f.title}</h3>
+                  </div>
+                  <p className="mt-2.5 text-[13px] leading-relaxed text-muted-foreground">
+                    {f.desc}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="cara" className="scroll-mt-16 border-b border-border">
+          <div className={`${SHELL} py-14 md:py-20`}>
+            <SectionHead
+              eyebrow="Cara kerja"
+              title="Dari login sampai Rupiah, tiga langkah."
+              lead="Tidak ada langkah tersembunyi: bridge membaca, console menyusun, kamu yang eksekusi."
+            />
+
+            <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-border bg-border/70 md:grid-cols-3">
+              {STEPS.map((s) => (
+                <article key={s.id} className="bg-card p-5">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono text-[10px] tabular-nums text-primary">{s.id}</span>
+                    <h3 className="text-[14px] font-medium tracking-tight">{s.title}</h3>
+                  </div>
+                  <p className="mt-2.5 text-[13px] leading-relaxed text-muted-foreground">
+                    {s.desc}
+                  </p>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
+              <Panel title="Yang autopilot kerjakan" actions={<Status tone="good">aktif</Status>}>
+                <Bullets items={CAPABILITIES} tone="good" />
+              </Panel>
+              <Panel title="Yang kami tidak lakukan" actions={<Status tone="bad">batas</Status>}>
+                <Bullets items={LIMITS} tone="bad" />
+              </Panel>
+            </div>
+          </div>
+        </section>
+
+        {/* Field data */}
+        <section id="statistik" className="scroll-mt-16 border-b border-border">
+          <div className={`${SHELL} py-14 md:py-20`}>
+            <SectionHead
+              eyebrow="Data lapangan"
+              title="Angka nyata dari crawl 22 Sep 2026."
+              lead="Autopilot ini memahami struktur asli platform: budget, CPM, kompetisi, sampai kapan budget ditutup."
+            />
+            <MetricStrip
+              className="mt-8 lg:grid-cols-4"
+              items={[
+                { label: "CPM tertinggi terpantau", value: "Rp5.000", hint: "per 1.000 views" },
+                { label: "Payout top clip", value: "Rp3.200.000", hint: "terverifikasi di dashboard" },
+                {
+                  label: "Clipper di 1 campaign",
+                  value: "11.900+",
+                  hint: "kompetisi terketat yang tercatat",
+                },
+                { label: "Waktu terbuang di campaign zonk", value: "0", hint: "tersaring sebelum produksi" },
+              ]}
+            />
+            <div className="mt-6">
+              <Panel title="Cakupan crawl">
+                <div className="grid gap-x-10 gap-y-0 sm:grid-cols-2">
+                  <KeyValueList>
+                    <KeyValue label="halaman clipper" mono>
+                      124
+                    </KeyValue>
+                    <KeyValue label="campaign ber-brief lengkap" mono>
+                      45
+                    </KeyValue>
+                  </KeyValueList>
+                  <KeyValueList>
+                    <KeyValue label="endpoint platform" mono>
+                      186
+                    </KeyValue>
+                    <KeyValue label="materi demo tersedia" mono>
+                      114
+                    </KeyValue>
+                  </KeyValueList>
+                </div>
+              </Panel>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section>
+          <div className={`${SHELL} py-14 md:py-20`}>
+            <div className="rounded-lg border border-border bg-card/40 p-6 md:p-10">
+              <Status tone="primary">mulai sekarang</Status>
+              <h2 className="mt-4 text-xl font-semibold tracking-tight md:text-2xl">
+                Campaign berikutnya buka pagi ini.
+              </h2>
+              <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+                Yang siap duluan yang menghabiskan budget. Pasang autopilotmu — gratis, dan datamu
+                tetap milikmu.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                <Button asChild className="shadow-none">
+                  <Link to="/auth">
+                    Mulai sekarang <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="shadow-none">
+                  <Link to="/auth">Masuk ke konsol</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-border">
+        <div
+          className={`${SHELL} flex flex-col items-start justify-between gap-2 py-5 text-muted-foreground md:flex-row md:items-center`}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em]">
+            Super Clipper • console v2
           </p>
-        </div>
-        <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {STATS.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.07 }}
-              className="rounded-xl border bg-card p-6 text-center"
-            >
-              <p className="text-2xl md:text-3xl font-black text-gradient">{s.value}</p>
-              <p className="mt-2 text-xs text-muted-foreground">{s.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container pb-24">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-cyan-500/10 p-10 md:p-16 text-center">
-          <div className="absolute inset-0 grid-bg opacity-40" />
-          <div className="relative">
-            <Zap className="mx-auto h-8 w-8 text-primary" />
-            <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight">
-              Campaign berikutnya buka pagi ini.
-            </h2>
-            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              Yang siap duluan yang menang budget. Pasang autopilotmu sekarang — gratis, dan datamu tetap milikmu.
-            </p>
-            <Button asChild size="lg" className="mt-8 h-12 px-10 text-base">
-              <Link to="/auth">
-                <Target className="h-4 w-4" /> Mulai Sekarang
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-border py-8">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Scissors className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-foreground">Super Clipper</span>
-            <span className="font-mono text-xs">v2.0 — AI Autopilot Clipping</span>
-          </div>
-          <p className="font-mono text-xs">
-            Bukan afiliasi konten.com • Gunakan sesi akunmu sendiri • Tanpa bot
+          <p className="font-mono text-[10px] leading-relaxed">
+            bukan afiliasi konten.com • gunakan sesi akunmu sendiri • tanpa bot
           </p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function SectionHead({
+  eyebrow,
+  title,
+  lead,
+}: {
+  eyebrow: string;
+  title: string;
+  lead: string;
+}) {
+  return (
+    <div className="max-w-2xl">
+      <MonoLabel>{eyebrow}</MonoLabel>
+      <h2 className="mt-2.5 text-xl font-semibold tracking-tight md:text-2xl">{title}</h2>
+      <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{lead}</p>
     </div>
   );
 }

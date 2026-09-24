@@ -14,6 +14,7 @@ import type * as brief from "../brief.js";
 import type * as campaigns from "../campaigns.js";
 import type * as crons from "../crons.js";
 import type * as demo from "../demo.js";
+import type * as demoData from "../demoData.js";
 import type * as http from "../http.js";
 import type * as ingest from "../ingest.js";
 import type * as ingestHttp from "../ingestHttp.js";
@@ -35,6 +36,7 @@ declare const fullApi: ApiFromModules<{
   campaigns: typeof campaigns;
   crons: typeof crons;
   demo: typeof demo;
+  demoData: typeof demoData;
   http: typeof http;
   ingest: typeof ingest;
   ingestHttp: typeof ingestHttp;
