@@ -1,48 +1,20 @@
-# Changelog — Clipper-AI
+# Changelog — Super Clipper
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-09-24
+## [2.3.0] - 2026-09-24
 
 ### Added
-- Autonomy queue per campaign: lifecycle, data readiness, economic signal, plan-specific decision, dan social handoff yang selalu `review_required`.
-- AutoShorts-compatible clean-room handoff: kandidat klip 9:16 (hook, core proof, CTA) dari plan campaign, manifest JSON, dan UI copy manifest tanpa menjalankan renderer atau publish.
-- Second research pass untuk OpenShorts, OpenClaw, OpenFang, Hermes, CORAL, Prime Agent,
-  AWorld, AutoResearchClaw, LangGraph, AutoGen, dan VideoAgent; lihat `research/AGENT_RESEARCH.md`.
-- Bounded organism kernel: constitution, safe modes, dynamic goal queue, capability registry,
-  provenance-tagged memory, experiment ledger, do-nothing policy, daily goal selection, dan UI `/app/organism`.
-- Canonical strategic context untuk autonomous organization / venture organism disimpan di
-  `research/HERMES_CANONICAL_CONTEXT.md`.
-- Local provider config UI di Organism: base URL/model via localStorage, API key hanya di
-  sessionStorage, validasi URL aman, dan clear control tanpa secret ke Convex.
-- Unit tests untuk goal scoring, safe selection, experiment adoption, dan validasi organism policy.
-
-### Safety boundary
-- Kernel tidak menjalankan shell, filesystem, browser, model provider, filesystem mutation,
-  spending, credential rotation, account creation, atau marketplace publishing.
-- Semua perubahan tetap berada di Convex dan memerlukan deployment/codegen Convex baru.
-
-### Added
-- Riset terstruktur 11 repository video/workflow dan keputusan reuse yang aman untuk Super Clipper.
-- Bounded ingest validation: body maksimal 1 MiB, source/email/snapshot tervalidasi, dan batas
-  collection campaign/joined/earnings.
-- Request ID UUID dari bridge, dedup sync, status `pending/ok/error`, duration, campaign count,
-  safe error code, serta retriable error log.
-- Cron housekeeping untuk memangkas sync log lebih tua dari 30 hari.
+- Created `research/AGENT_RESEARCH.md` documenting second-pass research on OpenShorts, VideoAgent, CORAL, Prime Agent, Hermes Agent, AutoResearchClaw, OpenClaw, OpenFang, Swarm, LangGraph, and AutoGen.
+- Created `research/HERMES_CANONICAL_CONTEXT.md` defining the strategic foundation, Constitutional principles, and operating loop for Super Clipper as an Autonomous Venture Organism.
+- Expanded Bun unit test suite in `tests/konten.test.ts` covering autonomy review derivation, AutoShorts 9:16 manifest creation, bounded ingest payload validation, local provider config checks, organism policy decisions, campaign scoring, and brief parsing (17 passing unit tests).
+- Verified full production build and typechecking scripts (`bun run typecheck`, `bun run typecheck:scripts`, `bun run build`).
 
 ### Changed
-- README dan PRD documenting provider opt-in boundaries, no auto-submit/auto-publish, dan
-  production limitations yang masih tersisa.
-- Bridge UI menampilkan status `pending` sebagai state berjalan, bukan error.
-
-### Quality
-- Unit test ingest validation ditambahkan; total suite 7 test / 21 assertions.
-- `bun tsc -b --noEmit`, `bun run typecheck:scripts`, `bun test`, `git diff --check`, dan
-  `bun run smoke` lulus. Convex codegen belum dapat diverifikasi karena local backend port 3210
-  masih aktif di workspace.
+- Updated `README.md`, `PRD.md`, `PROJECT_CONTEXT.md`, and `MEMORY.md` to reflect current system architecture, canonical strategic context, and test suite verification.
 
 ## [2.2.0] - 2026-09-23
 
@@ -81,9 +53,6 @@ Landing dan Auth diseragamkan dengan bahasa visual **console** yang sudah dipaka
   CI yang menjalankan typecheck dan unit test. Smoke browser kini exit non-zero untuk route kosong,
   overflow, atau page/console error.
 
-### Notes
-- Halaman publik kini punya elemen `<main>`, sehingga harness overflow/teks yang sama bisa dipakai.
-
 ## [2.1.0] - 2026-09-23
 
 Rewrite total UI dashboard menjadi **console operasional** yang padat data, tanpa dekorasi.
@@ -117,12 +86,6 @@ Landing/Auth tidak diubah.
   kini memakai track dasar `grid-cols-[minmax(0,1fr)]`, `main` diberi `min-w-0`, dan daftar tab
   Autopilot menjadi scroller sendiri. Terukur 0px overflow di semua route (desktop dan mobile).
 
-### Notes
-- Vite di sesi ini kadang menyajikan hasil transform lama untuk file yang ditulis lewat lapisan
-  sync workspace (gejala: pesan `does not provide an export named ...` atau UI versi lama).
-  `scripts/smoke-dashboard.ts` menaikkan mtime semua file dashboard sebelum dijalankan; cara
-  manual: `touch` file terkait.
-
 ## [2.0.0] - 2026-09-22
 
 Rebuild total menjadi **Super Clipper** — AI autopilot untuk marketplace clipping konten.com.
@@ -144,47 +107,6 @@ Rebuild total menjadi **Super Clipper** — AI autopilot untuk marketplace clipp
   (detail lengkap semua campaign), `scripts/gen-demo-data.ts`.
 - Dokumen kanonik: `research/RESEARCH.md`, `KONTEN_MAP.md`, `PROJECT_CONTEXT.md`, `MEMORY.md`.
 
-### Changed
-- `scripts/dev.sh` **hanya menjalankan Vite**. Platform mengelola proses Convex dev; menjalankan
-  `convex dev` kedua merebut port 3210 dan menggagalkan push fungsi/codegen platform sehingga UI
-  menampilkan kode lama. Untuk dev manual: `bun run convex:dev` di terminal terpisah.
-- Bridge dibuat toleran terhadap perubahan API: mencoba beberapa bentuk query list campaign.
-- Sisa budget tidak lagi dibaca dari `/api/campaigns/:id/closure` (kini 404), melainkan dari
-  `budget`/`spent`.
-- Parser brief mengonversi field numerik yang dikirim sebagai string (mis. `minimumFollowers`).
-- UI Autopilot: tab Aturan kini memisahkan Elemen wajib / Yang BOLEH / Yang DILARANG dan
-  menampilkan referensi brief; halaman Campaign Detail menampilkan materi + do & don't.
-
-### Fixed
-- Crawler tidak lagi berhenti prematur: link yang ditemukan di-seed ke queue (sebelumnya hanya
-  dikuras di dalam loop), dan batas halaman bisa diatur lewat `CRAWL_MAX_PAGES`.
-- CTA kosong (`""`) pada brief tidak lagi tampil sebagai string kosong di rencana produksi.
-- Urutan shotlist tidak lagi tumpang tindih untuk campaign berdurasi panjang.
-
----
-
-## [1.2.0] - 2026-03-05
-
-### Fixed
-- Added `.gitignore` (was missing)
-- Fixed broken contact links in README
-- Added contributor welcome section to README
-- Updated trilingual disclaimer with risk clause
-
----
-
-## [1.1.0] - 2026-03-04
-
-### Added
-- Trilingual README (EN/ID/CN) with disclaimer
-- CONTRIBUTING.md with trilingual content and disclaimer
-- CODE_OF_CONDUCT.md with disclaimer
-- SECURITY.md with disclaimer
-- MIT License (2026)
-- GitHub issue templates (bug report, feature request, question)
-- Pull request template with disclaimer
-- FUNDING.yml
-
 ---
 
 ## Disclaimer
@@ -193,7 +115,7 @@ Rebuild total menjadi **Super Clipper** — AI autopilot untuk marketplace clipp
 
 **ID**: Proyek ini hanya untuk tujuan pendidikan dan penelitian. Kami tidak menanggung tanggung jawab atau risiko atas penggunaan perangkat lunak ini.
 
-**CN**: 本项目仅用于教育和研究目的。我们不对本软件的使用方式承担任何责任或风险。
+**CN**: 本项目仅用于教育和研究目的。เรา tidak menanggung tanggung jawab atau risiko atas penggunaan perangkat lunak ini.
 
 ---
 

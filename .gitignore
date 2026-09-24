@@ -16,6 +16,8 @@ dist-ssr
 # konten-map.json, konten-details.json, screenshots) stays local.
 research/*
 !research/RESEARCH.md
+!research/AGENT_RESEARCH.md
+!research/HERMES_CANONICAL_CONTEXT.md
 
 # Editor
 .vscode/*
