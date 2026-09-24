@@ -16,10 +16,16 @@ jobs:
               per_page: 1
             });
             if (prs.total_count <= 1) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: `👋 Welcome @${author}! Thank you for your first contribution to this project! We appreciate your help and are here if you need anything. Please check out our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.`
-              });
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  body: `👋 Welcome @${author}! Thank you for your first contribution to this project! We appreciate your help and are here if you need anything. Please check out our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.`
+                });
+              } catch (error) {
+                // Some repository App installations intentionally lack Issues: write.
+                // The welcome message is optional and must not block PR validation.
+                core.info(`Skipping welcome comment: ${error.message}`);
+              }
             }
