@@ -182,7 +182,7 @@ review keamanan sebelum diaktifkan.
 `/app/organism` sekarang menghitung antrean keputusan deterministik dari campaign, plan,
 brief, dan earnings yang sudah tersinkron. Setiap campaign memperoleh lifecycle (`observe`, `planned`,
 `ready_for_review`, `earning`, atau `needs_attention`), alasan keputusan, readiness data, dan
-economic signal. Jika plan lengkap, sistem membuat handoff|caption/manifest untuk TikTok atau
+economic signal. Jika plan lengkap, sistem membuat handoff caption/manifest untuk TikTok atau
 Instagram dengan status `review_required`.
 
 Tidak ada auto-posting, account takeover, credential rotation, fake engagement, atau scraping
@@ -219,7 +219,8 @@ Perintah yang tersedia:
 ```bash
 bun run typecheck          # TypeScript aplikasi
 bun run typecheck:scripts  # TypeScript smoke harness
-bun test                   # Unit test scoreCampaign + parseBrief
+bun test                   # Unit test suite (17 tests)
+bun run build              # Production Vite build
 bun run smoke              # Playwright desktop/mobile smoke test
 ```
 
