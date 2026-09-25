@@ -8,10 +8,13 @@
 
 - `/` is a public, product-first landing page.
 - `/app/*` is a public exploration console; there is no account gate in the shipped UI.
-- Marketplace data is source-backed. The console does not ship demo campaign or financial records.
+- Marketplace data is source-backed. The console does not ship synthetic campaign or financial records.
 - Konten.com account data is mirrored only by the operator's local Playwright bridge.
 - Content Rewards Discover is a separate public, read-only JSON source with bounded pagination and detail requests.
 - `/app/swarm` is a local-first multi-agent control room with role selection, shared transcript/memory, custom OpenAI-compatible provider settings, evaluation, browser heartbeat, and review-gated skill proposals.
+- The operator runtime adds an explicit Bun CLI, an operator-run lock/state daemon, an official MCP stdio server with a read-only allowlist, and a built-in Playwright page inspection runner.
+- Content Rewards daemon discovery is observe-only by default; optional normalized ingest requires `SC_DAEMON_SYNC=true` plus the existing ingest token boundary.
+- Camofox remains an optional adapter contract only. No official upstream, stealth, anti-detection, CAPTCHA, Cloudflare, or anti-bot bypass is claimed.
 
 ## Visual system
 
@@ -35,7 +38,7 @@ Core primitives live in `src/components/shared.tsx`; global tokens and required 
 - Browser AI API keys live in `sessionStorage`; non-secret provider URL/model settings live in `localStorage`.
 - `APIFY_TOKEN` and `WHOP_API_KEY` are server-side Convex environment variables and never browser values.
 - Agent skills cannot activate themselves: proposals begin as `review_required`.
-- Browser heartbeat/cron only runs while the page is open. Durable background work requires a server scheduler/runtime.
+- Browser heartbeat/cron only runs while the page is open. Durable operator work is available only through the explicit local daemon process, never as an automatic preview process.
 - Social publishing and other consequential operations remain human review gated.
 
 ## Verified implementation
@@ -58,7 +61,7 @@ git diff --check
 freebuff-preview status
 ```
 
-The current automated suite has 24 passing Bun tests. Browser smoke must still be interpreted with care when the managed Convex runtime is stale or unavailable.
+The current automated suite includes the original 24 tests plus focused operator-runtime tests. Browser smoke must still be interpreted with care when the managed Convex runtime is stale or unavailable.
 
 ## Documentation map
 

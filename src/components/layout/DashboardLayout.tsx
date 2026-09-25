@@ -4,7 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Status } from "@/components/shared";
 import { cn, timeAgo } from "@/lib/utils";
-import { Scissors, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 type NavItem = { to: string; label: string; end?: boolean; count?: number };
 
@@ -56,13 +56,11 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside className="hidden w-52 shrink-0 flex-col border-r border-border bg-card/30 md:flex">
         <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
-          <span className="grid h-7 w-7 place-items-center rounded-md border border-primary/25 bg-primary/10">
-            <Scissors className="h-3.5 w-3.5 text-primary" />
-          </span>
+          <span className="grid h-7 w-7 place-items-center rounded-sm border border-primary/30 bg-primary/10 font-mono text-[10px] text-primary">//</span>
           <span className="leading-none">
             <span className="block text-[13px] font-semibold tracking-tight">Super Clipper</span>
             <span className="mt-0.5 block font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
-              console v2
+              control plane v3
             </span>
           </span>
         </div>
@@ -150,7 +148,7 @@ export default function DashboardLayout() {
 
             <Button asChild variant="ghost" size="sm" className="h-7 px-2 font-mono text-[10px] uppercase tracking-[0.12em]">
               <Link to="/">
-                Preview publik <ArrowUpRight className="h-3 w-3" />
+                Public page <ArrowUpRight className="h-3 w-3" />
               </Link>
             </Button>
           </div>
@@ -183,7 +181,7 @@ export default function DashboardLayout() {
 
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-3 md:px-8">
           <p className="font-mono text-[10px] text-muted-foreground/60">
-            Super Clipper • mirror dashboard konten.com dari sesimu sendiri
+            Super Clipper • source-backed control plane
           </p>
           <Button
             variant="ghost"

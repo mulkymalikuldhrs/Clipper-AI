@@ -129,7 +129,7 @@ function isSwarmSession(value: unknown): value is SwarmSession {
 export function buildRolePrompt(roleId: AgentRoleId, goal: string, context: string): { system: string; user: string } {
   const role = roleById(roleId);
   return {
-    system: `Kamu adalah ${role.label} dalam Super Clipper Swarm. Fokusmu: ${role.focus}. Bekerja dengan bukti, jangan mengarang data, tandai ketidakpastian, dan jangan melakukan stok atau mengubah repo. Jawaban singkat, konkret, dan dapat ditinjau berikutnya.`,
+    system: `Kamu adalah ${role.label} dalam Super Clipper Swarm. Fokusmu: ${role.focus}. Bekerja dengan bukti, jangan mengarang data, tandai ketidakpastian, dan jangan melakukan stock atau mengubah repo. Jawaban singkat, konkret, dan dapat ditinjau berikutnya.`,
     user: `GOAL:\n${bounded(goal, MAX_GOAL)}\n\nCONTEXT SHARED:\n${bounded(context || "Belum ada konteks.", 8_000)}`,
   };
 }
@@ -170,6 +170,19 @@ async function callModel(config: ProviderConfig, roleId: AgentRoleId, session: S
   }
   if (typeof message !== "string" || !message.trim()) throw new Error("Provider tidak mengembalikan konten.");
   return bounded(message);
+}
+
+export async function probeProvider(config: ProviderConfig): Promise<{ ok: true; modelCount: number; endpoint: string }> {
+  const base = config.baseUrl.replace(/\/$/, "").replace(/\/chat\/completions$/, "");
+  const endpoint = `${base}/models`;
+  const response = await fetch(endpoint, {
+    headers: { accept: "application/json", ...(config.apiKey ? { authorization: `Bearer ${config.apiKey}` } : {}) },
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) throw new Error(`Provider health check ${response.status}: ${(await response.text()).slice(0, 180)}`);
+  const payload: unknown = await response.json();
+  const data = isRecord(payload) && Array.isArray(payload.data) ? payload.data : [];
+  return { ok: true, modelCount: data.length, endpoint };
 }
 
 export async function runSwarm(session: SwarmSession, config: SwarmRunConfig): Promise<SwarmSession> {

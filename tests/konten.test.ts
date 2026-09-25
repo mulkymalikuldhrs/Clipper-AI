@@ -7,6 +7,7 @@ import { buildAutoShortsManifest } from "../src/lib/autoshorts";
 import { buildAutonomyReview } from "../src/lib/autonomy";
 import { buildRolePrompt, createSwarmSession, deriveMemory, evaluateSwarmSession, proposeSkill } from "../src/lib/agentSwarm";
 import { getConnector } from "../src/lib/connectors";
+import { BROWSER_ALLOWLIST, MCP_TOOLS, daemonConfigFromEnv, isAllowedBrowserUrl, readOnlySourceSummary } from "../src/lib/operatorRuntime";
 import {
   normalizeContentRewardsCampaign,
   normalizeContentRewardsCampaigns,
@@ -105,6 +106,30 @@ describe("connector catalog", () => {
     expect(getConnector("apify")?.requiredEnvVars).toEqual(["APIFY_TOKEN"]);
     expect(getConnector("whop")?.capabilities).toContain("consequential");
     expect(getConnector("content_rewards")?.capabilities).not.toContain("write");
+  });
+});
+
+describe("operator runtime", () => {
+  test("keeps MCP read-only and bounded", () => {
+    expect(MCP_TOOLS.every((tool) => tool.access === "read")).toBe(true);
+    expect(MCP_TOOLS.map((tool) => tool.name)).not.toContain("run_shell");
+    expect(MCP_TOOLS.map((tool) => tool.name)).not.toContain("publish_campaign");
+  });
+
+  test("allows only explicitly scoped browser pages", () => {
+    expect(isAllowedBrowserUrl("https://contentrewards.com/discover")).toBe(true);
+    expect(isAllowedBrowserUrl("https://konten.com/clipper-dashboard")).toBe(true);
+    expect(isAllowedBrowserUrl("https://contentrewards.com/admin")).toBe(false);
+    expect(isAllowedBrowserUrl("https://example.com/discover")).toBe(false);
+    expect(BROWSER_ALLOWLIST.every((entry) => entry.paths.length > 0)).toBe(true);
+  });
+
+  test("clamps daemon configuration and never returns secret values", () => {
+    expect(daemonConfigFromEnv({ SC_DAEMON_INTERVAL_SECONDS: "1", SC_DAEMON_MAX_CYCLES: "-4" })).toMatchObject({ intervalSeconds: 60, maxCycles: 0 });
+    expect(readOnlySourceSummary({ SUPERCLIPPER_MODEL_API_KEY: "secret" }).modelApiKey).toBe("configured");
+    expect(readOnlySourceSummary({}).ingestToken).toBe("missing");
+    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: "/tmp/state.json" }).stateFile).toBe(".superclipper/daemon-state.json");
+    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: ".superclipper/nested/state.json" }).stateFile).toBe(".superclipper/nested/state.json");
   });
 });
 

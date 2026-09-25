@@ -9,6 +9,7 @@ dist-ssr
 # Convex
 .convex
 .bridge
+.superclipper/
 .turbo
 
 # Research artifacts — NEVER commit session cookies, raw API dumps, or PII.

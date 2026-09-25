@@ -41,6 +41,28 @@ Add focused tests for pure helpers, normalizers, safety policy, and connector me
 - Make external requests bounded, cancellable, and defensive against changing payloads.
 - Mark consequential operations `review_required` and provide an audit/rejection path.
 
+## Operator runtime changes
+
+When changing the CLI, daemon, MCP server, or browser runner:
+
+- keep the default path read-only and operator-run;
+- preserve the browser origin/path allowlist and add a negative test for arbitrary URLs;
+- never return environment values, API keys, cookies, or raw snapshots from status tools;
+- keep MCP tool names explicit and add a test that no write-capable tool is registered;
+- make daemon intervals, retries, payloads, and lock/state behavior bounded;
+- do not add Camofox stealth, anti-detection, CAPTCHA, Cloudflare, or anti-bot bypass behavior;
+- document optional external binaries as unverified until their upstream and protocol are checked.
+
+Run the runtime smoke checks locally without starting a long-lived process:
+
+```bash
+bun run sc -- source status
+bun run sc -- mcp list
+bun run sc -- browser policy
+bun run typecheck:scripts
+bun test
+```
+
 ## Pull requests
 
 1. Create a focused branch.

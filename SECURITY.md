@@ -38,6 +38,16 @@ Before running a bridge or connector:
 4. Start with read-only operations.
 5. Review sync logs and remove credentials from logs before sharing them.
 
+## Operator runtime security
+
+- The CLI and daemon are operator-run local processes. Freebuff does not start the daemon automatically.
+- The daemon lock and state files are local operational metadata; do not commit them. They must not contain cookies, API keys, or raw account snapshots.
+- `SC_DAEMON_SYNC=true` is the only switch that enables ingest. It sends a bounded, normalized public discovery snapshot to the existing `x-sc-token` protected endpoint; it does not use marketplace session cookies.
+- The MCP server is stdio and read-only. Do not add arbitrary URL fetch, shell, filesystem, secret-return, payment, publishing, or account-control tools.
+- The built-in browser runner is Playwright and only reads title/body text from the explicit allowlist. Do not add click/form/download automation or Camofox stealth/anti-bot bypass behavior.
+- Camofox is an optional operator-owned adapter contract until an upstream and protocol are verified. A binary name or third-party repository is not proof of official status.
+- If a local state file is shared for debugging, redact the file and verify it contains no environment values or personal data.
+
 ## Dependency and provider risk
 
 Third-party APIs, models, Actors, and connectors can change behavior or data handling. Review their current terms, privacy policy, retention behavior, and security posture before enabling them. A provider integration is not an endorsement or guarantee.

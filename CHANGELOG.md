@@ -8,14 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2026-09-25
 
 ### Added
+- Final control-room pass: terminal-style landing, source-aware dashboard, real provider health check, public Content Rewards API check, and removal of generated demo utilities and synthetic landing records.
 - Minimal monochrome/lime UI system: neutral charcoal surfaces, tighter type scale, hairline panels, quieter borders, and no decorative gradients or glows.
 - Content Rewards Discover read-only connector and bounded public sync script.
 - Agent Swarm control room with explicit roles, shared transcript/memory, custom OpenAI-compatible base URL/model, browser-only API key handling, evaluation, browser heartbeat, and review-gated skill proposals.
 - Connector catalog for Apify, Whop, Content Rewards, OpenAI-compatible models, and planned signed webhooks.
 - Convex server actions for authenticated Apify Actor runs and bounded Whop account probing.
 - Research notes translated into implementation boundaries for Enoch, Open Multi-Agent, Prime Agent, Auto-Company, LifeOS, OpenShorts, AutoShorts, MiroFish, and MiroShark.
+- Operator runtime: Bun CLI, lock/state-file daemon, official MCP stdio server with read-only tool allowlist, and built-in Playwright browser inspection for explicit origin/path scopes.
+- Optional Camofox-compatible connector contract with no official-upstream claim and no stealth or anti-bot bypass behavior.
 
 ### Changed
+- Dashboard actions now point to real source, scanner, production, and swarm workflows; fake preview metrics and demo navigation were removed.
 - Refreshed product, operations, security, research, and contribution documentation to match the public console and current safety model.
 - Clarified that public console data is source-backed and that browser swarm memory is local-first; no unrestricted autonomous mutation or publishing was added.
 
@@ -23,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `bun run convex codegen`
 - `bun tsc -b --noEmit`
 - `bun run typecheck:scripts`
-- `bun test` (24 passing)
+- `bun test` (operator runtime coverage added; exact count recorded at final verification)
 - `git diff --check`
 
 ### Safety

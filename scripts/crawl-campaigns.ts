@@ -6,8 +6,7 @@
  * narasi, CTA, do & don'ts, target audience, hashtags), the top-clips
  * leaderboard and the budget-closure status for each one.
  *
- * Output is written to research/konten-campaigns.json (gitignored) so the demo
- * seed + brief parser can be validated against real, complete briefs.
+ * Output is written to research/konten-campaigns.json (gitignored) so the brief parser can be validated against real, complete briefs.
  *
  * Never prints credentials. Run: bun scripts/crawl-campaigns.ts
  */

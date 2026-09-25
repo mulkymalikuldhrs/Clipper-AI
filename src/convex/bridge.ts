@@ -1,4 +1,4 @@
-/* Internal mutations used by ingest + demo seed. */
+/* Internal mutations used by source ingest and campaign cache. */
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
 

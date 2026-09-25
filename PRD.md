@@ -166,7 +166,19 @@ Primary surfaces:
 - Evaluator-backed experiment system with rollback.
 - Simulation/grounding experiments inspired by MiroFish/MiroShark, isolated from production actions.
 
-## 11. Known limitations
+## 11. Operator runtime acceptance criteria
+
+The operator runtime is considered implemented only when these boundaries are true:
+
+- A Bun CLI exposes source status, connector catalog, MCP tool catalog, daemon state, and browser URL policy without arbitrary command execution.
+- A daemon can be started explicitly by an operator, acquires a local lock, records a state file, uses bounded intervals, handles SIGINT/SIGTERM, and defaults to observe-only public discovery.
+- Optional daemon sync writes only normalized Content Rewards snapshots through the existing token-protected ingest route; it never joins, submits, publishes, or uses marketplace cookies.
+- An MCP stdio server built with the official TypeScript SDK exposes an explicit read-only tool allowlist. Tool handlers must not accept arbitrary URLs, shell commands, API keys, or filesystem paths.
+- The built-in browser runner is Playwright, allowlisted by origin and path, and limited to page title/body text. No click, form, download, anti-detection, CAPTCHA, Cloudflare, or anti-bot bypass behavior is permitted.
+- A Camofox-compatible external binary remains an optional, operator-owned adapter contract until its upstream and protocol are independently verified; it is not described as official or built-in.
+- Unit tests cover the browser allowlist, daemon bounds, secret redaction, and MCP no-write policy.
+
+## 12. Known limitations
 
 - Konten private endpoints can change without notice.
 - Content Rewards is discovery-only and does not provide account earnings or joined state.

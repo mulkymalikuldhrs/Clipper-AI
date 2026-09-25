@@ -96,8 +96,8 @@ export default function Bridge() {
 
           <Panel title="Sumber data">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Tidak ada data mock di console. Campaign, brief, analytics, dan earnings hanya muncul setelah
-              bridge lokal membaca sesi marketplace milikmu dan mengirim snapshot nyata.
+              Tidak ada data sintetis di console. Campaign, brief, analytics, dan earnings hanya muncul setelah
+              bridge lokal membaca sumber nyata dan mengirim snapshot.
             </p>
             <div className="mt-4 border border-border bg-background/40 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
               source policy: bridge / own session only + public Content Rewards discovery

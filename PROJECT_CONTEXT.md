@@ -73,6 +73,18 @@ Connector definitions declare capabilities (`read`, `write`, `scrape`, `schedule
 - Skills, consequential connector actions, and social handoffs require review.
 - Browser heartbeat is not a durable scheduler.
 
+## Operator runtime
+
+The durable operator surface is deliberately local and bounded:
+
+- `scripts/sc-cli.ts` is the operator CLI for status, catalogs, daemon state, and browser policy.
+- `scripts/sc-daemon.ts` is never started by the preview. It uses a lock file, state file, bounded interval, graceful signals, and observe-only public discovery by default. `SC_DAEMON_SYNC=true` only enables normalized Content Rewards ingest through the existing protected route.
+- `scripts/sc-mcp.ts` uses the official `@modelcontextprotocol/sdk` over stdio and registers only read-only tools. It cannot execute shell commands, read arbitrary files, browse arbitrary URLs, or perform marketplace writes.
+- `scripts/sc-browser.ts` uses the existing Playwright dependency for title/body inspection on an origin/path allowlist. The optional Camofox adapter is a contract only; no stealth, anti-detection, or anti-bot bypass is implemented or implied.
+- Shared contracts and redaction live in `src/lib/operatorRuntime.ts` and are covered by tests.
+
+The daemon is autonomous only over the safe jobs explicitly described here. A failed source, missing evidence, or absent credential results in an observed state or `do_nothing`, never an invented success.
+
 ## Canonical files
 
 - `README.md` — setup, routes, and operations.

@@ -63,6 +63,12 @@ Normalization decisions:
 
 Super Clipper should ingest public marketplace intelligence, preserve provenance, and produce a reviewable plan. It should not join, submit, publish, scrape credentials, or create engagement. A source becoming unavailable is a normal empty/stale state, not a reason to invent data.
 
+## Operator runtime research note
+
+The durable operator surface was designed from public patterns around explicit process ownership, bounded schedules, MCP tool contracts, and local browser inspection. The implementation uses the official Model Context Protocol TypeScript SDK for a read-only stdio server, while Playwright remains the verified built-in browser runner because the public Camofox-related projects reviewed did not establish a canonical upstream or a safe protocol contract.
+
+The operator daemon is deliberately local and optional. It can observe public Content Rewards discovery on a bounded interval and can optionally send normalized read-only snapshots through the existing token-protected ingest route. It does not use cookies, join campaigns, submit work, publish content, or attempt to bypass site controls.
+
 ## Research limitations
 
 - Private marketplace APIs can change shape or rate-limit requests.

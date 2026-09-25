@@ -25,7 +25,7 @@ Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, menormalk
 
 ## Public console, no account required
 
-- Buka `/` untuk menjelajahi preview produk secara langsung.
+- Buka `/` untuk membaca sistem dan masuk ke control room.
 - Klik **Buka workspace** atau **Mulai eksplorasi** untuk membuka console tanpa form login atau pendaftaran.
 - Route `/app/*` dapat diakses langsung; `/auth` hanya menjadi redirect ke landing page.
 - Credential marketplace tetap hanya dipakai oleh bridge lokal dan tidak pernah ditampilkan di console.
@@ -42,7 +42,7 @@ Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, menormalk
 | **Campaign Detail** | Menampilkan ekonomi campaign, brief, materi, aturan kepatuhan, dan tombol membuat rencana. |
 | **Analytics** | Mirror timeseries views, earnings per campaign, dan distribusi platform. |
 | **Earnings** | Ringkasan total earned, on-hold, siap withdraw, nilai baris, dan status syarat payout. |
-| **Data policy** | Tidak ada mock atau seed data di console; semua snapshot berasal dari bridge lokal. |
+| **Data policy** | Tidak ada data sintetis di console; semua snapshot berasal dari bridge atau sumber publik. |
 | **Organism Kernel** | Bounded control plane untuk constitution, dynamic goals, capability registry, memory, experiments, dan pause/review controls. |
 | **AutoShorts Handoff** | Menghasilkan manifest kandidat klip 9:16 dari plan campaign: hook, core proof, CTA, source material, dan guardrails. |
 | **Autonomy Queue** | Menentukan lifecycle campaign, data readiness, economic signal, dan handoff publish yang selalu membutuhkan review. |
@@ -96,6 +96,11 @@ Versi saat ini memakai parser brief deterministik untuk keputusan produksi dan r
 - `scripts/bridge-sync.ts`: runner bridge lokal untuk session/cookies konten.com.
 - `scripts/content-rewards-sync.ts`: runner read-only untuk endpoint publik Content Rewards Discover.
 - `scripts/smoke-dashboard.ts`: smoke test browser lintas route desktop/mobile.
+- `src/lib/operatorRuntime.ts`: shared daemon/MCP/browser contracts, redaction, and allowlists.
+- `scripts/sc-cli.ts`: operator CLI untuk status, catalog, dan policy checks.
+- `scripts/sc-daemon.ts`: daemon lokal dengan lock/state, interval, dan observe-only default.
+- `scripts/sc-mcp.ts`: official MCP stdio server dengan read-only tool allowlist.
+- `scripts/sc-browser.ts`: Playwright read-only page inspection untuk URL yang di-allowlist.
 - `research/AGENT_RESEARCH.md`: riset kedua untuk OpenShorts, agent runtime, self-evolution, dan safety patterns.
 - `research/HERMES_CANONICAL_CONTEXT.md`: canonical strategic context untuk autonomous organization / venture organism.
 
@@ -109,7 +114,7 @@ bun run dev                 # Vite saja
 
 UI console sengaja dibuat minimal: satu aksen lime, neutral charcoal, hairline border, dan tipografi denser. Tidak ada gradient, glow, shadow, atau dekorasi yang bersaing dengan data.
 
-Buka `http://localhost:5174` (atau port yang diinjeksikan platform), lalu jelajahi landing dan console tanpa membuat akun. Untuk melihat data, jalankan bridge lokal dengan sesi marketplace milikmu sendiri; console tidak lagi menyediakan seed atau data demo.
+Buka `http://localhost:5174` (atau port yang diinjeksikan platform), lalu jelajahi landing dan console tanpa membuat akun. Untuk melihat data, jalankan bridge lokal dengan sesi marketplace milikmu sendiri; console hanya menampilkan snapshot sumber nyata.
 
 ### Content Rewards Discover (read-only)
 
@@ -142,7 +147,7 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 
 | Route | Akses | Isi |
 |---|---|---|
-| `/` | Publik | Product-first landing preview, fully explorable tanpa akun. |
+| `/` | Publik | Product entry and execution boundary, fully explorable tanpa akun. |
 | `/app` | Publik | Ringkasan campaign, earnings, sync, dan aktivitas tanpa autentikasi. |
 | `/app/scanner` | Publik | Daftar campaign, skor, filter, sorting. |
 | `/app/autopilot` | Publik | Plan produksi per campaign yang diikuti. |
@@ -158,6 +163,10 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 
 `/app/swarm` adalah runtime browser-first untuk eksperimen AI. User memilih maksimal empat role per run, lalu coordinator/producer/researcher/reviewer menjalankan model OpenAI-compatible dengan shared transcript dan memory. Base URL/model non-secret disimpan di `localStorage`; API key hanya di `sessionStorage` dan tidak pernah dikirim ke Convex.
 
+`Test API` di halaman Agent Swarm benar-benar memanggil endpoint `${baseUrl}/models` untuk provider OpenAI-compatible. `Test API` Content Rewards memanggil public Discover JSON endpoint secara langsung dari browser; kegagalan CORS atau status HTTP ditampilkan apa adanya.
+
+Tidak ada simulation lane, generated campaign, mock earning, atau demo workspace di UI. Role agent hanya berjalan setelah goal dan provider nyata tersedia.
+
 Provider server-side memakai Convex actions dan environment variables:
 
 ```text
@@ -169,9 +178,9 @@ Apify dapat menjalankan Actor setelah workspace terautentikasi. Whop probe hanya
 
 ### Research translation
 
-Pola yang diadopsi secara sengaja dari repo yang diteliti: identity/body separation dan reviewable evolution dari **Enoch**; role teams, shared memory, conflict boundaries, durable approvals, dan verifiable run records dari **Open Multi-Agent**; persistent sessions, bounded autonomy, dan refine/skills lifecycle dari **Prime Agent**; explicit roles plus consensus memory dari **Auto-Company**; memory/context/skill routing dari **LifeOS**; dan local-first clip pipeline + MCP/API boundary dari **OpenShorts** dan **AutoShorts**. MiroFish/MiroShark dipakai sebagai pola simulation/grounding untuk batch evaluation, bukan sebagai pengganti safety boundary.
+Pola yang diadopsi secara sengaja dari repo yang diteliti: identity/body separation dan reviewable evolution dari **Enoch**; role teams, shared memory, conflict boundaries, durable approvals, dan verifiable run records dari **Open Multi-Agent**; persistent sessions, bounded autonomy, dan refine/skills lifecycle dari **Prime Agent**; explicit roles plus consensus memory dari **Auto-Company**; memory/context/skill routing dari **LifeOS**; dan local-first clip pipeline + MCP/API boundary dari **OpenShorts** dan **AutoShorts**.
 
-Self-improvement saat ini berarti **skill proposal**, bukan unrestricted code mutation. Agent dapat mengusulkan skill dari evidence, tetapi skill tetap `review_required` sampai user menyetujuinya. Browser cron juga tidak berjalan saat tab ditutup; backend scheduler dan durable agent runtime adalah tahap berikutnya.
+Self-improvement saat ini berarti **skill proposal**, bukan unrestricted code mutation. Agent dapat mengusulkan skill dari evidence, tetapi skill tetap `review_required` sampai user menyetujuinya. Browser cron hanya berjalan saat tab terbuka; durable operator daemon harus dijalankan eksplisit oleh operator dan tetap hanya menjalankan job read-only yang diizinkan.
 
 ## Setup Bridge (opsional)
 
@@ -248,7 +257,7 @@ Riset lapangan yang menjadi fondasi fitur tersimpan di `research/RESEARCH.md` da
 - 124 halaman clipper terpetakan.
 - 186 endpoint JSON terindeks.
 - 45 campaign memiliki `brief_detail` lengkap.
-- 124 halaman dan 186 endpoint adalah peta riset, bukan data mock yang disuntikkan ke console.
+- 124 halaman dan 186 endpoint adalah peta riset historis, bukan data runtime yang disuntikkan ke console.
 
 Endpoint marketplace dapat berubah. Bridge dan parser harus diperlakukan sebagai integrasi toleran: validasi payload, pertahankan bentuk mentah di `raw`, dan gunakan fallback yang aman ketika field tidak tersedia.
 
@@ -335,6 +344,28 @@ menyebutnya selesai hanya karena operation log sudah ada.
 - **Bounded organism:** scheduler memilih goal untuk review; tidak menjalankan shell, model, filesystem, spending, atau publisher.
 - **Canonical context:** realitas repository mengalahkan klaim dokumentasi; evidence, unknown state, capability graph, dan do-nothing selalu dipertimbangkan.
 - **Capability expansion:** renderer/TTS/model eksternal hanya setelah opt-in, quota, license review, dan rollback.
+
+## Operator runtime: CLI, daemon, MCP, dan browser
+
+Runtime ini menambah jalur operasi lokal yang bisa diaudit tanpa mengubah trust boundary marketplace:
+
+```bash
+bun run sc -- source status
+bun run sc -- connector list
+bun run sc -- mcp list
+bun run sc -- daemon status
+bun run sc:mcp
+bun run sc:daemon
+bun run sc:browser -- https://contentrewards.com/discover
+```
+
+- `sc` hanya membaca status, catalog, dan state lokal; tidak menerima shell command atau arbitrary URL.
+- `sc:daemon` adalah proses yang dijalankan operator, bukan proses yang dimulai otomatis oleh Freebuff. Ia memakai lock file, state file, interval 60–3600 detik, graceful shutdown, dan hanya melakukan discovery Content Rewards secara read-only. `SC_DAEMON_SYNC=true` mengaktifkan ingest normalized yang dilindungi `INGEST_TOKEN`; observe-only adalah default.
+- `sc:mcp` adalah MCP stdio server berbasis official `@modelcontextprotocol/sdk`. Tool allowlist hanya read-only: source status, connector catalog, provider presence, bounded public discovery, browser policy, URL policy, dan daemon state. Tidak ada tool shell, publish, payment, account takeover, atau credential read.
+- `sc:browser` memakai Playwright yang sudah ada untuk inspeksi title/text pada allowlist `contentrewards.com/discover` serta `konten.com/clipper-dashboard`/`login`. Tidak ada click, form, download, stealth, CAPTCHA bypass, atau anti-bot bypass.
+- Camofox tidak diklaim sebagai dependency official. Repository publik yang ditemukan tidak membuktikan adanya canonical upstream. Kamus connector hanya menyediakan optional operator-owned binary contract; sampai binary dan protocol diverifikasi, built-in runner tetap Playwright read-only.
+
+Status daemon lokal tidak dikirim ke browser dan tidak disimpan di Convex. Untuk melihat status nyata, jalankan `bun run sc -- daemon status` pada operator machine yang sama.
 
 ## Lisensi
 

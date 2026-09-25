@@ -1,6 +1,6 @@
 /* Connector catalog. Secrets are never part of this config; they belong in Keys/API keys. */
 
-export type ConnectorId = "apify" | "whop" | "content_rewards" | "openai_compatible" | "webhook";
+export type ConnectorId = "apify" | "whop" | "content_rewards" | "openai_compatible" | "webhook" | "mcp_operator" | "playwright_browser" | "camofox_adapter";
 export type ConnectorCapability = "read" | "write" | "scrape" | "schedule" | "consequential";
 
 export type ConnectorDefinition = {
@@ -54,6 +54,36 @@ export const CONNECTORS: ConnectorDefinition[] = [
     requiredEnvVars: [],
     status: "available",
     safety: "API key hanya sessionStorage browser atau server-side Convex env; output tetap perlu review.",
+  },
+  {
+    id: "mcp_operator",
+    label: "Super Clipper MCP",
+    description: "Official MCP stdio server untuk source status, connector catalog, provider presence, dan bounded public discovery.",
+    docsUrl: "https://ts.sdk.modelcontextprotocol.io/",
+    capabilities: ["read"],
+    requiredEnvVars: [],
+    status: "available",
+    safety: "Read-only tool allowlist; tidak ada shell, arbitrary URL, credential, atau marketplace write tool.",
+  },
+  {
+    id: "playwright_browser",
+    label: "Playwright browser",
+    description: "Built-in browser runner untuk inspeksi halaman read-only pada origin dan path yang di-allowlist.",
+    docsUrl: "https://playwright.dev/docs/intro",
+    capabilities: ["read", "scrape"],
+    requiredEnvVars: [],
+    status: "available",
+    safety: "Headless inspection only; tidak melakukan click, form submission, download, atau anti-bot bypass.",
+  },
+  {
+    id: "camofox_adapter",
+    label: "Camofox adapter contract",
+    description: "Contract opsional untuk binary Camofox-compatible milik operator; tidak mengaktifkan stealth atau bypass.",
+    docsUrl: "https://github.com/daijro/camoufox",
+    capabilities: ["read", "scrape"],
+    requiredEnvVars: ["SC_CAMOFOX_COMMAND"],
+    status: "planned",
+    safety: "Hanya adapter binary yang diverifikasi operator; tidak ada klaim official, anti-detection, atau CAPTCHA bypass.",
   },
   {
     id: "webhook",
