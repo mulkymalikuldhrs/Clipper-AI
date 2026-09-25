@@ -28,6 +28,7 @@ const GROUPS: { section: string; items: { to: string; label: string; end?: boole
     { to: "/app/bridge", label: "Bridge" },
     { to: "/app/accounts", label: "Social accounts" },
     { to: "/app/organism", label: "Organism" },
+    { to: "/app/swarm", label: "Agent Swarm" },
   ] },
 ];
 
@@ -53,7 +54,7 @@ export default function DashboardLayout() {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-card/30 md:flex">
+      <aside className="hidden w-52 shrink-0 flex-col border-r border-border bg-card/30 md:flex">
         <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
           <span className="grid h-7 w-7 place-items-center rounded-md border border-primary/25 bg-primary/10">
             <Scissors className="h-3.5 w-3.5 text-primary" />
@@ -176,7 +177,7 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+        <main className="mx-auto w-full min-w-0 max-w-[1480px] flex-1 px-4 py-6 md:px-8 md:py-8">
           <Outlet />
         </main>
 

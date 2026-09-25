@@ -75,7 +75,10 @@ export const createPlan = mutation({
       ...brief.dilarang.slice(0, 8).map((d) => ({ label: `CEK LARANGAN: ${d.slice(0, 100)}`, category: "compliance" })),
       { label: "Siapkan caption + semua hashtag wajib", category: "posting" },
       { label: "Posting di platform: " + (c.platforms.join(", ") || "-"), category: "posting" },
-      { label: "Submit link video ke campaign di konten.com", category: "posting" },
+      {
+        label: `Submit link video ke campaign di ${raw.marketplace === "content-rewards" ? "contentrewards.com" : "konten.com"} — dilakukan manual setelah review`,
+        category: "posting",
+      },
     ];
     let order = 0;
     for (const t of taskDefs) {

@@ -7,7 +7,7 @@ assignees: ''
 ---
 
 ## Problem Statement
-What problem does this feature solve? What are you trying to accomplish?
+What workflow should this improve? Describe the operator, source marketplace, and review boundary.
 
 ## Proposed Solution
 How would you like this feature to work?
@@ -15,8 +15,10 @@ How would you like this feature to work?
 ## Alternatives Considered
 What other approaches have you considered?
 
-## Additional Context
-Any screenshots, examples from other projects, or links that help explain your idea.
+## Safety and data
+- [ ] No credentials, cookies, or private account data are required in the client.
+- [ ] External actions are bounded and review-gated.
+- [ ] Source provenance and unknown states are explicit.
 
 ## Would you be willing to implement this?
 [ ] Yes, I'd like to submit a PR for this feature

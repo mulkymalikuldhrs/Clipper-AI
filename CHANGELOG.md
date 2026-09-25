@@ -5,7 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-09-24
+## [Unreleased] - 2026-09-25
+
+### Added
+- Minimal monochrome/lime UI system: neutral charcoal surfaces, tighter type scale, hairline panels, quieter borders, and no decorative gradients or glows.
+- Content Rewards Discover read-only connector and bounded public sync script.
+- Agent Swarm control room with explicit roles, shared transcript/memory, custom OpenAI-compatible base URL/model, browser-only API key handling, evaluation, browser heartbeat, and review-gated skill proposals.
+- Connector catalog for Apify, Whop, Content Rewards, OpenAI-compatible models, and planned signed webhooks.
+- Convex server actions for authenticated Apify Actor runs and bounded Whop account probing.
+- Research notes translated into implementation boundaries for Enoch, Open Multi-Agent, Prime Agent, Auto-Company, LifeOS, OpenShorts, AutoShorts, MiroFish, and MiroShark.
+
+### Changed
+- Refreshed product, operations, security, research, and contribution documentation to match the public console and current safety model.
+- Clarified that public console data is source-backed and that browser swarm memory is local-first; no unrestricted autonomous mutation or publishing was added.
+
+### Quality
+- `bun run convex codegen`
+- `bun tsc -b --noEmit`
+- `bun run typecheck:scripts`
+- `bun test` (24 passing)
+- `git diff --check`
+
+### Safety
+- API keys are never stored in localStorage, Convex, source control, or ingest payloads.
+- Agent skills remain `review_required` until a human approves them.
+- Connector actions with external credentials require an authenticated Convex user; consequential operations remain review-gated.
+
+## [2.3.0] - 2026-09-24
 
 ### Added
 - Autonomy queue per campaign: lifecycle, data readiness, economic signal, plan-specific decision, dan social handoff yang selalu `review_required`.

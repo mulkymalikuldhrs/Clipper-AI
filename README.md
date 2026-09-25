@@ -5,7 +5,7 @@
 <h1 align="center">Super Clipper</h1>
 
 <p align="center">
-  <b>Venture operating system untuk workflow clipping konten.com</b><br/>
+  <b>Minimal operating system untuk workflow clipping marketplace</b><br/>
   Preview produk secara publik → Jelajahi command center → buka console tanpa akun.
 </p>
 
@@ -21,7 +21,7 @@
 
 **Super Clipper** adalah operating console untuk workflow clipping [konten.com](https://konten.com). Halaman publik `/` dan console `/app` dapat dijelajahi tanpa login atau pendaftaran: command center, alur kerja, spesifikasi campaign, dan trust boundary tersedia langsung.
 
-Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, lalu menormalkan data campaign, brief, earnings, dan timeseries ke workspace Convex milikmu. Aplikasi tidak mengirim credential ke server. Video tetap dikirim dan disetujui melalui marketplace konten.com; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim atau memalsukan engagement.
+Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, menormalkan campaign, brief, earnings, dan timeseries ke workspace Convex. Content Rewards ditambahkan sebagai sumber Discover publik dan read-only. Video tetap dikirim dan disetujui melalui marketplace asal; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim, mengambil alih akun, atau memalsukan engagement.
 
 ## Public console, no account required
 
@@ -29,12 +29,14 @@ Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, lalu meno
 - Klik **Buka workspace** atau **Mulai eksplorasi** untuk membuka console tanpa form login atau pendaftaran.
 - Route `/app/*` dapat diakses langsung; `/auth` hanya menjadi redirect ke landing page.
 - Credential marketplace tetap hanya dipakai oleh bridge lokal dan tidak pernah ditampilkan di console.
+- `/app/swarm` menggunakan provider OpenAI-compatible secara lokal; API key hanya di sessionStorage browser.
 
 | Modul | Fungsi |
 |---|---|
 | **Landing** | Preview publik tanpa akun: command center, operating loop, campaign specs, dan trust boundary. |
 | **Console** | Console `/app` terbuka tanpa autentikasi untuk menjelajahi data dan alur operasi. |
 | **Konten Bridge** | Sync read-only memakai sesi marketplace milikmu sendiri: campaign, brief detail, joined, earnings, wallet, tier, dan timeseries. |
+| **Content Rewards Discover** | Sync read-only dari endpoint JSON publik Discover: campaign, brief detail, budget, payout, dan materi. Tidak memakai cookie, join, submit, atau engagement. |
 | **Campaign Scanner** | Cache campaign aktif dengan skor 0–100, filter, pencarian, dan sorting keyboard-friendly. |
 | **Brief Autopilot** | Mengubah `brief_detail` menjadi hook, shotlist, narasi, CTA, caption, hashtag, aturan boleh/dilarang, dan checklist tugas. |
 | **Campaign Detail** | Menampilkan ekonomi campaign, brief, materi, aturan kepatuhan, dan tombol membuat rencana. |
@@ -44,8 +46,10 @@ Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, lalu meno
 | **Organism Kernel** | Bounded control plane untuk constitution, dynamic goals, capability registry, memory, experiments, dan pause/review controls. |
 | **AutoShorts Handoff** | Menghasilkan manifest kandidat klip 9:16 dari plan campaign: hook, core proof, CTA, source material, dan guardrails. |
 | **Autonomy Queue** | Menentukan lifecycle campaign, data readiness, economic signal, dan handoff publish yang selalu membutuhkan review. |
+| **Agent Swarm** | Role-based multi-agent control room: coordinator, researcher, producer, reviewer, memory, dan connector; shared transcript, memory, evaluation, serta skill proposal yang perlu disetujui. |
+| **Connector Catalog** | Kontrak provider untuk Apify, Whop, Content Rewards, OpenAI-compatible model, dan webhook plugin dengan capability serta secret boundary eksplisit. |
 
-Versi saat ini menggunakan parser brief deterministik berbasis data `brief_detail`; integrasi model generatif belum menjadi dependensi runtime. Istilah “AI Autopilot” di sini menggambarkan hasil kerja dan alur produk, bukan klaim bahwa semua keputusan saat ini dihasilkan oleh LLM.
+Versi saat ini memakai parser brief deterministik untuk keputusan produksi dan runtime swarm opsional untuk eksperimen AI. Istilah “AI Autopilot” di sini menggambarkan hasil kerja dan alur produk, bukan klaim bahwa semua keputusan saat ini dihasilkan oleh LLM.
 
 ## Prinsip produk
 
@@ -53,7 +57,8 @@ Versi saat ini menggunakan parser brief deterministik berbasis data `brief_detai
 - **Read-only untuk akun marketplace:** Super Clipper tidak memakai bot views atau engagement.
 - **Brief adalah sumber kebenaran:** aturan campaign, CTA, durasi, caption, dan larangan berasal dari payload marketplace.
 - **Human-in-the-loop:** clipper tetap mengambil footage, mengedit, memverifikasi, memposting, dan mengirim video.
-- **Console, bukan dekorasi:** UI memakai garis rambut, tabel padat, angka tabular, dan warna hanya untuk status atau skor.
+- **Console, bukan dekorasi:** UI memakai garis rambut, whitespace, tabel padat, angka tabular, dan warna hanya untuk status atau skor.
+- **AI keys stay local:** custom provider config disimpan non-secret di browser; API key tidak masuk source, Convex, atau repository.
 
 ## Arsitektur
 
@@ -80,10 +85,16 @@ Versi saat ini menggunakan parser brief deterministik berbasis data `brief_detai
 
 - `src/convex/`: schema, auth, ingest HTTP, query, campaign mutations, dan generator plan.
 - `src/convex/lib/konten.ts`: normalisasi payload, scoring campaign, dan parser brief.
+- `src/convex/lib/contentRewards.ts`: normalisasi read-only JSON Discover Content Rewards ke cache campaign bersama.
+- `src/lib/agentSwarm.ts`: runtime swarm browser-safe untuk role selection, provider OpenAI-compatible, shared memory, evaluation, dan skill proposal.
+- `src/lib/connectors.ts`: catalog connector provider-neutral untuk Apify, Whop, Content Rewards, model, dan webhook.
+- `src/convex/connectors.ts`: action server-side untuk Apify Actor dan Whop probe; token hanya dari Convex environment.
+- `scripts/content-rewards-sync.ts`: sync bounded public Discover (maks. 60 campaign, tanpa cookies atau akun marketplace).
 - `src/lib/autoshorts.ts`: clean-room manifest kandidat klip 9:16 untuk handoff ke renderer lokal.
 - `src/pages/dashboard/`: shell console dan route produk.
 - `src/components/shared.tsx`: primitif UI bersama (`Panel`, `TableShell`, `Status`, `Meter`, `Score`, dan lainnya).
 - `scripts/bridge-sync.ts`: runner bridge lokal untuk session/cookies konten.com.
+- `scripts/content-rewards-sync.ts`: runner read-only untuk endpoint publik Content Rewards Discover.
 - `scripts/smoke-dashboard.ts`: smoke test browser lintas route desktop/mobile.
 - `research/AGENT_RESEARCH.md`: riset kedua untuk OpenShorts, agent runtime, self-evolution, dan safety patterns.
 - `research/HERMES_CANONICAL_CONTEXT.md`: canonical strategic context untuk autonomous organization / venture organism.
@@ -96,7 +107,24 @@ bun convex dev --once       # provision backend + generate types
 bun run dev                 # Vite saja
 ```
 
+UI console sengaja dibuat minimal: satu aksen lime, neutral charcoal, hairline border, dan tipografi denser. Tidak ada gradient, glow, shadow, atau dekorasi yang bersaing dengan data.
+
 Buka `http://localhost:5174` (atau port yang diinjeksikan platform), lalu jelajahi landing dan console tanpa membuat akun. Untuk melihat data, jalankan bridge lokal dengan sesi marketplace milikmu sendiri; console tidak lagi menyediakan seed atau data demo.
+
+### Content Rewards Discover (read-only)
+
+Discover tidak membutuhkan login. Sync memakai endpoint JSON publik yang sama dengan halaman `https://contentrewards.com/discover`, mengambil daftar dan detail secara terbatas, lalu mengimpannya sebagai campaign automation. Nilai ekonomi Content Rewards ditampilkan dalam USD; tidak ada konversi diam-diam ke IDR.
+
+```bash
+# Isi key non-secret ini di environment/Keys API keys
+CONTENT_REWARDS_SYNC_EMAIL=kamu@email.com
+SUPERCLIPPER_URL=<Convex HTTP actions URL>/ingest
+INGEST_TOKEN=<token ingest lokal>
+
+bun run bridge:content-rewards
+```
+
+Sync ini tidak membaca atau menyimpan cookie Content Rewards, tidak melakukan join campaign, tidak mengirim video, dan tidak membuat engagement. Biaya API tidak ada; tetap patuhi rate limit dan ketentuan marketplace.
 
 Untuk pengembangan di luar Freebuff, jalankan dua terminal secara terpisah:
 
@@ -123,7 +151,27 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 | `/app/earnings` | Publik | Earnings dan payout readiness. |
 | `/app/bridge` | Publik | Konfigurasi dan status sinkronisasi. |
 | `/app/organism` | Publik | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
+| `/app/swarm` | Publik | Agent control room: role swarm, provider custom, transcript, memory, evaluation, dan skill review. |
 | `/app/accounts` | Publik | Konfigurasi metadata akun TikTok/Instagram dan status OAuth resmi. |
+
+## Agent Swarm dan connectors
+
+`/app/swarm` adalah runtime browser-first untuk eksperimen AI. User memilih maksimal empat role per run, lalu coordinator/producer/researcher/reviewer menjalankan model OpenAI-compatible dengan shared transcript dan memory. Base URL/model non-secret disimpan di `localStorage`; API key hanya di `sessionStorage` dan tidak pernah dikirim ke Convex.
+
+Provider server-side memakai Convex actions dan environment variables:
+
+```text
+APIFY_TOKEN=<Apify API token>
+WHOP_API_KEY=<Whop API key>
+```
+
+Apify dapat menjalankan Actor setelah workspace terautentikasi. Whop probe hanya membaca account/users endpoint; payment, payout, webhook, dan app-management harus melalui review-gated flow. Catalog plugin saat ini tidak berarti arbitrary endpoint diizinkan: `content_rewards` tetap read-only, `webhook` masih planned, dan capability `consequential` selalu memerlukan approval manusia.
+
+### Research translation
+
+Pola yang diadopsi secara sengaja dari repo yang diteliti: identity/body separation dan reviewable evolution dari **Enoch**; role teams, shared memory, conflict boundaries, durable approvals, dan verifiable run records dari **Open Multi-Agent**; persistent sessions, bounded autonomy, dan refine/skills lifecycle dari **Prime Agent**; explicit roles plus consensus memory dari **Auto-Company**; memory/context/skill routing dari **LifeOS**; dan local-first clip pipeline + MCP/API boundary dari **OpenShorts** dan **AutoShorts**. MiroFish/MiroShark dipakai sebagai pola simulation/grounding untuk batch evaluation, bukan sebagai pengganti safety boundary.
+
+Self-improvement saat ini berarti **skill proposal**, bukan unrestricted code mutation. Agent dapat mengusulkan skill dari evidence, tetapi skill tetap `review_required` sampai user menyetujuinya. Browser cron juga tidak berjalan saat tab ditutup; backend scheduler dan durable agent runtime adalah tahap berikutnya.
 
 ## Setup Bridge (opsional)
 
@@ -164,15 +212,7 @@ account takeover, fake engagement, dan upload dari browser tidak diizinkan.
 
 ## Konfigurasi provider lokal (opsional)
 
-Halaman **Organism** menyediakan form mudah untuk mengganti `Base URL`, `Model`, dan `API key`
-untuk adapter OpenAI-compatible di masa depan. Form hanya melakukan validasi konfigurasi; kernel
-belum mengirim request ke provider secara otomatis.
-
-- Base URL dan model disimpan di `localStorage` browser.
-- API key hanya disimpan di `sessionStorage` browser saat ini.
-- API key tidak pernah dikirim ke Convex atau disimpan di repository.
-- API key boleh dikosongkan untuk model lokal seperti Ollama.
-- Gunakan tombol **Hapus konfigurasi** untuk membersihkan key dari browser.
+Halaman **Agent Swarm** menyediakan `Base URL`, `Model`, dan `API key` untuk adapter OpenAI-compatible. `Base URL` dan model disimpan di `localStorage`; API key hanya di `sessionStorage` dan boleh dikosongkan untuk Ollama atau model lokal lain. Provider dipanggil langsung dari browser, sehingga CORS dan kebijakan endpoint tetap menjadi responsibility provider. Convex tidak menerima API key browser.
 
 Adapter provider eksternal harus tetap mendapat opt-in, quota, retention, cost limit, dan
 review keamanan sebelum diaktifkan.

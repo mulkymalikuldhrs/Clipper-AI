@@ -23,6 +23,7 @@ export type RawCampaign = {
   hashtags?: string[] | null;
   deadline?: string | null;
   tier_access?: string | null;
+  marketplace?: string;
   brief_detail?: RawBrief;
 };
 
@@ -111,9 +112,12 @@ export function parseBrief(c: RawCampaign) {
   const durMin = toNumber(bd.durasiMin, c.min_video_duration ?? 10);
   const durMax = toNumber(bd.durasiMax, Math.max(durMin, 120));
   // Sejumlah brief mengirim CTA kosong ("") — jangan tampilkan string kosong.
+  const isDiscovery = c.marketplace === "content-rewards";
   const cta =
     (bd.cta ?? "").trim() ||
-    `Brief tidak mencantumkan CTA khusus — akhiri dengan ajakan brand ${c.brand ?? ""} + nama campaign.`.trim();
+    (isDiscovery
+      ? ""
+      : `Brief tidak mencantumkan CTA khusus — akhiri dengan ajakan brand ${c.brand ?? ""} + nama campaign.`.trim());
   const captionWajib = (bd.captionWajib ?? "").trim();
   const goal = (bd.tujuanCampaign ?? "").trim();
   const targetAudience = (bd.targetAudiens ?? "").trim();
@@ -133,9 +137,11 @@ export function parseBrief(c: RawCampaign) {
   const caption =
     (bd.caption ?? "").trim() ||
     captionWajib ||
-    `${narasiPoints[0] ?? "Percayalah sama perasaan ini..."}\n${cta}\n${hashtags
-      .map((h) => "#" + h)
-      .join(" ")}`;
+    (isDiscovery
+      ? ""
+      : `${narasiPoints[0] ?? "Percayalah sama perasaan ini..."}\n${cta}\n${hashtags
+          .map((h) => "#" + h)
+          .join(" ")}`);
 
   // --- Shotlist: scaled to the brief's real duration window ---
   const h = (pct: number) => stamp(Math.max(3, Math.round(durMax * pct)));

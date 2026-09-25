@@ -17,7 +17,7 @@ import {
   KeyValueList,
   toneForScore,
 } from "@/components/shared";
-import { formatRupiah, formatNumber, timeAgo } from "@/lib/utils";
+import { formatCampaignMoney, formatNumber, formatRupiah, timeAgo } from "@/lib/utils";
 import { ArrowUpRight, Cable, Radar } from "lucide-react";
 
 const OPPORTUNITY_COLS = "minmax(0,1fr) 5rem 7.5rem 4.5rem 5.5rem";
@@ -181,8 +181,7 @@ export default function DashboardHome() {
                         {c.platforms?.length ? ` • ${c.platforms.join("/")}` : ""}
                       </span>
                     </span>
-                    <span className="font-mono text-[12px] tabular-nums">
-                      {formatRupiah(c.ratePerMillion)}
+                    <span className="font-mono text-[12px] tabular-nums">                        {formatCampaignMoney(c.ratePerMillion, c.marketplace)}
                     </span>
                     <span className="flex items-center gap-2">
                       <Meter value={remaining} tone={(remaining ?? 0) >= 50 ? "good" : "warn"} className="w-10" />

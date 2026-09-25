@@ -14,6 +14,22 @@ export function formatRupiah(value: number | undefined | null): string {
   }).format(value);
 }
 
+export function formatUsd(value: number | undefined | null): string {
+  if (value == null || Number.isNaN(value)) return "$0";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: value % 1 === 0 ? 0 : 2,
+  }).format(value);
+}
+
+export function formatCampaignMoney(
+  value: number | undefined | null,
+  marketplace: string | undefined
+): string {
+  return marketplace === "content-rewards" ? formatUsd(value) : formatRupiah(value);
+}
+
 export function formatNumber(value: number | undefined | null): string {
   if (value == null || Number.isNaN(value)) return "0";
   return new Intl.NumberFormat("id-ID").format(value);

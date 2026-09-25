@@ -7,7 +7,7 @@ assignees: ''
 ---
 
 ## What needs to be done
-A clear description of the task.
+Describe one small, verifiable improvement to the minimal console, bridge, connector catalog, or documentation.
 
 ## Where to find the relevant code
 Point to the file(s) or directory where the change should be made.
@@ -31,5 +31,5 @@ Step-by-step guidance for a new contributor:
 ## Expected outcome
 What the result should look like after the change.
 
-## Questions?
-Feel free to ask in the issue comments — we're happy to help!
+## Verification
+List the exact `bun` checks relevant to the change. A good first issue should not require credentials or production access.

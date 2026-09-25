@@ -7,10 +7,10 @@ assignees: ''
 ---
 
 ## What would you like to know?
-Describe your question or the help you need.
+Describe whether the question is about the public console, local bridge, Convex data, AI swarm, or a provider connector.
 
 ## What have you tried?
 What steps have you already taken to find the answer?
 
 ## Additional Context
-Any links, screenshots, or context that helps explain your question.
+Share redacted logs, route names, and relevant versions. Never post API keys, cookies, or raw account data.

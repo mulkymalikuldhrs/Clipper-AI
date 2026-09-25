@@ -26,6 +26,7 @@ const ROUTES: [string, string][] = [
   ["bridge", "/app/bridge"],
   ["accounts", "/app/accounts"],
   ["organism", "/app/organism"],
+  ["swarm", "/app/swarm"],
 ];
 
 mkdirSync(OUT, { recursive: true });
@@ -46,6 +47,8 @@ for (const f of [
   "src/pages/dashboard/Bridge.tsx",
   "src/pages/dashboard/SocialAccounts.tsx",
   "src/pages/dashboard/Organism.tsx",
+  "src/pages/dashboard/Swarm.tsx",
+  "src/lib/agentSwarm.ts",
   "src/lib/autonomy.ts",
   "src/lib/autoshorts.ts",
 ]) {

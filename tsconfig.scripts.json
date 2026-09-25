@@ -16,5 +16,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node"]
   },
-  "include": ["scripts/smoke-dashboard.ts"]
+  "include": ["scripts/smoke-dashboard.ts", "scripts/content-rewards-sync.ts", "src/convex/lib/contentRewards.ts"]
 }

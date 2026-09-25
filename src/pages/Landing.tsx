@@ -11,7 +11,7 @@ import {
 } from "@/components/shared";
 import { ArrowRight, Check, CirclePlay, Scissors, Sparkles } from "lucide-react";
 
-const SHELL = "mx-auto w-full max-w-6xl px-4 md:px-8";
+const SHELL = "mx-auto w-full max-w-5xl px-4 md:px-8";
 const PREVIEW_COLS = "7rem minmax(0,1fr) 4rem 6rem 7rem";
 
 const NAV = [
@@ -110,7 +110,7 @@ export default function Landing() {
                 <Status tone="primary">live product preview</Status>
                 <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">public product preview</span>
               </div>
-              <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.04] tracking-[-0.04em] md:text-6xl">
+              <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.04] tracking-[-0.04em] md:text-5xl">
                 Your next winning clip,
                 <span className="block text-primary">already has a system.</span>
               </h1>

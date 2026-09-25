@@ -23,6 +23,7 @@ type RawCampaign = {
   min_video_duration?: number | null;
   hashtags?: string[];
   deadline?: string | null;
+  marketplace?: string;
 };
 
 type Snapshot = {
@@ -176,7 +177,8 @@ export const applySnapshot = internalAction({
         hashtags: c.hashtags ?? [],
         deadline: c.deadline ?? undefined,
         remainingPct: snap.closureByCampaignId?.[c.id],
-        joined: joinedIds.has(c.id),
+        joined: source === "content_rewards" ? false : joinedIds.has(c.id),
+        marketplace: c.marketplace ?? (source === "content_rewards" ? "content-rewards" : "konten"),
         score,
         raw: c as unknown,
       });

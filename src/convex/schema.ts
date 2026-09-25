@@ -21,7 +21,7 @@ export default defineSchema({
   kontenSnapshots: defineTable({
     userId: v.id("users"),
     fetchedAt: v.number(),
-    source: v.string(), // "bridge" | "demo"
+    source: v.string(), // "bridge" | "content_rewards"
     profile: v.optional(v.any()),
     campaigns: v.optional(v.any()),
     joined: v.optional(v.any()),
@@ -33,7 +33,9 @@ export default defineSchema({
     notifications: v.optional(v.number()),
     detailFetched: v.optional(v.number()),
     coverage: v.optional(v.any()),
-  }).index("by_userId", ["userId"]),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_source", ["userId", "source"]),
 
   // Campaign cache with derived autopilot score.
   kontenCampaigns: defineTable({
@@ -57,6 +59,7 @@ export default defineSchema({
     deadline: v.optional(v.string()),
     remainingPct: v.optional(v.number()),
     joined: v.boolean(),
+    marketplace: v.optional(v.string()),
     score: v.number(),
     raw: v.optional(v.any()),
     updatedAt: v.number(),

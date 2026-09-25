@@ -15,7 +15,7 @@ import {
   TableRow,
   TableShell,
 } from "@/components/shared";
-import { cn, formatNumber, formatRupiah } from "@/lib/utils";
+import { cn, formatCampaignMoney, formatNumber } from "@/lib/utils";
 import { ArrowDown, ArrowUp, RefreshCw, Search } from "lucide-react";
 
 type SortKey = "score" | "cpm" | "remaining" | "clippers" | "minViews";
@@ -236,8 +236,7 @@ export default function Scanner() {
                     </span>
                   </span>
                   <Score value={c.score} />
-                  <span className="font-mono text-[12px] tabular-nums">
-                    {formatRupiah(c.ratePerMillion)}
+                  <span className="font-mono text-[12px] tabular-nums">                      {formatCampaignMoney(c.ratePerMillion, c.marketplace)}
                   </span>
                   <span className="flex items-center gap-2">
                     <Meter

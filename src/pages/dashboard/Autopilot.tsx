@@ -118,7 +118,7 @@ export default function Autopilot() {
       <PageHeader
         eyebrow="Autopilot"
         title="Rencana produksi"
-        meta={`${joined.length} campaign diikuti • rencana dibuat otomatis dari brief asli konten.com`}
+        meta={`${joined.length} campaign diikuti • rencana dibuat otomatis dari brief marketplace; submit tetap manual setelah review`}
         actions={
           active && (
             <Button asChild variant="ghost" size="sm">
@@ -209,6 +209,7 @@ type PlanData = {
     complianceScore: number;
     status: string;
     campaignSlug: string;
+    campaignExtId: string;
   };
   tasks: { _id: Id<"planTasks">; label: string; category: string; done: boolean; order: number }[];
 };
@@ -533,11 +534,11 @@ function PlanView({
               </div>
               <Button asChild variant="outline" size="sm" className="mt-4">
                 <a
-                  href={`https://konten.com/clipper-campaigns/${plan.campaignSlug}`}
+                  href={plan.campaignExtId.startsWith("content-rewards:") ? "https://contentrewards.com/discover" : `https://konten.com/clipper-campaigns/${plan.campaignSlug}`}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Brief lengkap di konten.com <ExternalLink className="h-3.5 w-3.5" />
+                  Brief lengkap di {plan.campaignExtId.startsWith("content-rewards:") ? "contentrewards.com" : "konten.com"} <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </Button>
             </Panel>

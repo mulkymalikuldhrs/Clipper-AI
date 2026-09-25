@@ -5,6 +5,12 @@ import { chooseNextGoal, decideExperiment, scoreGoal } from "../src/convex/lib/o
 import { readNonSecretProviderConfig, validateProviderConfig } from "../src/lib/providerConfig";
 import { buildAutoShortsManifest } from "../src/lib/autoshorts";
 import { buildAutonomyReview } from "../src/lib/autonomy";
+import { buildRolePrompt, createSwarmSession, deriveMemory, evaluateSwarmSession, proposeSkill } from "../src/lib/agentSwarm";
+import { getConnector } from "../src/lib/connectors";
+import {
+  normalizeContentRewardsCampaign,
+  normalizeContentRewardsCampaigns,
+} from "../src/convex/lib/contentRewards";
 
 describe("scoreCampaign", () => {
   test("keeps the weighted score within the expected range", () => {
@@ -56,7 +62,11 @@ describe("validateIngestPayload", () => {
     });
   });
 
-  test("rejects unsupported sources and oversized campaign arrays", () => {
+  test("accepts the bounded Content Rewards source and rejects unsupported sources", () => {
+    expect(validateIngestPayload({ email: "a@example.com", source: "content_rewards", snapshot: { campaigns: [] } })).toEqual({
+      ok: true,
+      value: { email: "a@example.com", source: "content_rewards", snapshot: { campaigns: [] } },
+    });
     expect(validateIngestPayload({ email: "a@example.com", source: "demo" })).toEqual({
       ok: false,
       status: 400,
@@ -69,6 +79,75 @@ describe("validateIngestPayload", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain("at most");
+  });
+});
+
+describe("bounded agent swarm", () => {
+  test("keeps roles explicit and shares context without hiding uncertainty", () => {
+    const session = createSwarmSession("Turn campaign brief into a safe production plan");
+    session.messages.push({ id: "m1", roleId: "researcher", role: "Researcher", content: "Evidence: brief detail and campaign facts are available.", createdAt: Date.now() });
+    const prompt = buildRolePrompt("reviewer", session.goal, "SHARED MEMORY: keep facts separate from assumptions");
+    expect(prompt.system).toContain("Reviewer");
+    expect(prompt.user).toContain(session.goal);
+    expect(deriveMemory(session)[0].source).toBe("Researcher");
+    expect(evaluateSwarmSession(session).verdict).toBe("ready_for_review");
+  });
+
+  test("requires human review before a proposed skill can be adopted", () => {
+    const session = createSwarmSession("Review a campaign");
+    session.messages.push({ id: "m1", roleId: "reviewer", role: "Reviewer", content: "A sufficiently long review output with evidence and a reusable lesson.", createdAt: Date.now() });
+    expect(proposeSkill(session)?.status).toBe("review_required");
+  });
+});
+
+describe("connector catalog", () => {
+  test("exposes provider capabilities and secret boundaries", () => {
+    expect(getConnector("apify")?.requiredEnvVars).toEqual(["APIFY_TOKEN"]);
+    expect(getConnector("whop")?.capabilities).toContain("consequential");
+    expect(getConnector("content_rewards")?.capabilities).not.toContain("write");
+  });
+});
+
+describe("Content Rewards normalization", () => {
+  const payload = {
+    data: [{
+      id: "campaign-1",
+      name: "Launch week",
+      description: "A public brief",
+      organizationName: "Acme",
+      banner: "/brand/banner.png",
+      categories: [{ name: "Technology" }],
+      platforms: ["tiktok", "instagram"],
+      primaryPayoutCents: 200,
+      budgetCents: 50000,
+      metrics: { budgetSpentCents: 12500, creatorCount: 8 },
+      referenceMaterials: [{ title: "Raw footage", url: "https://cdn.example.com/raw.mp4" }],
+      contentRequirements: { items: [{ text: "Show the product in the first three seconds" }] },
+    }],
+  };
+
+  test("maps public cents and preserves the Content Rewards source", () => {
+    const [campaign] = normalizeContentRewardsCampaigns(payload);
+    expect(campaign.id).toBe("content-rewards:campaign-1");
+    expect(campaign.slug).toBe("campaign-1");
+    expect(campaign.brand).toBe("Acme");
+    expect(campaign.rate_per_million).toBe(2000);
+    expect(campaign.budget).toBe(500);
+    expect(campaign.spent).toBe(125);
+    expect(campaign.clippers).toBe(8);
+    expect(campaign.brand_logo).toBe("https://contentrewards.com/brand/banner.png");
+    expect(campaign.brief_detail?.materi?.[0].url).toBe("https://cdn.example.com/raw.mp4");
+    expect(campaign.brief_detail?.narasi).toContain("first three seconds");
+  });
+
+  test("rejects records without a stable id and title", () => {
+    expect(normalizeContentRewardsCampaign({ name: "No id" })).toBeNull();
+  });
+
+  test("does not invent CTA or caption copy for discovery-only campaigns", () => {
+    const campaign = normalizeContentRewardsCampaign({ id: "minimal", name: "Minimal" });
+    expect(campaign?.brief_detail).toBeUndefined();
+    expect(campaign?.hashtags).toEqual([]);
   });
 });
 
@@ -220,6 +299,18 @@ describe("parseBrief", () => {
     expect(brief.dilarang).toEqual(["Spoil ending"]);
     expect(brief.caption).toBe("Geser untuk momen truth-nya");
     expect(brief.cta).toBe("Tonton trailer lengkapnya");
+  });
+
+  test("does not fabricate CTA or caption for Content Rewards discovery briefs", () => {
+    const discovery = parseBrief({
+      title: "Discovery campaign",
+      brand: "Acme",
+      marketplace: "content-rewards",
+      platform: ["tiktok"],
+      brief_detail: { materi: [] },
+    });
+    expect(discovery.cta).toBe("");
+    expect(discovery.caption).toBe("");
   });
 
   test("builds a complete compliance checklist for a rich brief", () => {

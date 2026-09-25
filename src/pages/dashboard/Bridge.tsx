@@ -22,13 +22,17 @@ KONTEN_PASSWORD=********
 # atau mode cookies (tanpa password):
 KONTEN_COOKIES_JSON=[{"name":"sb-...","value":"...","domain":".konten.com"}]
 SUPERCLIPPER_URL=<Convex HTTP actions URL>/ingest
-INGEST_TOKEN=<token dari langkah 1>`;
+INGEST_TOKEN=<token dari langkah 1>
+
+# Content Rewards Discover (publik, tanpa cookie):
+CONTENT_REWARDS_SYNC_EMAIL=kamu@email.com`;
 
 const TOKEN_SNIPPET = `# Buat token acak, lalu daftarkan sebagai env Convex:
 openssl rand -hex 24   # -> INGEST_TOKEN
 bun convex env set INGEST_TOKEN <token>`;
 
-const RUN_SNIPPET = `bun scripts/bridge-sync.ts      # sekali jalan
+const RUN_SNIPPET = `bun scripts/bridge-sync.ts               # konten.com, sekali jalan
+bun run bridge:content-rewards            # Discover Content Rewards, read-only
 # berkala (contoh tiap 30 menit):
 */30 * * * * cd /path/super-clipper && bun scripts/bridge-sync.ts`;
 
@@ -96,7 +100,7 @@ export default function Bridge() {
               bridge lokal membaca sesi marketplace milikmu dan mengirim snapshot nyata.
             </p>
             <div className="mt-4 border border-border bg-background/40 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-              source policy: bridge / own session only
+              source policy: bridge / own session only + public Content Rewards discovery
             </div>
           </Panel>
 
@@ -107,7 +111,8 @@ export default function Bridge() {
                 <li>Kredensial dan cookies hanya ada di mesinmu, tidak pernah masuk repo.</li>
                 <li>Bridge hanya membaca dashboard milikmu dan menulis ke workspace-mu.</li>
                 <li>Tanpa bot views atau engagement — itu melanggar aturan campaign.</li>
-                <li>Submit video tetap dilakukan olehmu di konten.com.</li>
+                <li>Submit video tetap dilakukan olehmu di marketplace asal.</li>
+                <li>Content Rewards hanya memakai endpoint Discover publik; tidak ada cookie, join, atau submit.</li>
               </ul>
             </div>
           </Panel>

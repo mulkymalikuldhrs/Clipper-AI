@@ -1,133 +1,55 @@
-# Contributing to Our Project
+# Contributing to Super Clipper
 
-First off, thank you for considering contributing! We welcome everyone — whether you're fixing a typo, reporting a bug, suggesting a feature, or writing code. Every contribution matters.
+Thanks for helping improve Super Clipper. Contributions should be small, reviewable, source-aware, and safe by default.
 
-## Welcome
-
-We're glad you're here. This project is built by people who care, and we'd love for you to be part of it. No contribution is too small — from fixing a typo in documentation to implementing a new feature, we appreciate it all.
-
-If you're new to open source, look for issues labeled `good first issue` or `help wanted`. Those are great starting points.
-
-## How to Contribute
-
-### 1. Fork the Repository
-
-Click the **Fork** button at the top right of the repository page. This creates your own copy of the project.
-
-### 2. Clone Your Fork
+## Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
-cd REPO_NAME
+bun install
+bun convex dev --once
+bun run dev
 ```
 
-### 3. Create a Branch
+The Vite app is the frontend. Convex is the only backend/database. In Freebuff, the platform manages Convex; do not start a second Convex process from `scripts/dev.sh`.
+
+## Before you change code
+
+- Read `README.md`, `PROJECT_CONTEXT.md`, and `SECURITY.md`.
+- Inspect the current source instead of trusting old research notes.
+- Keep credentials, cookies, crawl dumps, and private artifacts out of git.
+- Do not add auto-join, auto-submit, auto-publish, fake engagement, account takeover, or unattended spend.
+
+## Useful commands
 
 ```bash
-git checkout -b my-contribution
+bun run convex codegen
+bun tsc -b --noEmit
+bun run typecheck:scripts
+bun test
+git diff --check
 ```
 
-Use a descriptive branch name like `fix/login-bug` or `feature/add-search`.
+Add focused tests for pure helpers, normalizers, safety policy, and connector metadata. Do not use production credentials in tests.
 
-### 4. Make Your Changes
+## Code conventions
 
-Write your code, fix that bug, improve that doc — whatever you set out to do.
+- Follow existing TypeScript, React, Tailwind, and Convex patterns.
+- Prefer editing existing files over creating parallel abstractions.
+- Keep UI changes consistent with the minimal console language: neutral surfaces, one accent, hairlines, no decorative glow/gradient/shadow.
+- Keep server secrets in Convex actions using environment variables.
+- Keep browser API keys in `sessionStorage`; never persist them in `localStorage` or Convex.
+- Make external requests bounded, cancellable, and defensive against changing payloads.
+- Mark consequential operations `review_required` and provide an audit/rejection path.
 
-### 5. Commit Your Changes
+## Pull requests
 
-```bash
-git add .
-git commit -m "Brief description of what you changed"
-```
+1. Create a focused branch.
+2. Update relevant Markdown documentation when behavior or setup changes.
+3. Add or update tests.
+4. Run all verification commands above.
+5. Review the diff for secrets, generated files, stale claims, and unintended unrelated changes.
+6. Explain user-visible impact and known limitations in the PR.
 
-Write clear, concise commit messages. Explain **what** and **why**, not **how**.
+## Research contributions
 
-### 6. Push to Your Fork
-
-```bash
-git push origin my-contribution
-```
-
-### 7. Open a Pull Request
-
-Go to the original repository on GitHub. You'll see a **Compare & pull request** button. Click it, fill out the PR template, and submit!
-
-## Development Setup
-
-1. Fork and clone the repo (see above)
-2. Install dependencies:
-   ```bash
-   # Check the README or package.json / requirements.txt / etc.
-   # for project-specific setup instructions
-   ```
-3. Create a branch for your work
-4. Make changes and test them locally
-5. Ensure existing tests pass before submitting
-
-> **Note:** Setup instructions may vary by project. Check the repository's README for specific details.
-
-## Code Style Guidelines
-
-- **Consistency** matters more than personal preference. Follow the existing code style.
-- Use meaningful variable and function names.
-- Write comments for complex logic — help the next person understand your thinking.
-- Keep functions small and focused.
-- Run any existing linters or formatters before committing:
-  ```bash
-  # Examples (project-dependent):
-  npm run lint        # JavaScript/TypeScript
-  flake8 .            # Python
-  cargo clippy        # Rust
-  ```
-- If the project has a `.editorconfig` or formatting config, respect it.
-
-## Reporting Bugs
-
-Found a bug? Please open an [issue](../../issues) and include:
-
-1. **What happened** — the unexpected behavior
-2. **What you expected** — what should have happened
-3. **Steps to reproduce** — how to trigger the bug
-4. **Environment** — OS, browser, runtime version, etc.
-5. **Screenshots or logs** — if applicable
-
-The more detail you provide, the faster we can fix it.
-
-## Suggesting Features
-
-We love feature ideas! Open an [issue](../../issues) with:
-
-1. **The problem** — what are you trying to solve?
-2. **Your proposed solution** — how would you like it to work?
-3. **Alternatives considered** — any other approaches you thought of
-4. **Additional context** — screenshots, links, examples from other projects
-
-Even if we can't implement it right away, good feature requests help us plan.
-
-## Pull Request Process
-
-1. **One thing per PR** — keep PRs focused on a single change. It's easier to review and merge.
-2. **Update documentation** — if your change affects behavior, update the relevant docs.
-3. **Add tests** — if applicable, add tests for your changes.
-4. **Ensure CI passes** — fix any failing checks before requesting review.
-5. **Be responsive** — if a reviewer asks questions or suggests changes, respond promptly.
-6. **Be patient** — maintainers review PRs as time allows. We'll get to yours.
-
-### PR Checklist
-
-Before submitting, make sure you've:
-
-- [ ] Read the contributing guidelines
-- [ ] Made your changes in a new branch (not main)
-- [ ] Written clear commit messages
-- [ ] Added/updated tests if applicable
-- [ ] Updated documentation if applicable
-- [ ] Verified all existing tests still pass
-
-## Questions?
-
-Feel free to open an issue with the `question` label, or start a discussion in the Discussions tab if enabled. There are no silly questions — we're all here to learn and build together.
-
-## Thank You
-
-Every contribution makes this project better. Whether it's your first PR or your hundredth, we appreciate you taking the time to contribute. Thank you! 💙
+Research notes must distinguish observed facts, hypotheses, and recommendations. Link the source repository or official documentation and record license/security caveats. Never commit raw private crawl data.

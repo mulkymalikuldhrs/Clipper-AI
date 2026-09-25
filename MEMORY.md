@@ -1,106 +1,80 @@
-# MEMORY — Super Clipper (session state)
+# MEMORY — Super Clipper
 
-## Status
-- Repo: `mulkymalikuldhrs/Clipper-AI` (Vite + React + Tailwind + Convex + Convex Auth, Bun).
-- Fase: upgrade "super clipper" selesai di sisi kode + **seluruh UI di-rewrite** (23 Sep 2026)
-  menjadi console operasional padat data — dashboard, landing, dan auth.
+**Last verified:** 25 September 2026
+**Repository:** `mulkymalikuldhrs/Clipper-AI`
+**Stack:** Vite + React 18 + TypeScript + Tailwind + shadcn-style primitives + Convex + Bun
 
-## Console language (23 Sep 2026)
-- Satu bahasa visual untuk semua halaman publik maupun dashboard: garis rambut 1px, tanpa
-  shadow/gradient/glow/kotak ikon, angka monospace `tabular-nums`, label mono uppercase 10px,
-  warna hanya untuk makna. Tombol/`Input` shadcn diberi `shadow-none` di halaman publik.
-- `Landing.tsx` dan `Auth.tsx` sekarang memakai primitif dari `src/components/shared.tsx`
-  (bukan `Card`/`Badge`), jadi UI baru harus mengikuti kosakata yang sama.
-- Kelas dekoratif (`text-gradient`, `border-glow`, `glass`, `grid-bg`, `animate-pulse-glow`,
-  `blur-3xl`, `bg-gradient`) sudah **nol pemakaian** di seluruh `src/**/*.tsx`. Utilitas itu masih
-  ada di `src/index.css` (jangan dihapus — bagian dari fondasi template).
-- Verifikasi: `bun scripts/smoke-dashboard.ts` merender `/`, `/auth`, dan 7 route dashboard pada
-  1440px + 390px → 0 page/console error, 0 overflow (bukti terakhir: landing 3781 char, auth 183).
+## Current product state
 
-## Dashboard console (23 Sep 2026)
-- Bahasa visual baru ada di `src/components/shared.tsx` — satu-satunya tempat primitif UI
-  dashboard. Aturan yang harus dijaga: 1px hairline, tanpa shadow/gradient/ikon dekoratif,
-  angka monospace `tabular-nums`, label mono uppercase 10px, warna hanya untuk makna.
-- `KpiCard` dan `ScoreRing` dihapus; daftar kartu diganti tabel (`TableShell`/`TableRow`).
-- Verifikasi nyata: `bun scripts/smoke-dashboard.ts` merender 7 route pada 1440px dan 390px →
-  0 page/console error, 0 overflow horizontal (screenshot di `research/shots/`, di-gitignore).
-- Jebakan Vite di workspace ini: hasil transform lama kadang masih disajikan untuk file yang
-  ditulis lewat layer sync (gejala `does not provide an export named ...` atau UI versi lama).
-  Solusinya `touch` file terkait; script smoke sudah melakukannya otomatis.
+- `/` is a public, product-first landing page.
+- `/app/*` is a public exploration console; there is no account gate in the shipped UI.
+- Marketplace data is source-backed. The console does not ship demo campaign or financial records.
+- Konten.com account data is mirrored only by the operator's local Playwright bridge.
+- Content Rewards Discover is a separate public, read-only JSON source with bounded pagination and detail requests.
+- `/app/swarm` is a local-first multi-agent control room with role selection, shared transcript/memory, custom OpenAI-compatible provider settings, evaluation, browser heartbeat, and review-gated skill proposals.
 
-## Quality checks (24 Sep 2026)
-- `bun test` menutupi helper murni `scoreCampaign` dan `parseBrief` di `tests/konten.test.ts`.
-- `bun run typecheck` mencakup aplikasi; `bun run typecheck:scripts` mencakup harness Playwright.
-- `bun run smoke` sekarang gagal non-zero bila ada route kosong, overflow, atau page/console error.
-  Smoke juga memverifikasi `returnTo` eksternal ditolak dan fokus tombol sort Scanner bertahan.
+## Visual system
 
-## Yang terverifikasi di sesi ini
-- Deep crawl tuntas: **124 halaman**, **186 endpoint** JSON, 0 link internal tersisa
-  (`research/.crawl-progress.json` + `research/konten-map.json`).
-  Bug crawler diperbaiki: link hasil temuan dulu hanya dikuras di dalam loop sehingga crawl
-  berhenti prematur ketika seed/probe sudah habis; kini queue di-seed dari `discovered`, dan
-  `MAX_PAGES` bisa diatur (`CRAWL_MAX_PAGES`, default 250).
-- Ekstraksi penuh: **45 campaign** dengan `brief_detail` lengkap + top-clips
-  (`scripts/crawl-campaigns.ts` → `research/konten-campaigns.json`). 0 error.
-- `scripts/gen-demo-data.ts` → `src/convex/demoData.ts`: **20 campaign / 114 materi** asli
-  (IBU, David Noah, Bevan, Wondermoms, Growlab, Sariwangi, Shinzui, Emina, Free Fire, dll).
-- `parseBrief()` dipecah ulang: hook dari sudut brief, shotlist berskala `durasiMin/Max`,
-  `boleh[]` vs `dilarang[]`, `targetAudience`, `goal`, `captionWajib`, poin narasi,
-  fallback CTA saat brief mengirim `""`, skor kepatuhan dari kelengkapan brief.
-- `bun tsc -b --noEmit` **bersih**. `parseBrief` diuji langsung terhadap brief IBU asli:
-  8 materi, 4 BOLEH, 5 DILARANG, shotlist 0:00→2:00, skor kepatuhan 100.
+The interface uses a restrained minimal operations language:
 
-## Production-readiness research (24 Sep 2026)
-- Riset 11 repo: MoneyPrinterTurbo, MoneyPrinterV2, ShortGPT, VideoLingo, MoviePy, auto-editor,
-  auto-subtitle, ComfyUI, Trigger.dev, Inngest, Restate. Pola yang diimplementasikan: bounded
-  ingest, request ID/dedupe, operation status, retryable error, retention, dan human-in-the-loop.
-- `/ingest` sekarang menolak body >1 MiB, source/email/snapshot invalid, dan collection >500.
-  Bridge mengirim UUID `requestId`; campaign tetap upsert berdasarkan external ID.
-- `syncLogs` menyimpan `pending|ok|error`, duration, campaign count, error code, dan pesan bounded;
-  prune cron menghapus log >30 hari.
-- README + PRD menyimpan URL, license/risiko, keputusan reuse, dan non-goals (tanpa auto-submit,
-  auto-publish, fake engagement, atau provider cloud implisit).
+- neutral charcoal surfaces;
+- one lime accent for action and positive signal;
+- 1px hairline borders;
+- rounded-md panels, not floating cards;
+- no gradients, glow, glass blur, or decorative icon tiles;
+- monospace tabular numbers and compact uppercase labels;
+- content hierarchy created by whitespace and type scale.
 
-## Autonomous organism kernel (24 Sep 2026)
-- Riset kedua mencakup OpenShorts, VideoAgent, CORAL, Prime Agent, Hermes, AWorld,
-  AutoResearchClaw, OpenClaw, OpenFang, Swarm, LangGraph, dan AutoGen.
-- Implementasi sekarang adalah fondasi bounded, bukan self-modifying unrestricted agent:
-  constitution, safe modes, dynamic goals, capability registry, memory, experiment ledger,
-  do-nothing decision, action budget, daily goal selection, and `/app/organism` dashboard.
-- Scheduler hanya memilih goal untuk review. Tidak ada shell, filesystem, browser, model,
-  spending, credential, account creation, or marketplace publishing tool di Convex runtime.
-- `research/AGENT_RESEARCH.md` menyimpan URL, pola, license/security caveat, dan keputusan reuse.
-- `research/HERMES_CANONICAL_CONTEXT.md` adalah strategic handoff: autonomous organization/venture
-  organism, bukan Quant-only, fixed task list, atau unrestricted self-modifier.
-- Organism UI punya optional local provider config: base URL/model di localStorage, API key hanya
-  di sessionStorage, tidak pernah dikirim ke Convex, dan adapter belum dipanggil otomatis.
+Core primitives live in `src/components/shared.tsx`; global tokens and required Tailwind directives live in `src/index.css`.
 
-## Blocker yang jujur harus disebut (belum selesai)
-- Fungsi Convex di deployment lokal **masih kode lama**: push fungsi terakhir 22:21
-  (terlihat dari mtime blob di `.convex/local/default/.../modules/`), sedangkan kode baru
-  diedit 23:42–23:45.
-- Sebab: `scripts/dev.sh` versi lama menjalankan `bunx convex dev` sendiri. Proses itu menjadi
-  yatim (PPID 1), memegang port 3210, dan **watcher-nya tidak melihat perubahan file** lewat
-  layer sync Vly. Akibatnya (a) tidak ada hot-push, dan (b) pengecekan platform
-  `bun convex dev --once` gagal terus ("A local backend is still running on port 3210").
-- Sudah dilakukan: `dev.sh` diubah jadi **hanya Vite** (+ `bun run convex:dev` untuk dev manual
-  di luar Freebuff) supaya tidak ada lagi backend kedua. `freebuff-preview stop/restart`
-  tidak bisa membersihkan proses yatim itu (keduanya detached dari process group preview).
-- Diperlukan: **restart sesi dev/workspace** oleh user (atau izin eksplisit untuk menghentikan
-  proses `convex dev` yatim itu) agar platform menjalankan `convex dev --once` dan fungsi baru
-  ter-deploy. Sesudah itu alur E2E live (login → seed demo → rencana autopilot berisi do/don't)
-  perlu dijalankan ulang untuk verifikasi penutup.
+## Data and automation boundaries
 
-## Keputusan teknis penting
-- `dev.sh` TIDAK boleh menjalankan Convex (platform yang mengelola proses itu).
-- Bridge WAJIB mengambil `/api/campaigns/:slug` per campaign; tanpa itu `raw.brief_detail` kosong
-  dan Brief Autopilot tidak punya bahan.
-- `GET /api/campaigns?...&limit=` sekarang HTTP 400; `/api/campaigns/:id/closure` HTTP 404 →
-  sisa budget dihitung dari `budget`/`spent`.
-- Data demo harus jelas berlabel: campaign/brief = asli hasil crawl; angka earnings/wallet = contoh.
+- `INGEST_TOKEN` protects the HTTP ingest boundary.
+- Ingest bodies are bounded to 1 MiB and 500 records per collection.
+- Content Rewards never uses account cookies, joins campaigns, submits work, publishes, or fabricates engagement.
+- Browser AI API keys live in `sessionStorage`; non-secret provider URL/model settings live in `localStorage`.
+- `APIFY_TOKEN` and `WHOP_API_KEY` are server-side Convex environment variables and never browser values.
+- Agent skills cannot activate themselves: proposals begin as `review_required`.
+- Browser heartbeat/cron only runs while the page is open. Durable background work requires a server scheduler/runtime.
+- Social publishing and other consequential operations remain human review gated.
 
-## Risk
-- Tanpa API resmi, semua lewat sesi akun user sendiri; rate limit 429 pernah terlihat.
-- Struktur API bisa berubah lagi → bridge & parser defensif, jangan asumsikan satu bentuk response.
-- Jangan pernah commit `research/` mentah (cookie sesi, dump API, PII). `.gitignore` menahan
-  semuanya kecuali `research/RESEARCH.md`.
+## Verified implementation
+
+- Content Rewards normalizer maps cents to USD dollars and `$2 / 1K views` to `$2,000 / 1M views` for the shared campaign score.
+- Content Rewards campaign IDs are prefixed as `content-rewards:<id>` to prevent collisions with Konten IDs.
+- Snapshots are separated by source; the dashboard shows the most recently fetched source snapshot while campaign rows remain unified.
+- Scanner and campaign detail render Content Rewards economics as USD, not IDR.
+- Brief Autopilot does not invent CTA/caption copy when a discovery source omits it.
+- Apify Actor execution and Whop account probing are authenticated Convex actions with bounded inputs and server-side credentials.
+
+## Verification baseline
+
+```bash
+bun run convex codegen
+bun tsc -b --noEmit
+bun run typecheck:scripts
+bun test
+git diff --check
+freebuff-preview status
+```
+
+The current automated suite has 24 passing Bun tests. Browser smoke must still be interpreted with care when the managed Convex runtime is stale or unavailable.
+
+## Documentation map
+
+- `README.md` — current product, setup, routes, security, and operations.
+- `PROJECT_CONTEXT.md` — architecture and canonical constraints.
+- `PRD.md` — product requirements and acceptance criteria.
+- `KONTEN_MAP.md` — verified Konten endpoint map and known changes.
+- `research/RESEARCH.md` — live marketplace research and limitations.
+- `research/AGENT_RESEARCH.md` — agent ecosystem research and adopted patterns.
+- `research/HERMES_CANONICAL_CONTEXT.md` — long-term strategic context, not a task list.
+- `CHANGELOG.md` — release history and current verification notes.
+
+## Non-negotiable rules
+
+1. Repository and runtime reality outrank stale notes.
+2. Never commit cookies, API keys, raw account dumps, or private research artifacts.
+3. Do not start a second Convex process in Freebuff; the platform owns it.
+4. Do not add auto-submit, fake engagement, account takeover, or unattended spending.
+5. Keep provider and connector actions bounded, auditable, and review-gated where consequential.

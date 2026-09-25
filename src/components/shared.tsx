@@ -54,16 +54,16 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow && (
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
             {eyebrow}
           </p>
         )}
-        <h1 className="mt-1.5 truncate text-xl font-semibold tracking-tight md:text-2xl">{title}</h1>
+        <h1 className="mt-2 truncate text-2xl font-semibold tracking-[-0.03em] md:text-3xl">{title}</h1>
         {meta && (
-          <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{meta}</p>
+          <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-muted-foreground">{meta}</p>
         )}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
@@ -91,7 +91,7 @@ export function Panel({
   flush?: boolean;
 }) {
   return (
-    <section className={cn("min-w-0 rounded-lg border border-border bg-card/40", className)}>
+    <section className={cn("min-w-0 rounded-md border border-border bg-card/60", className)}>
       {(title || actions) && (
         <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
           <div className="flex min-w-0 items-baseline gap-2">
@@ -122,7 +122,7 @@ export function MetricStrip({
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border/70 sm:grid-cols-3 lg:grid-cols-5",
+        "grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border/70 sm:grid-cols-3 lg:grid-cols-5",
         className
       )}
     >

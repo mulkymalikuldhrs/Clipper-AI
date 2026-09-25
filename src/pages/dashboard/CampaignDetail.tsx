@@ -19,7 +19,7 @@ import {
   TableShell,
   toneForScore,
 } from "@/components/shared";
-import { formatNumber, formatRupiah } from "@/lib/utils";
+import { formatCampaignMoney, formatNumber } from "@/lib/utils";
 import { ArrowLeft, BookmarkCheck, BookmarkPlus, ExternalLink, Zap } from "lucide-react";
 
 const METRIC_COLS = "repeat(auto-fit, minmax(9rem, 1fr))";
@@ -122,6 +122,7 @@ export default function CampaignDetail() {
               {c.brand}
               {c.category ? ` • ${c.category}` : ""}
               {c.platforms?.length ? ` • ${c.platforms.join("/")}` : ""}
+              {c.marketplace === "content-rewards" ? " • contentrewards.com" : " • konten.com"}
             </span>
             <Status tone={c.joined ? "info" : "neutral"}>
               {c.joined ? "diikuti" : "belum diikuti"}
@@ -173,9 +174,9 @@ export default function CampaignDetail() {
             <Score value={c.score} meterClassName="w-16" />
           </div>
           {[
-            { label: "cpm", value: formatRupiah(c.ratePerMillion) },
-            { label: "budget", value: formatRupiah(c.budget) },
-            { label: "terpakai", value: formatRupiah(c.spent) },
+            { label: "cpm", value: formatCampaignMoney(c.ratePerMillion, c.marketplace) },
+            { label: "budget", value: formatCampaignMoney(c.budget, c.marketplace) },
+            { label: "terpakai", value: formatCampaignMoney(c.spent, c.marketplace) },
             { label: "pesaing", value: `${formatNumber(c.clippers)} clipper` },
             { label: "min views", value: formatNumber(c.minViews) },
             { label: "durasi min", value: c.minDuration ? `${c.minDuration} dtk` : "—" },
@@ -209,7 +210,7 @@ export default function CampaignDetail() {
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Panel
           title="Brief campaign"
-          meta={hasBrief ? "dibaca dari konten.com" : "belum tersinkron"}
+          meta={hasBrief ? `dibaca dari ${c.marketplace === "content-rewards" ? "contentrewards.com" : "konten.com"}` : "belum tersinkron"}
           flush
         >
           {!hasBrief ? (
@@ -313,11 +314,11 @@ export default function CampaignDetail() {
             </KeyValueList>
             <Button asChild size="sm" className="mt-4 w-full">
               <a
-                href={`https://konten.com/clipper-campaigns/${c.slug}`}
+                href={c.marketplace === "content-rewards" ? "https://contentrewards.com/discover" : `https://konten.com/clipper-campaigns/${c.slug}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                Buka brief di konten.com <ExternalLink className="h-3.5 w-3.5" />
+                Buka brief di {c.marketplace === "content-rewards" ? "contentrewards.com" : "konten.com"} <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </Button>
           </Panel>

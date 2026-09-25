@@ -15,12 +15,11 @@ export const getSnapshot = query({
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return null;
-    return (
-      (await ctx.db
-        .query("kontenSnapshots")
-        .withIndex("by_userId", (q) => q.eq("userId", userId))
-        .first()) ?? null
-    );
+    const snapshots = await ctx.db
+      .query("kontenSnapshots")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+    return snapshots.sort((a, b) => b.fetchedAt - a.fetchedAt)[0] ?? null;
   },
 });
 

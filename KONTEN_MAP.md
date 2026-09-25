@@ -1,70 +1,62 @@
-# KONTEN_MAP.md — Peta API konten.com (hasil crawl nyata 2026-09-22)
+# KONTEN_MAP — Verified marketplace endpoint map
 
-Auth: `POST /api/auth/login {email,password}` → cookie session (Supabase GoTrue `/auth/v1/user`).
-UA harus seperti browser; base `https://konten.com`. Semua data dashboard via REST `/api/*`.
+**Source crawl:** 22 September 2026
+**Use:** Reference only. The bridge must remain defensive because private web APIs can change without notice.
 
-Cakupan crawl: **124 halaman** (semua route clipper, 24 halaman detail campaign + sub-halaman
-`/brief`, blog, brands, contact/privacy/terms) dan **186 endpoint JSON** terindeks. Crawl tuntas
-(0 link internal tersisa). Data mentah + screenshot ada di `research/` (gitignored).
+## Session boundary
 
-## Endpoint yang dipakai Super Clipper
-- `GET /api/feature-flags` → flags + settings (min_withdrawal_idr, early_earning_rate_percent, min_views_floor, hashtag_grace_hours)
-- `GET /api/campaigns?status=active` → daftar campaign (45 baris pada crawl terakhir)
-- `GET /api/campaigns/:slug` → detail + **`brief_detail`** (lihat daftar field di bawah)
-- `GET /api/campaigns/:slug/top-clips` → leaderboard klip (views, totalEarned, platform, status, videoUrl)
-- `GET /api/campaigns/joined-details` → campaign yang diikuti
-- `GET /api/campaigns/participate` → `{campaignIds[]}`
-- `GET /api/earnings/summary` → totalEarned, onHold, available, thisMonth, totalViews, viewsBerjalan
-- `GET /api/earnings` → baris earnings per video
-- `GET /api/clipper/views-timeseries?range=1M` → bucket `{ts, views}`
-- `GET /api/wallet`, `GET /api/wallet/transactions?limit=200` → saldo & mutasi
-- `GET /api/db/withdrawals?select=...&order=requested_at.desc` → riwayat withdraw
-- `GET /api/payment-methods`, `GET /api/kyc` → payout/KYC
-- `GET /api/tier` → tier & syarat maintenance
-- `GET /api/affiliate/eligibility` → gate affiliate (tier ≥ 2)
-- `GET /api/clipper/banding-summary` → appeal
-- `GET /api/tracked-videos?scope=self` → video tersubmit
-- `GET /api/notifications/unread-count`
+The Konten bridge uses an operator-owned browser session:
 
-## `brief_detail` — bahan mentah rencana produksi
-Field yang dipakai Brief Autopilot (semua terverifikasi ada di payload nyata):
+- login may use operator-provided credentials or cookies;
+- cookies remain in the local bridge process;
+- data is posted only to the app's token-protected ingest endpoint;
+- Super Clipper does not scrape or store credentials in Convex.
 
-| Field | Isi |
+Base URL: `https://konten.com`
+
+## Endpoints currently consumed
+
+| Endpoint | Purpose | Notes |
+|---|---|---|
+| `GET /api/me/profile` | Resolve workspace email | Falls back to configured bridge email or auth profile. |
+| `GET /api/feature-flags` | Payout and campaign settings | Values are treated as snapshots, not guarantees. |
+| `GET /api/campaigns?status=active` | Campaign list | Bridge tries known query shapes because private API parameters can change. |
+| `GET /api/campaigns/:slug` | Full campaign and `brief_detail` | Required for production plans. |
+| `GET /api/campaigns/joined-details` | Joined campaign mirror | Local following state is not authoritative. |
+| `GET /api/campaigns/participate` | Joined IDs | Merged with joined detail. |
+| `GET /api/earnings/summary` | Earnings totals | IDR values remain source currency. |
+| `GET /api/earnings` | Per-video earnings rows | Bounded during ingest. |
+| `GET /api/clipper/views-timeseries?range=1M` | Time series | Bounded snapshot data. |
+| `GET /api/wallet` | Wallet summary | No withdrawal action is automated. |
+| `GET /api/tier` | Account tier | Read-only. |
+| `GET /api/notifications/unread-count` | Notification count | Optional display data. |
+
+## `brief_detail` contract used by Autopilot
+
+| Field | Use |
 |---|---|
-| `materi[]` | `{title, url}` — folder Google Drive / trailer / backsound (IBU: 8 item) |
-| `narasi` | narasi wajib (diparse jadi poin-poin) |
-| `cta` | CTA resmi akhir video (bisa kosong → ada fallback jujur) |
-| `caption` / `captionWajib` | caption dari brand / arahan caption |
-| `hashtags[]` | hashtag wajib (IBU: 4) |
-| `durasiMin` / `durasiMax` | batas durasi (IBU: 10–120, dikirim sebagai string) |
-| `elemenWajib` | daftar elemen wajib di video |
-| `bolehDilakukan[]` | **do-list resmi** (IBU: 4 poin) |
-| `dilarangDilakukan[]` | **don't-list resmi** (IBU: 5 poin, termasuk larangan bot/SARA) |
-| `tujuanCampaign` | tujuan (mis. “Brand awareness”) |
-| `targetAudiens` | target audiens (mis. “Semua Umur”) |
-| `instruksiBrief`, `judulFile`, `tagSocialMedia`, `nicheAkunDisetujui`, `minimumFollowers` | pelengkap brief |
+| `materi[]` | Source material links; entries without a valid URL are ignored. |
+| `narasi` | Required story points. |
+| `cta` | Official CTA. Empty values are not invented for Content Rewards discovery. |
+| `caption` / `captionWajib` | Caption requirements. |
+| `hashtags[]` | Required hashtags. |
+| `durasiMin` / `durasiMax` | Duration window; numeric strings are accepted. |
+| `elemenWajib` | Required production elements. |
+| `bolehDilakukan[]` | Approved actions. |
+| `dilarangDilakukan[]` | Prohibited actions. |
+| `tujuanCampaign` / `targetAudiens` | Goal and audience context. |
+| `instruksiBrief` / `judulFile` | Additional instructions. |
 
-Catatan: beberapa field numerik dikirim sebagai **string** (mis. `minimumFollowers: "0"`),
-jadi parser harus mengonversi, bukan mengasumsikan number.
+## Known historical changes
 
-## Pola penting
-- List campaign: `campaigns[]` — field kunci: id, slug, title, brand, category, platform[],
-  campaign_type (cpm), rate_per_million, cpm_tiktok/instagram/youtube, budget, spent, clippers,
-  total_clips, min_views, min_video_duration, max_videos_per_clipper, hashtags, deadline, status,
-  tier_access.
-- Earnings summary dan wallet dipisah; withdraw: min Rp50.000 + fee Rp10.000 (dari settings).
-- Leaderboard membuktikan payout nyata: 6,56jt views → Rp3.200.000 (approved).
+- Adding `limit` to the campaign list previously returned HTTP 400; the bridge tries multiple known shapes.
+- `/api/campaigns/:id/closure` previously returned HTTP 404; remaining budget is calculated from `budget` and `spent`.
+- Numeric values may be strings.
+- The public landing page is not a stable data contract; prefer observed JSON responses.
 
-## Perubahan API yang ditemukan (parser dibuat toleran)
-- `GET /api/campaigns?status=active&limit=50` → **HTTP 400**. Pakai `?status=active` tanpa `limit`.
-  (Bridge mencoba beberapa bentuk query lalu memakai yang berhasil.)
-- `GET /api/campaigns/:id/closure` → **HTTP 404** untuk semua campaign. Karena itu sisa budget
-  tidak lagi diambil dari endpoint ini, melainkan dihitung dari `budget`/`spent`.
-- `/api/me/profile` dipakai bridge untuk menentukan email pemilik workspace.
+## Safety
 
-## Script
-- `scripts/konten-crawler.ts` — BFS crawl semua halaman + endpoint (resume via `.crawl-progress.json`,
-  batas `CRAWL_BUDGET_MS` / `CRAWL_MAX_PAGES`).
-- `scripts/crawl-campaigns.ts` — dump detail lengkap + top-clips untuk semua campaign → `research/konten-campaigns.json`.
-- `scripts/gen-demo-data.ts` — ubah hasil crawl jadi `src/convex/demoData.ts` (data demo nyata).
-- `scripts/bridge-sync.ts` — sinkronisasi akunmu sendiri (login/cookies) → POST `/ingest`.
+- Do not add join, submit, upload, withdrawal, or engagement automation.
+- Do not treat the local joined toggle as marketplace state; bridge state is authoritative.
+- Do not commit raw crawl artifacts, cookies, or account data.
+- Keep all ingest collections and payload sizes bounded.

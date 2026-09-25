@@ -7,7 +7,7 @@ assignees: ''
 ---
 
 ## Bug Description
-A clear description of what the bug is.
+Describe the current behavior and the expected behavior. Include whether the issue affects the public landing page, `/app/*`, a local bridge, a Convex action, or a connector.
 
 ## Steps to Reproduce
 1. Go to '...'
@@ -25,7 +25,8 @@ What actually happened.
 - OS: [e.g., macOS 14, Ubuntu 22.04, Windows 11]
 - Node.js/Python version: [e.g., 20.11.0 / 3.12]
 - Browser: [e.g., Chrome 121]
-- Project version: [e.g., v3.0.0]
+- Bun version: [e.g. 1.4.2]
+- Convex/runtime state: [local | Freebuff preview | deployed]
 
 ## Screenshots / Logs
 If applicable, add screenshots or error logs.

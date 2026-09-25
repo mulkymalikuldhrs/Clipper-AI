@@ -4,10 +4,13 @@ export const MAX_INGEST_BYTES = 1024 * 1024;
 export const MAX_CAMPAIGNS = 500;
 export const MAX_JOINED_CAMPAIGNS = 500;
 export const MAX_EARNINGS_ROWS = 500;
+export const CONTENT_REWARDS_SOURCE = "content_rewards";
+export const INGEST_SOURCES = ["bridge", CONTENT_REWARDS_SOURCE] as const;
+export type IngestSource = (typeof INGEST_SOURCES)[number];
 
 export type ValidatedIngest = {
   email: string;
-  source: string;
+  source: IngestSource;
   requestId?: string;
   snapshot: Record<string, unknown>;
 };
@@ -43,7 +46,9 @@ export function validateIngestPayload(input: unknown): IngestValidation {
   }
 
   const source = input.source === undefined ? "bridge" : input.source;
-  if (source !== "bridge") return { ok: false, status: 400, error: "unsupported ingest source" };
+  if (source !== "bridge" && source !== CONTENT_REWARDS_SOURCE) {
+    return { ok: false, status: 400, error: "unsupported ingest source" };
+  }
 
   const requestId = input.requestId;
   if (requestId !== undefined && (!isBoundedString(requestId, 100) || !/^[a-zA-Z0-9._:-]+$/.test(requestId))) {

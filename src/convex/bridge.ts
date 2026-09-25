@@ -115,7 +115,7 @@ export const writeSnapshot = internalMutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("kontenSnapshots")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_userId_source", (q) => q.eq("userId", args.userId).eq("source", args.source))
       .first();
     const data = {
       userId: args.userId,
@@ -163,6 +163,7 @@ export const upsertCampaign = internalMutation({
     deadline: v.optional(v.string()),
     remainingPct: v.optional(v.number()),
     joined: v.boolean(),
+    marketplace: v.optional(v.string()),
     score: v.number(),
     raw: v.optional(v.any()),
   },
