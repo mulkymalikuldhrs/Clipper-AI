@@ -1,6 +1,6 @@
-# Contributing to Super Clipper
+# Contributing to Clipper AI
 
-Thanks for helping improve Super Clipper. Contributions should be small, reviewable, source-aware, and safe by default.
+Thanks for helping improve Clipper AI. Contributions should be small, reviewable, source-aware, and safe by default.
 
 ## Setup
 

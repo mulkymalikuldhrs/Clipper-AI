@@ -4,7 +4,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { decideExperiment, isSafeMode, type OrganismMode } from "./lib/organism";
 import { isPublicSource } from "./lib/ingest";
-import { MAX_WORKSPACE_GOALS } from "./lib/workspace";
+import { planForWorkspace, recordUsage } from "./platform";
 import { buildAutonomyReview } from "../lib/autonomy";
 import { ensureWorkspaceUserId, findWorkspaceUserId, resolveWorkspaceUserId } from "./workspace";
 
@@ -33,7 +33,7 @@ async function latestWorkspaceSnapshot(ctx: QueryCtx, workspaceId: Id<"users">) 
   return rows.sort((a, b) => b.fetchedAt - a.fetchedAt)[0] ?? null;
 }
 
-async function publicCampaigns(ctx: QueryCtx) {
+export async function publicCampaigns(ctx: QueryCtx) {
   return await ctx.db
     .query("kontenCampaigns")
     .withIndex("by_scope", (q) => q.eq("scope", "public"))
@@ -41,7 +41,7 @@ async function publicCampaigns(ctx: QueryCtx) {
 }
 
 /** Public discovery rows plus the workspace's own rows; own data wins on a collision. */
-function mergeCampaigns(
+export function mergeCampaigns(
   own: CampaignRow[],
   discovery: CampaignRow[],
   filter?: (row: CampaignRow) => boolean
@@ -231,7 +231,7 @@ export const initializeOrganism = mutation({
     const now = Date.now();
     const profileId = await ctx.db.insert("organismProfiles", {
       userId,
-      name: "Super Clipper Organism",
+      name: "Clipper AI Organism",
       mode: "observe",
       constitution: [
         "Maximize useful autonomy only inside explicit owner and safety boundaries.",
@@ -375,12 +375,13 @@ export const createOrganismGoal = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await ensureWorkspaceUserId(ctx, args.workspaceKey);
+    const plan = await planForWorkspace(ctx, userId);
     const existingGoals = await ctx.db
       .query("organismGoals")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
-    if (existingGoals.length >= MAX_WORKSPACE_GOALS) {
-      throw new Error(`Batas ${MAX_WORKSPACE_GOALS} goal per workspace tercapai.`);
+    if (existingGoals.length >= plan.maxGoals) {
+      throw new Error(`Plan ${plan.name} mengizinkan ${plan.maxGoals} goal organisme.`);
     }
     const title = args.title.trim().slice(0, 140);
     if (title.length < 3) throw new Error("Judul goal terlalu pendek");
@@ -407,6 +408,7 @@ export const createOrganismGoal = mutation({
       metadata: { goalId },
       at: now,
     });
+    await recordUsage(ctx, userId, "goal.created", 1, { goalId });
     return goalId;
   },
 });

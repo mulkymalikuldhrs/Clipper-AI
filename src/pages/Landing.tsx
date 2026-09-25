@@ -25,10 +25,10 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className={`${SHELL} flex h-16 items-center justify-between gap-4`}>
-          <Link to="/" className="flex items-center gap-3" aria-label="Super Clipper home">
+          <Link to="/" className="flex items-center gap-3" aria-label="Clipper AI home">
             <span className="grid h-8 w-8 place-items-center border border-primary/40 bg-primary/10 font-mono text-xs text-primary">//</span>
             <span>
-              <span className="block text-sm font-semibold tracking-tight">Super Clipper</span>
+              <span className="block text-sm font-semibold tracking-tight">Clipper AI</span>
               <span className="mt-0.5 block font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground">control plane</span>
             </span>
           </Link>
@@ -55,7 +55,7 @@ export default function Landing() {
                 <span className="block text-primary">Keep control.</span>
               </h1>
               <p className="mt-6 max-w-xl text-[15px] leading-7 text-muted-foreground">
-                Super Clipper turns marketplace intelligence into an auditable production workflow: sources, briefs, plans, agents, and review gates in one terminal-style console.
+                Clipper AI turns marketplace intelligence into an auditable production workflow: sources, briefs, plans, agents, a metered workspace API, and review gates in one terminal-style console.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg"><Link to="/app">Enter control room <ArrowRight className="h-4 w-4" /></Link></Button>
@@ -66,7 +66,7 @@ export default function Landing() {
 
             <div className="min-w-0 border border-border bg-card/60">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                <MonoLabel>super-clipper / operator console</MonoLabel>
+                <MonoLabel>clipper-ai / operator console</MonoLabel>
                 <Status tone="warn">awaiting source</Status>
               </div>
               <div className="divide-y divide-border/60 font-mono text-[11px]">

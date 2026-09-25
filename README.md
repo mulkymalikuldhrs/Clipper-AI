@@ -1,17 +1,19 @@
 <p align="center">
-  <img src="public/sc-icon.svg" width="72" alt="Super Clipper" />
+  <img src="public/clipper-ai-icon.svg" width="72" alt="Clipper AI" />
 </p>
 
-<h1 align="center">Super Clipper</h1>
+<h1 align="center">Clipper AI</h1>
 
 <p align="center">
-  <b>Minimal operating system untuk workflow clipping marketplace</b><br/>
-  Preview produk secara publik → Jelajahi command center → buka console tanpa akun sama sekali.
+  <b>Control plane untuk marketplace clipping</b><br/>
+  Discovery publik → rencana produksi yang bisa ditinjau → agent swarm → API baca berkuota.<br/>
+  Tanpa akun. Tanpa data karangan.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Stack-Vite_+_React_+_Convex-34d399?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/UI-Operations_Console-22d3ee?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Stack-Vite_+_React_+_Convex-c6f24e?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/UI-Operations_Console-e8b23c?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/API-v1_read__only-c6f24e?style=for-the-badge" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 </p>
 
@@ -19,9 +21,22 @@
 
 ## Apa ini?
 
-**Super Clipper** adalah operating console untuk workflow clipping [konten.com](https://konten.com). Halaman publik `/` dan console `/app` dapat dijelajahi tanpa login atau pendaftaran: command center, alur kerja, spesifikasi campaign, dan trust boundary tersedia langsung.
+**Clipper AI** adalah control plane untuk workflow clipping marketplace. Ia membaca peluang campaign dari sumber nyata, menyimpan brief apa adanya, mengubah brief menjadi rencana produksi yang bisa ditinjau, mengoordinasikan peran agent, dan menyediakan API baca berkuota untuk automation. Landing `/` dan console `/app` bisa dijelajahi tanpa login atau pendaftaran.
 
-Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, menormalkan campaign, brief, earnings, dan timeseries ke workspace Convex. Content Rewards ditambahkan sebagai sumber Discover publik dan read-only. Video tetap dikirim dan disetujui melalui marketplace asal; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim, mengambil alih akun, atau memalsukan engagement.
+Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, menormalkan campaign, brief, earnings, dan timeseries ke workspace Convex. Content Rewards ditambahkan sebagai sumber Discover publik dan read-only. Video tetap dikirim dan disetujui melalui marketplace asal; Clipper AI menyiapkan keputusan dan materi produksi, bukan mengirim, mengambil alih akun, atau memalsukan engagement.
+
+### Yang benar-benar berjalan sekarang
+
+| Kapabilitas | Status | Bukti |
+|---|---|---|
+| Discovery publik Content Rewards | Berjalan | `scripts/content-rewards-sync.ts`, scope `public` |
+| Mirror sesi Konten milik operator | Berjalan (butuh sesi kamu) | `scripts/bridge-sync.ts`, scope `private` |
+| Rencana produksi dari brief | Berjalan | parser deterministik `src/convex/lib/konten.ts` |
+| Agent swarm | Berjalan, butuh API key kamu | runtime browser `src/lib/agentSwarm.ts` |
+| Workspace API v1 (read-only) | Berjalan | `src/convex/apiHttp.ts`, bearer key + kuota |
+| Usage meter + plan quota | Berjalan | `src/convex/platform.ts` |
+| Billing / invoice | **Belum ada** | tidak ada payment provider terpasang |
+| Posting / submit otomatis | **Tidak dilakukan** | tetap aksi manusia di marketplace
 
 ## Tanpa akun: satu workspace key lokal
 
@@ -34,7 +49,7 @@ Tidak ada form login, pendaftaran, atau sesi akun di produk ini. Sebagai gantiny
 - Data bridge milik operator (`source: bridge`) ber-scope `private` dan **tidak** dibaca oleh console publik. Yang tampil tanpa akun hanyalah discovery publik (`content_rewards`, scope `public`); log sync yang ditampilkan juga difilter ke sumber publik.
 - `/app/swarm` menggunakan provider OpenAI-compatible secara lokal; API key hanya di sessionStorage browser.
 
-Batasan per workspace: maksimum 80 rencana produksi dan 60 goal organism, dengan validasi ketat pada bentuk key. Ini menjaga console tanpa autentikasi tidak bisa menumbuhkan tabel tanpa batas.
+Batasan per workspace mengikuti plan (`free` / `studio` / `agency`) dan benar-benar ditegakkan di mutation: 25 / 200 / 1.000 rencana, 15 / 120 / 500 goal, dan kuota API harian 200 / 5.000 / 50.000. Lihat `src/lib/plans.ts` dan `src/convex/platform.ts`.
 
 | Modul | Fungsi |
 |---|---|
@@ -53,13 +68,15 @@ Batasan per workspace: maksimum 80 rencana produksi dan 60 goal organism, dengan
 | **Autonomy Queue** | Menentukan lifecycle campaign, data readiness, economic signal, dan handoff publish yang selalu membutuhkan review. |
 | **Agent Swarm** | Role-based multi-agent control room: coordinator, researcher, producer, reviewer, memory, dan connector; shared transcript, memory, evaluation, serta skill proposal yang perlu disetujui. |
 | **Connector Catalog** | Kontrak provider untuk Apify, Whop, Content Rewards, OpenAI-compatible model, dan webhook plugin dengan capability serta secret boundary eksplisit. |
+| **Platform** | `/app/platform`: identitas workspace, plan, kuota yang ditegakkan, usage meter, API key (hash SHA-256), dan quickstart HTTP API. |
+| **Workspace API v1** | `GET /api/v1/workspace`, `/campaigns`, `/plans` dengan bearer key, scope read-only, dan kuota harian plan. |
 
 Versi saat ini memakai parser brief deterministik untuk keputusan produksi dan runtime swarm opsional untuk eksperimen AI. Istilah “AI Autopilot” di sini menggambarkan hasil kerja dan alur produk, bukan klaim bahwa semua keputusan saat ini dihasilkan oleh LLM.
 
 ## Prinsip produk
 
 - **Data milikmu:** credential dan cookies hanya ada di mesin yang menjalankan bridge.
-- **Read-only untuk akun marketplace:** Super Clipper tidak memakai bot views atau engagement.
+- **Read-only untuk akun marketplace:** Clipper AI tidak memakai bot views atau engagement.
 - **Brief adalah sumber kebenaran:** aturan campaign, CTA, durasi, caption, dan larangan berasal dari payload marketplace.
 - **Human-in-the-loop:** clipper tetap mengambil footage, mengedit, memverifikasi, memposting, dan mengirim video.
 - **Console, bukan dekorasi:** UI memakai garis rambut, whitespace, tabel padat, angka tabular, dan warna hanya untuk status atau skor.
@@ -81,7 +98,7 @@ Versi saat ini memakai parser brief deterministik untuk keputusan produksi dan r
                                                                    └────────┬───────────┘
                                                                             │ reactive queries
                                                                    ┌────────▼───────────┐
-                                                                   │ Super Clipper UI   │
+                                                                   │ Clipper AI UI      │
                                                                    │ Vite + React       │
                                                                    └────────────────────┘
 ```
@@ -128,7 +145,7 @@ Discover tidak membutuhkan login. Sync memakai endpoint JSON publik yang sama de
 ```bash
 # Isi key non-secret ini di environment/Keys API keys
 CONTENT_REWARDS_SYNC_EMAIL=kamu@email.com
-SUPERCLIPPER_URL=<Convex HTTP actions URL>/ingest
+CLIPPER_AI_URL=<Convex HTTP actions URL>/ingest
 INGEST_TOKEN=<token ingest lokal>
 
 bun run bridge:content-rewards
@@ -164,6 +181,22 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 | `/app/organism` | Workspace | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
 | `/app/swarm` | Publik | Agent control room: role swarm, provider custom, transcript, memory, evaluation, dan skill review. |
 | `/app/accounts` | Publik | Konfigurasi metadata akun TikTok/Instagram dan status OAuth resmi. |
+| `/app/platform` | Workspace | Plan, kuota, usage meter, API key, dan quickstart HTTP API. |
+
+### Workspace HTTP API v1
+
+API ini read-only dan memakai bearer key dari halaman Platform. Plaintext key dibuat dan di-hash di browser; server hanya menyimpan hash SHA-256, jadi isi database tidak pernah berisi key yang bisa dipakai.
+
+```bash
+curl -s "$CLIPPER_AI_API/workspace" -H "Authorization: Bearer clai_..."
+curl -s "$CLIPPER_AI_API/campaigns?limit=25" -H "Authorization: Bearer clai_..."
+curl -s "$CLIPPER_AI_API/plans?limit=25" -H "Authorization: Bearer clai_..."
+```
+
+- Scope saat ini hanya `read`; tidak ada endpoint yang memposting, men-submit, atau membelanjakan.
+- Setiap request dicatat sebagai `api.request` dan dihitung ke kuota harian plan; kuota habis menghasilkan `429`.
+- Key yang dicabut langsung ditolak dengan `401`. `lastUsedAt` diperbarui saat key dipakai.
+- Respons menyertakan `apiVersion` agar automation bisa menolak versi yang tidak dikenal.
 
 ## Agent Swarm dan connectors
 
@@ -199,7 +232,7 @@ Bridge memerlukan sesi marketplace milikmu. Jangan memasukkan credential ke repo
    ```
 2. Isi variabel berikut melalui `.env.local` di mesinmu atau Settings Environment Freebuff:
    ```text
-   SUPERCLIPPER_URL=<Convex HTTP action URL>/ingest
+   CLIPPER_AI_URL=<Convex HTTP action URL>/ingest
    INGEST_TOKEN=<token dari langkah 1>
    KONTEN_EMAIL=email_kamu
    KONTEN_PASSWORD=password_kamu
@@ -212,7 +245,7 @@ Bridge memerlukan sesi marketplace milikmu. Jangan memasukkan credential ke repo
    bun scripts/bridge-sync.ts
    ```
 
-`SUPERCLIPPER_URL` dan token harus diberikan ke proses Convex melalui konfigurasi environment. Jangan membuat file env baru di repository ini.
+`CLIPPER_AI_URL` (nama lama `SUPERCLIPPER_URL` masih dibaca) dan token harus diberikan ke proses Convex melalui konfigurasi environment. Jangan membuat file env baru di repository ini.
 
 ## Social accounts dan publishing
 
@@ -246,7 +279,7 @@ operator, rate limit, audit log, dan rollback.
 
 ## AutoShorts handoff
 
-Super Clipper mengadopsi **pola** AutoShorts untuk menyiapkan kandidat klip dari sumber
+Clipper AI mengadopsi **pola** AutoShorts untuk menyiapkan kandidat klip dari sumber
 long-form, tetapi tidak menyalin kode Tauri/Rust upstream atau menjalankan desktop renderer
 di dalam web console. Plan campaign dapat menyalin manifest JSON dengan tiga kandidat
 9:16: hook, core proof, dan CTA. Manifest adalah specification yang dapat diimpor ke
@@ -274,7 +307,7 @@ Perintah yang tersedia:
 ```bash
 bun run typecheck           # TypeScript aplikasi
 bun run typecheck:scripts   # TypeScript smoke harness
-bun test                    # 31 unit test (brief, scoring, swarm, connector, workspace)
+bun test                    # 36 unit test (brief, scoring, swarm, plan, API key, workspace)
 bun convex dev --once        # codegen + push fungsi
 bun run smoke               # Playwright desktop/mobile smoke test
 ```
@@ -305,7 +338,7 @@ video, subtitle, durable workflow, dan operasi AI. Pola yang diambil hanya yang 
 dengan Vite/React/Convex/Bun; kode video, provider, dan lisensi eksternal tidak disalin
 ke repo ini.
 
-| Repository | Pola yang dipelajari | Keputusan untuk Super Clipper |
+| Repository | Pola yang dipelajari | Keputusan untuk Clipper AI |
 |---|---|---|
 | [MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo) (MIT) | Pipeline bertahap, batch/history, config example, CORS same-origin, batas batch, prebuilt image | Diadopsi sebagai model bounded ingest, status operation, dan humans tetap melakukan submit. Auto-publish tidak diambil. |
 | [MoneyPrinterV2](https://github.com/FujiwaraChoki/MoneyPrinterV2) (AGPL-3.0) | Modularisasi, cron, dan peringatan bahwa scraping/outreach berisiko | Diadopsi hanya sebagai peringatan scope; tidak mengambil kode AGPL, scraping, outreach, atau auto-post. |

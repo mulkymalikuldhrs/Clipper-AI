@@ -1,7 +1,7 @@
 /**
  * AutoShorts-compatible production handoff.
  *
- * This is a clean-room adapter for the Super Clipper web console. It does not
+ * This is a clean-room adapter for the Clipper AI web console. It does not
  * copy AutoShorts source code or invoke a renderer. It produces a small JSON
  * manifest that a local AutoShorts/Tauri installation can consume later.
  */
@@ -20,7 +20,7 @@ export type ClipCandidate = {
 };
 
 export type AutoShortsManifest = {
-  schema: "super-clipper/autoshorts-manifest";
+  schema: "clipper-ai/autoshorts-manifest";
   version: 1;
   project: string;
   campaignSlug: string;
@@ -100,7 +100,7 @@ export function buildAutoShortsManifest(plan: PlanInput): AutoShortsManifest {
   ];
 
   return {
-    schema: "super-clipper/autoshorts-manifest",
+    schema: "clipper-ai/autoshorts-manifest",
     version: 1,
     project: `${plan.brand} — ${plan.title}`.trim(),
     campaignSlug: plan.campaignSlug,

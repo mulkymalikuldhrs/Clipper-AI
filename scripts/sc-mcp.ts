@@ -18,7 +18,7 @@ import {
   readOnlySourceSummary,
 } from "../src/lib/operatorRuntime";
 
-const server = new McpServer({ name: "super-clipper-operator", version: OPERATOR_VERSION });
+const server = new McpServer({ name: "clipper-ai-operator", version: OPERATOR_VERSION });
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } as const;
 const text = (value: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] });
 

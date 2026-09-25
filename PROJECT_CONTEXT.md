@@ -1,11 +1,11 @@
-# PROJECT_CONTEXT — Super Clipper
+# PROJECT_CONTEXT — Clipper AI
 
 **Status:** Active product iteration
 **Last verified:** 25 September 2026
 
 ## Objective
 
-Super Clipper is a minimal operating console for marketplace clipping workflows. It discovers campaign opportunities, preserves source-backed briefs, turns briefs into reviewable production plans, tracks known economics, and coordinates bounded AI roles without taking irreversible external actions.
+Clipper AI is a minimal operating console for marketplace clipping workflows. It discovers campaign opportunities, preserves source-backed briefs, turns briefs into reviewable production plans, tracks known economics, and coordinates bounded AI roles without taking irreversible external actions.
 
 The product supports two marketplace intelligence paths:
 
@@ -68,6 +68,15 @@ The browser-first swarm runtime has explicit roles:
 - Connector
 
 A run is bounded to four model calls. Roles share a capped transcript and recent memory. Evaluation is deterministic and separate from generation. Self-improvement currently produces a skill proposal only; activation requires human approval.
+
+## Platform model
+
+- `operatorWorkspaces` is the tenant record: browser key → lightweight `users` row → plan.
+- `src/lib/plans.ts` is the single source of plan limits; `HARD_LIMITS` is the absolute ceiling.
+- `usageEvents` is the meter, written by the mutation that consumed the resource.
+- `workspaceApiKeys` stores only a SHA-256 hash and a display prefix. The plaintext key is minted and hashed in the browser and never reaches the server.
+- `src/convex/apiHttp.ts` serves the read-only v1 API; `src/convex/apiData.ts` holds its read models so the API and the console share the same scope rules.
+- Billing, compute provisioning, per-tenant databases, and outbound webhooks do not exist. `PLATFORM.md` records that gap and what would have to be true to claim otherwise.
 
 ## Connector model
 

@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { useConvexAuth, useConvexConnectionState } from "convex/react";
+import { readWithLegacy } from "./localStore";
 
-const STORAGE_KEY = "super-clipper.workspace";
+const STORAGE_KEY = "clipper-ai.workspace";
+const LEGACY_STORAGE_KEY = "super-clipper.workspace";
 const KEY_PATTERN = /^[a-f0-9]{32}$/;
 
 function mintKey(): string {
@@ -13,7 +15,7 @@ function mintKey(): string {
 /** One opaque key per browser. It is the only identity the console needs — there is no sign-in. */
 function readWorkspaceKey(): string {
   try {
-    const existing = window.localStorage.getItem(STORAGE_KEY);
+    const existing = readWithLegacy(window.localStorage, STORAGE_KEY, LEGACY_STORAGE_KEY);
     if (existing && KEY_PATTERN.test(existing)) return existing;
     const created = mintKey();
     window.localStorage.setItem(STORAGE_KEY, created);

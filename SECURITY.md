@@ -2,7 +2,7 @@
 
 ## Scope
 
-Super Clipper handles marketplace intelligence, local bridge credentials, Convex data, optional AI provider settings, and connector tokens. Treat all of these as security-sensitive.
+Clipper AI handles marketplace intelligence, local bridge credentials, Convex data, optional AI provider settings, and connector tokens. Treat all of these as security-sensitive.
 
 ## Reporting a vulnerability
 
@@ -22,6 +22,8 @@ Do not send API keys, cookies, bridge dumps, or raw account data. The maintainer
 
 - There is no authentication UI. Each browser holds one random 32-hex workspace key in `localStorage`; Convex treats it as a bearer capability and resolves writes to that workspace only.
 - The workspace key is not a secret store: it grants write access to that workspace's plans, tasks, and organism state. Never paste it into issues, chat, or screenshots, and clear site data to revoke it.
+- Workspace API keys (`clai_...`) are minted and hashed in the browser; only a SHA-256 hash and a display prefix are stored. Treat the plaintext as a credential, and revoke a key from `/app/platform` the moment it may have leaked — revocation takes effect on the next request.
+- Plan quotas are security-relevant: `apiRequestsPerDay` bounds how much work one workspace key can trigger, and exhausted quota returns 429 rather than degrading silently.
 - Public reads are limited to records tagged `scope: "public"` (public discovery sources). Own-session bridge data (`scope: "private"`) is never returned to an anonymous caller, and public sync-log views are filtered to public sources.
 - Workspace writes are bounded per workspace (80 plans, 60 organism goals) with strict key-shape validation so an unauthenticated console cannot grow tables without limit.
 - `INGEST_TOKEN` protects `/ingest`.

@@ -1,4 +1,4 @@
-# MEMORY — Super Clipper
+# MEMORY — Clipper AI
 
 **Last verified:** 25 September 2026
 **Repository:** `mulkymalikuldhrs/Clipper-AI`
@@ -19,6 +19,8 @@
 - The operator runtime adds an explicit Bun CLI, an operator-run lock/state daemon, an official MCP stdio server with a read-only allowlist, and a built-in Playwright page inspection runner.
 - Content Rewards daemon discovery is observe-only by default; optional normalized ingest requires `SC_DAEMON_SYNC=true` plus the existing ingest token boundary.
 - Camofox remains an optional adapter contract only. No official upstream, stealth, anti-detection, CAPTCHA, Cloudflare, or anti-bot bypass is claimed.
+- `/app/platform` shows the workspace plan, enforced quotas, usage meter, API keys, and the API quickstart.
+- Product name is **Clipper AI** everywhere. Legacy identifiers keep working on purpose: `SUPERCLIPPER_URL` and `SUPERCLIPPER_MODEL_*` env vars, `.superclipper/` operator state paths, and the old `localStorage` keys are read as fallbacks and migrated once.
 
 ## Visual system
 
@@ -47,8 +49,13 @@ Core primitives live in `src/components/shared.tsx`; global tokens and required 
 
 ## Verified implementation
 
-- `operatorWorkspaces` maps a browser key to a lightweight non-auth `users` row (same pattern as `ensureBridgeUser`), so the login-free console can persist work without a second backend.
-- Writes are bounded per workspace: 80 plans, 60 organism goals, strict key shape validation (`src/convex/lib/workspace.ts`).
+- `operatorWorkspaces` maps a browser key to a lightweight non-auth `users` row (same pattern as `ensureBridgeUser`), so the login-free console can persist work without a second backend. It also carries the workspace `plan`.
+- Limits come from the plan catalog (`src/lib/plans.ts`): free/studio/agency = 25/200/1.000 plans, 15/120/500 goals, 2/10/40 API keys, 200/5.000/50.000 API requests per day. `HARD_LIMITS` caps any plan configuration.
+- Quotas are enforced inside the mutation that consumes them (`createPlan`, `createOrganismGoal`, `createApiKey`, `meterApiRequest`), never only in copy.
+- `usageEvents` is the meter: `plan.created`, `goal.created`, `api_key.created`, `api.request`, `ingest.snapshot`.
+- Workspace API keys store only a SHA-256 hash plus a display prefix; the plaintext is minted and hashed in the browser, so the server never receives a usable key. `listApiKeys` never returns `hash`.
+- `GET /api/v1/{workspace,campaigns,plans}` requires `Authorization: Bearer clai_...`, scope `read`, and a daily quota; exhausted quota returns 429, revoked keys return 401.
+- `PLATFORM.md` states the SaaS/BaaS/IaaS posture honestly: no billing, no compute provisioning, no per-tenant database, no outbound webhooks.
 - `listCampaigns` merges public discovery rows with the workspace's own rows, keyed by `marketplace:extId`, so a discovery campaign is visible to everyone while your mirror wins on collision.
 - `listCampaigns({ joined: true })` is the production queue: own joined rows plus discovery campaigns this workspace has planned.
 - `toggleJoined` refuses to patch a public discovery row; joining is a marketplace action, not a local flag.
@@ -61,7 +68,7 @@ Core primitives live in `src/components/shared.tsx`; global tokens and required 
 - Snapshots are separated by source; the dashboard shows the most recently fetched source snapshot while campaign rows remain unified.
 - Scanner and campaign detail render Content Rewards economics as USD, not IDR.
 - Brief Autopilot does not invent CTA/caption copy when a discovery source omits it.
-- Apify Actor execution and Whop account probing are authenticated Convex actions with bounded inputs and server-side credentials.
+- Apify Actor execution and Whop account probing are authenticated Convex actions with bounded inputs and server-side credentials. They remain unreachable from the login-free console.
 
 ## Verification baseline
 
@@ -74,9 +81,9 @@ git diff --check
 freebuff-preview status
 ```
 
-`bun test` currently reports 31 passing tests across 3 files (ingest/scope policy, workspace key bounds, swarm, connectors, operator runtime, Content Rewards normalization, provider config, organism policy, autonomy review, AutoShorts handoff, brief parser, social accounts).
+`bun test` currently reports 36 passing tests across 3 files (ingest/scope policy, workspace key shape, plan limits, API key hashing and bearer parsing, swarm, connectors, operator runtime, Content Rewards normalization, provider config, organism policy, autonomy review, AutoShorts handoff, brief parser, social accounts). The API key suite includes a known-answer SHA-256 vector so the hash cannot silently drift.
 
-Browser smoke covers `/`, `/auth`, and all nine console routes at 1440px and 390px. Console routes need a reachable Convex backend on port 3210; without it they render the shell, the connection banner, and empty panels instead of data — that is a backend-availability condition, not a code failure, so never report those pages as verified when the backend is down.
+Browser smoke covers `/`, `/auth`, and all ten console routes (now including `/app/platform`) at 1440px and 390px. Console routes need a reachable Convex backend on port 3210; without it they render the shell, the connection banner, and empty panels instead of data — that is a backend-availability condition, not a code failure, so never report those pages as verified when the backend is down.
 
 ## Documentation map
 
@@ -87,6 +94,7 @@ Browser smoke covers `/`, `/auth`, and all nine console routes at 1440px and 390
 - `research/RESEARCH.md` — live marketplace research and limitations.
 - `research/AGENT_RESEARCH.md` — agent ecosystem research and adopted patterns.
 - `research/HERMES_CANONICAL_CONTEXT.md` — long-term strategic context, not a task list.
+- `PLATFORM.md` — SaaS/BaaS posture, what is enforced, and the explicit IaaS/billing gap.
 - `CHANGELOG.md` — release history and current verification notes.
 
 ## Non-negotiable rules

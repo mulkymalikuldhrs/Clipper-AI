@@ -1,5 +1,5 @@
 #!/bin/sh
-# Super Clipper dev launcher — Vite only.
+# Clipper AI dev launcher — Vite only.
 #
 # The Freebuff platform already runs the Convex dev process (function push +
 # codegen) in its own managed background session. This script must NOT start a

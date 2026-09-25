@@ -14,10 +14,12 @@ import {
   readSwarmSessions,
   runSwarm,
   writeSwarmSessions,
+  SWARM_PROVIDER_LEGACY_KEY,
   type AgentRoleId,
   type SwarmSession,
 } from "@/lib/agentSwarm";
 import { readNonSecretProviderConfig, validateProviderConfig, type ProviderConfig } from "@/lib/providerConfig";
+import { readWithLegacy } from "@/lib/localStore";
 import { Check, CircleDot, Clock3, ExternalLink, LockKeyhole, Play, Plus, ShieldCheck, Terminal, X } from "lucide-react";
 import { CONNECTORS } from "@/lib/connectors";
 import { contentRewardsListUrl } from "../../convex/lib/contentRewards";
@@ -43,7 +45,9 @@ export default function Swarm() {
     setSessions(stored);
     setActiveId(stored.at(-1)?.id ?? null);
     setProvider({
-      ...readNonSecretProviderConfig(window.localStorage.getItem(SWARM_PROVIDER_KEY)),
+      ...readNonSecretProviderConfig(
+        readWithLegacy(window.localStorage, SWARM_PROVIDER_KEY, SWARM_PROVIDER_LEGACY_KEY)
+      ),
       apiKey: window.sessionStorage.getItem(SWARM_API_KEY_SESSION_KEY) ?? "",
     });
   }, []);

@@ -6,7 +6,7 @@
  * plus the same ingest endpoint/token used by the local bridge.
  *
  *   CONTENT_REWARDS_SYNC_EMAIL=you@example.com
- *   SUPERCLIPPER_URL=<Convex HTTP action URL>/ingest
+ *   CLIPPER_AI_URL=<Convex HTTP action URL>/ingest   (legacy: SUPERCLIPPER_URL)
  *   INGEST_TOKEN=<local ingest token>
  *   bun scripts/content-rewards-sync.ts
  */
@@ -20,7 +20,7 @@ import {
 } from "../src/convex/lib/contentRewards";
 
 const EMAIL = process.env.CONTENT_REWARDS_SYNC_EMAIL?.trim() ?? "";
-const PUSH_URL = process.env.SUPERCLIPPER_URL?.trim() ?? "";
+const PUSH_URL = (process.env.CLIPPER_AI_URL ?? process.env.SUPERCLIPPER_URL ?? "").trim();
 const TOKEN = process.env.INGEST_TOKEN?.trim() ?? "";
 const MAX_PAGES = 10;
 const MAX_CAMPAIGNS = 60;
@@ -29,7 +29,7 @@ const DELAY_MS = 300;
 
 if (!EMAIL || !PUSH_URL || !TOKEN) {
   console.error(
-    "Set CONTENT_REWARDS_SYNC_EMAIL, SUPERCLIPPER_URL, dan INGEST_TOKEN sebelum sync."
+    "Set CONTENT_REWARDS_SYNC_EMAIL, CLIPPER_AI_URL, dan INGEST_TOKEN sebelum sync."
   );
   process.exit(1);
 }
@@ -50,7 +50,7 @@ function nextCursor(payload: unknown): string | undefined {
 
 async function fetchJson(url: string): Promise<unknown> {
   const response = await fetch(url, {
-    headers: { accept: "application/json", "user-agent": "Super-Clipper-Content-Rewards-ReadOnly/1.0" },
+    headers: { accept: "application/json", "user-agent": "Clipper-AI-Content-Rewards-ReadOnly/1.0" },
     signal: AbortSignal.timeout(20_000),
   });
   if (!response.ok) throw new Error(`GET ${new URL(url).pathname} returned HTTP ${response.status}`);

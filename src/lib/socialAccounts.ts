@@ -11,7 +11,10 @@ export type SocialAccount = {
   lastVerifiedAt: string | null;
 };
 
-const STORAGE_KEY = "super-clipper.social-accounts.v1";
+import { readWithLegacy } from "./localStore";
+
+const STORAGE_KEY = "clipper-ai.social-accounts.v1";
+const LEGACY_STORAGE_KEY = "super-clipper.social-accounts.v1";
 
 function safeUrl(value: string): string {
   const url = value.trim();
@@ -49,7 +52,9 @@ export function normalizeSocialAccounts(value: unknown): SocialAccount[] {
 export function loadSocialAccounts(): SocialAccount[] {
   if (typeof window === "undefined") return [];
   try {
-    return normalizeSocialAccounts(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]"));
+    return normalizeSocialAccounts(
+      JSON.parse(readWithLegacy(localStorage, STORAGE_KEY, LEGACY_STORAGE_KEY) ?? "[]")
+    );
   } catch {
     return [];
   }

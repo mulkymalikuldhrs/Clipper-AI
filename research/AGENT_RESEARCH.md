@@ -1,11 +1,11 @@
-# Super Clipper — Agent ecosystem research
+# Clipper AI — Agent ecosystem research
 
 **Last reviewed:** 25 September 2026  
 **Decision:** reuse architecture patterns, not unrestricted execution or unreviewed credentials.
 
 ## Repositories reviewed
 
-| Repository | Useful pattern | Super Clipper decision |
+| Repository | Useful pattern | Clipper AI decision |
 |---|---|---|
 | [our-ark/enoch](https://github.com/our-ark/enoch) | Identity/body/memory separation; governed evolution; lineage; reviewable tasks | Keep identity, role, memory, and skill proposals explicit. Do not allow self-modifying production code. |
 | [mutonby/openshorts](https://github.com/mutonby/openshorts) | Local/self-hosted clip stages; OpenAI-compatible endpoint; MCP/API boundary; moment ranking | Keep rendering and publishing outside the current Convex runtime. Use source-backed brief/spec handoffs. |

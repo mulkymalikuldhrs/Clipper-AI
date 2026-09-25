@@ -1,9 +1,9 @@
 {
-  "name": "super-clipper",
+  "name": "clipper-ai",
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Super Clipper — source-backed control plane untuk workflow clipping marketplace: campaign intelligence, production plans, agents, connectors, dan review-gated handoff.",
+  "description": "Clipper AI — control plane untuk marketplace clipping: campaign intelligence, production plans, review-gated agent swarm, connector catalog, workspace API, dan plan quota yang ditegakkan.",
   "scripts": {
     "dev": "sh ./scripts/dev.sh",
     "convex:dev": "convex dev",

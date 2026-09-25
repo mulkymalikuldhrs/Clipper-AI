@@ -57,7 +57,7 @@ export const CONNECTORS: ConnectorDefinition[] = [
   },
   {
     id: "mcp_operator",
-    label: "Super Clipper MCP",
+    label: "Clipper AI MCP",
     description: "Official MCP stdio server untuk source status, connector catalog, provider presence, dan bounded public discovery.",
     docsUrl: "https://ts.sdk.modelcontextprotocol.io/",
     capabilities: ["read"],

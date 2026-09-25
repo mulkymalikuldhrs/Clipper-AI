@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as apiData from "../apiData.js";
+import type * as apiHttp from "../apiHttp.js";
 import type * as auth from "../auth.js";
 import type * as bridge from "../bridge.js";
 import type * as brief from "../brief.js";
@@ -23,6 +25,7 @@ import type * as lib_konten from "../lib/konten.js";
 import type * as lib_organism from "../lib/organism.js";
 import type * as lib_workspace from "../lib/workspace.js";
 import type * as maintenance from "../maintenance.js";
+import type * as platform from "../platform.js";
 import type * as queries from "../queries.js";
 import type * as users from "../users.js";
 import type * as workspace from "../workspace.js";
@@ -34,6 +37,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  apiData: typeof apiData;
+  apiHttp: typeof apiHttp;
   auth: typeof auth;
   bridge: typeof bridge;
   brief: typeof brief;
@@ -49,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   "lib/organism": typeof lib_organism;
   "lib/workspace": typeof lib_workspace;
   maintenance: typeof maintenance;
+  platform: typeof platform;
   queries: typeof queries;
   users: typeof users;
   workspace: typeof workspace;

@@ -1,5 +1,5 @@
 /**
- * Super Clipper — full campaign extractor (research tool).
+ * Clipper AI — full campaign extractor (research tool).
  *
  * Logs in with KONTEN_EMAIL / KONTEN_PASSWORD, lists every campaign the account
  * can see, then fetches the FULL detail (including `brief_detail`: materi,

@@ -1,5 +1,6 @@
-export const PROVIDER_SETTINGS_KEY = "superclipper.provider.v1";
-export const PROVIDER_API_KEY_SESSION_KEY = "superclipper.provider.api-key.v1";
+export const PROVIDER_SETTINGS_KEY = "clipper-ai.provider.v1";
+export const PROVIDER_SETTINGS_LEGACY_KEY = "superclipper.provider.v1";
+export const PROVIDER_API_KEY_SESSION_KEY = "clipper-ai.provider.api-key.v1";
 
 export type ProviderConfig = {
   baseUrl: string;

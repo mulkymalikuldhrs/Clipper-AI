@@ -134,10 +134,13 @@ describe("operator runtime", () => {
 
   test("clamps daemon configuration and never returns secret values", () => {
     expect(daemonConfigFromEnv({ SC_DAEMON_INTERVAL_SECONDS: "1", SC_DAEMON_MAX_CYCLES: "-4" })).toMatchObject({ intervalSeconds: 60, maxCycles: 0 });
+    expect(readOnlySourceSummary({ CLIPPER_AI_MODEL_API_KEY: "secret" }).modelApiKey).toBe("configured");
+    // Pre-rename env names keep working so an existing .env.local does not silently break.
     expect(readOnlySourceSummary({ SUPERCLIPPER_MODEL_API_KEY: "secret" }).modelApiKey).toBe("configured");
     expect(readOnlySourceSummary({}).ingestToken).toBe("missing");
-    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: "/tmp/state.json" }).stateFile).toBe(".superclipper/daemon-state.json");
-    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: ".superclipper/nested/state.json" }).stateFile).toBe(".superclipper/nested/state.json");
+    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: "/tmp/state.json" }).stateFile).toBe(".clipper-ai/daemon-state.json");
+    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: ".clipper-ai/nested/state.json" }).stateFile).toBe(".clipper-ai/nested/state.json");
+    expect(daemonConfigFromEnv({ SC_DAEMON_STATE_FILE: ".superclipper/legacy.json" }).stateFile).toBe(".superclipper/legacy.json");
   });
 });
 
@@ -290,7 +293,7 @@ describe("AutoShorts handoff", () => {
       cta: "Tonton trailer lengkapnya",
       platforms: ["tiktok", "instagram"],
     });
-    expect(manifest.schema).toBe("super-clipper/autoshorts-manifest");
+    expect(manifest.schema).toBe("clipper-ai/autoshorts-manifest");
     expect(manifest.localFirst).toBe(true);
     expect(manifest.externalModelUsed).toBe(false);
     expect(manifest.candidates).toHaveLength(3);

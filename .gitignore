@@ -9,6 +9,7 @@ dist-ssr
 # Convex
 .convex
 .bridge
+.clipper-ai/
 .superclipper/
 .turbo
 

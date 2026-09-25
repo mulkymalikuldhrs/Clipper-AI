@@ -21,9 +21,11 @@ import {
   EMPTY_PROVIDER_CONFIG,
   PROVIDER_API_KEY_SESSION_KEY,
   PROVIDER_SETTINGS_KEY,
+  PROVIDER_SETTINGS_LEGACY_KEY,
   validateProviderConfig,
   type ProviderConfig,
 } from "@/lib/providerConfig";
+import { readWithLegacy } from "@/lib/localStore";
 import { Brain, Check, Eye, EyeOff, FlaskConical, KeyRound, Pause, Play, Plus, ShieldAlert } from "lucide-react";
 
 const GOAL_COLS = "minmax(0,1fr) 5rem 5rem 5rem 6rem";
@@ -50,7 +52,7 @@ export default function Organism() {
   useEffect(() => {
     if (organism === null) void initialize(workspaceArgs);
     try {
-      const stored = localStorage.getItem(PROVIDER_SETTINGS_KEY);
+      const stored = readWithLegacy(localStorage, PROVIDER_SETTINGS_KEY, PROVIDER_SETTINGS_LEGACY_KEY);
       const apiKey = sessionStorage.getItem(PROVIDER_API_KEY_SESSION_KEY) ?? "";
       if (stored) {
         const parsed = JSON.parse(stored) as { baseUrl?: unknown; model?: unknown };

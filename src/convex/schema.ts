@@ -21,8 +21,37 @@ export default defineSchema({
   operatorWorkspaces: defineTable({
     key: v.string(),
     userId: v.id("users"),
+    plan: v.optional(v.string()), // "free" | "studio" | "agency"
     createdAt: v.number(),
-  }).index("by_key", ["key"]),
+  })
+    .index("by_key", ["key"])
+    .index("by_userId", ["userId"]),
+
+  // Machine credentials for the workspace HTTP API. Only the SHA-256 hash is stored.
+  workspaceApiKeys: defineTable({
+    workspaceId: v.id("users"),
+    label: v.string(),
+    prefix: v.string(),
+    hash: v.string(),
+    scopes: v.array(v.string()),
+    createdAt: v.number(),
+    lastUsedAt: v.optional(v.number()),
+    revokedAt: v.optional(v.number()),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_hash", ["hash"]),
+
+  // Usage meter: what a workspace actually consumed, counted where it happened.
+  usageEvents: defineTable({
+    workspaceId: v.id("users"),
+    kind: v.string(), // plan.created | goal.created | api_key.created | api.request | ingest.snapshot
+    quantity: v.number(),
+    at: v.number(),
+    meta: v.optional(v.any()),
+  })
+    .index("by_workspace", ["workspaceId"])
+    .index("by_workspace_kind", ["workspaceId", "kind"]),
+
 
   // One snapshot per user — full mirror of konten.com state.
   kontenSnapshots: defineTable({

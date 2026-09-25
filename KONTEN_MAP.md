@@ -10,7 +10,7 @@ The Konten bridge uses an operator-owned browser session:
 - login may use operator-provided credentials or cookies;
 - cookies remain in the local bridge process;
 - data is posted only to the app's token-protected ingest endpoint;
-- Super Clipper does not scrape or store credentials in Convex.
+- Clipper AI does not scrape or store credentials in Convex.
 
 Base URL: `https://konten.com`
 

@@ -1,4 +1,4 @@
-# Changelog — Clipper-AI
+# Changelog — Clipper AI
 
 All notable changes to this project will be documented in this file.
 
@@ -8,10 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2026-09-25
 
 ### Added
-- Login-free operator workspace: one random 32-hex key per browser in `localStorage` (`src/lib/useWorkspace.ts`) resolves to an anonymous Convex identity (`operatorWorkspaces`) so plans, tasks, and organism state persist with no account at all. Writes are bounded per workspace (80 plans, 60 goals).
+- **Rename to Clipper AI.** Product name, UI copy, page title, meta description, package metadata, MCP server name, organism profile, AutoShorts manifest schema, and operator state directory all move to `clipper-ai`. Environment variables (`CLIPPER_AI_URL`, `CLIPPER_AI_MODEL_*`), the operator state directory (`.clipper-ai/`), and browser storage keys read the old `superclipper`/`super-clipper` names as fallbacks and migrate once, so an existing workspace, provider config, swarm sessions, and social accounts survive the rename.
+- Workspace platform layer: `operatorWorkspaces` now carries a plan, and `src/lib/plans.ts` defines free/studio/agency limits with `HARD_LIMITS` as an absolute ceiling.
+- Enforced quotas: `createPlan`, `createOrganismGoal`, and `createApiKey` read the workspace plan and refuse writes past the limit; `meterApiRequest` refuses the request after the daily quota with 429.
+- Usage meter (`usageEvents`) recording `plan.created`, `goal.created`, `api_key.created`, `api.request`, and `ingest.snapshot`.
+- Workspace API keys (`clai_<48 hex>`) minted and hashed in the browser; only the SHA-256 hash and a display prefix reach Convex, and `listApiKeys` never returns the hash.
+- Workspace HTTP API v1: `GET /api/v1/workspace`, `/api/v1/campaigns`, `/api/v1/plans` with bearer auth, `read` scope, versioned responses, and per-request metering. `src/convex/apiData.ts` holds the shared read models.
+- `/app/platform` console page: workspace identity, plan comparison, quota meters, API key management (create once / revoke), API quickstart, and an explicit "what this is not" panel.
+- `PLATFORM.md` documents the SaaS/BaaS posture and the IaaS, billing, webhook, and hard-tenancy gaps instead of implying they exist.
+- New test coverage for plan resolution, plan ceilings, API key hashing (with a known-answer SHA-256 vector), bearer parsing, and legacy env/storage fallbacks. Suite is now 36 tests.
+- Login-free operator workspace: one random 32-hex key per browser in `localStorage` (`src/lib/useWorkspace.ts`) resolves to an anonymous Convex identity (`operatorWorkspaces`) so plans, tasks, and organism state persist with no account at all.
 - Source scoping: snapshots and campaigns carry `scope` (`private` own-session bridge vs `public` discovery). The public console reads only public discovery data, merges it with the caller's own rows, and never returns another operator's bridge mirror.
 - Data-mode indicator in the console shell plus a banner when the Convex backend has never connected, so an unreachable backend reads as a state instead of an infinite skeleton.
-- Unit coverage for the workspace key rule and the source-visibility policy (suite now 31 tests / 3 files).
+- Unit coverage for the workspace key rule and the source-visibility policy.
 
 ### Fixed
 - Public sync-log view no longer mixes private bridge activity into anonymous reads: logs shown without a workspace are filtered to public discovery sources.
@@ -29,17 +38,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Research notes translated into implementation boundaries for Enoch, Open Multi-Agent, Prime Agent, Auto-Company, LifeOS, OpenShorts, AutoShorts, MiroFish, and MiroShark.
 - Operator runtime: Bun CLI, lock/state-file daemon, official MCP stdio server with read-only tool allowlist, and built-in Playwright browser inspection for explicit origin/path scopes.
 - Optional Camofox-compatible connector contract with no official-upstream claim and no stealth or anti-bot bypass behavior.
-
-### Changed
 - Dashboard actions now point to real source, scanner, production, and swarm workflows; fake preview metrics and demo navigation were removed.
-- Refreshed product, operations, security, research, and contribution documentation to match the public console and current safety model.
+- Refreshed product, operations, security, research, and contribution documentation to match the public console and current safety model, including the new name.
 - Clarified that public console data is source-backed and that browser swarm memory is local-first; no unrestricted autonomous mutation or publishing was added.
+- README rewritten around the new name and a capability table that separates what runs today from what does not exist yet.
+- The icon and README badges drop the green/cyan gradient for the console palette, matching the documented "no gradients" visual system.
 
 ### Quality
 - `bun convex dev --once` — functions push and index creation succeed
 - `bun tsc -b --noEmit`
 - `bun run typecheck:scripts`
-- `bun test` — 31 passing tests across 3 files
+- `bun test` — 36 passing tests across 3 files
 - `git diff --check`
 - `bun run smoke` on the managed preview: 0 horizontal overflow and 0 page errors on all routes; console data panels need a reachable Convex backend on port 3210
 

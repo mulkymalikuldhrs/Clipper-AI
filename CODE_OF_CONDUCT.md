@@ -1,4 +1,4 @@
-# Code of Conduct — Super Clipper
+# Code of Conduct — Clipper AI
 
 ## Our Pledge
 

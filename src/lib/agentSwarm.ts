@@ -6,10 +6,13 @@
  */
 
 import type { ProviderConfig } from "./providerConfig";
+import { readWithLegacy } from "./localStore";
 
-export const SWARM_STORAGE_KEY = "superclipper.swarm.sessions.v1";
-export const SWARM_PROVIDER_KEY = "superclipper.swarm.provider.v1";
-export const SWARM_API_KEY_SESSION_KEY = "superclipper.swarm.api-key.v1";
+export const SWARM_STORAGE_KEY = "clipper-ai.swarm.sessions.v1";
+export const SWARM_STORAGE_LEGACY_KEY = "superclipper.swarm.sessions.v1";
+export const SWARM_PROVIDER_KEY = "clipper-ai.swarm.provider.v1";
+export const SWARM_PROVIDER_LEGACY_KEY = "superclipper.swarm.provider.v1";
+export const SWARM_API_KEY_SESSION_KEY = "clipper-ai.swarm.api-key.v1";
 
 export const AGENT_ROLES = [
   { id: "coordinator", label: "Coordinator", focus: "memecah goal, mengurutkan pekerjaan, dan menjaga scope" },
@@ -101,9 +104,11 @@ export function createSwarmSession(goal: string, title = "Swarm session"): Swarm
   };
 }
 
-export function readSwarmSessions(storage: Pick<Storage, "getItem">): SwarmSession[] {
+export function readSwarmSessions(
+  storage: Pick<Storage, "getItem"> & Partial<Pick<Storage, "setItem" | "removeItem">>
+): SwarmSession[] {
   try {
-    const value = storage.getItem(SWARM_STORAGE_KEY);
+    const value = readWithLegacy(storage, SWARM_STORAGE_KEY, SWARM_STORAGE_LEGACY_KEY);
     if (!value) return [];
     const parsed: unknown = JSON.parse(value);
     if (!Array.isArray(parsed)) return [];
@@ -129,7 +134,7 @@ function isSwarmSession(value: unknown): value is SwarmSession {
 export function buildRolePrompt(roleId: AgentRoleId, goal: string, context: string): { system: string; user: string } {
   const role = roleById(roleId);
   return {
-    system: `Kamu adalah ${role.label} dalam Super Clipper Swarm. Fokusmu: ${role.focus}. Bekerja dengan bukti, jangan mengarang data, tandai ketidakpastian, dan jangan melakukan stock atau mengubah repo. Jawaban singkat, konkret, dan dapat ditinjau berikutnya.`,
+    system: `Kamu adalah ${role.label} dalam Clipper AI Swarm. Fokusmu: ${role.focus}. Bekerja dengan bukti, jangan mengarang data, tandai ketidakpastian, dan jangan melakukan stock atau mengubah repo. Jawaban singkat, konkret, dan dapat ditinjau berikutnya.`,
     user: `GOAL:\n${bounded(goal, MAX_GOAL)}\n\nCONTEXT SHARED:\n${bounded(context || "Belum ada konteks.", 8_000)}`,
   };
 }

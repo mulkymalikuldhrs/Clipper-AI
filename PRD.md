@@ -1,4 +1,4 @@
-# Product Requirements Document — Super Clipper
+# Product Requirements Document — Clipper AI
 
 **Status:** Active MVP / safe iteration
 **Owner:** Product and engineering
@@ -6,7 +6,7 @@
 
 ## 1. Product thesis
 
-Super Clipper is a minimal operating console for marketplace clipping. It reduces the distance between a campaign opportunity and a reviewable production specification without pretending that discovery, generation, and external submission are the same action.
+Clipper AI is a minimal operating console for marketplace clipping. It reduces the distance between a campaign opportunity and a reviewable production specification without pretending that discovery, generation, and external submission are the same action.
 
 The product is successful when an operator can:
 
@@ -101,6 +101,15 @@ Primary surfaces:
 - Content Rewards remains read-only.
 - Generic webhooks require signing, replay protection, allowlists, and payload limits before activation.
 
+### Platform and API
+
+- A workspace is identified by a browser-held key and carries a plan (`free` / `studio` / `agency`).
+- Plan limits are enforced inside the mutation that consumes the resource: plans, goals, API keys, and daily API requests.
+- Usage is metered per workspace in `usageEvents`, and every number shown in the console comes from that table.
+- Workspace API keys are created in the browser and stored only as a SHA-256 hash plus a display prefix.
+- The HTTP API is read-only, versioned in the response body, and returns 401 for revoked keys and 429 for exhausted quota.
+- Billing, compute provisioning, per-tenant storage, and outbound webhooks are explicitly out of scope until implemented; see `PLATFORM.md`.
+
 ## 6. Non-functional requirements
 
 - TypeScript strict typecheck passes for app and scripts.
@@ -135,6 +144,13 @@ Primary surfaces:
 - Given a missing provider, the UI shows a clear configuration error and does not call a random endpoint.
 - Given a proposed skill, the default state is `review_required` and no prompt/code mutation occurs.
 
+### Platform
+
+- Given an unknown plan id, the workspace resolves to `free` instead of failing open, and no plan can exceed `HARD_LIMITS`.
+- Given a workspace at its plan limit, the corresponding mutation rejects the write with a message that names the plan and the limit.
+- Given a revoked API key, `/api/v1/*` responds 401; given an exhausted daily quota, it responds 429; given a valid key, the request is recorded in `usageEvents`.
+- `listApiKeys` never returns a key hash.
+
 ### Connectors
 
 - Given missing `APIFY_TOKEN`, the action fails with a configuration error.
@@ -155,6 +171,9 @@ Primary surfaces:
 
 ### Next
 
+- Billing: payment provider, signed webhook that writes the workspace plan, plan-change audit log, then an upgrade button that can actually charge.
+- Outbound webhook with signature, retry/backoff, dedupe, and dead-letter queue.
+- API integration tests that fail when the response contract changes.
 - Durable Convex-backed swarm sessions and memory for authenticated workspaces.
 - Provider health checks and model routing by role.
 - Apify Actor allowlist and result normalization.

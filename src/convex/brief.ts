@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { mutation, type MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { parseBrief, type RawCampaign } from "./lib/konten";
-import { MAX_WORKSPACE_PLANS } from "./lib/workspace";
+import { planForWorkspace, recordUsage } from "./platform";
 import { ensureWorkspaceUserId, resolveWorkspaceUserId } from "./workspace";
 
 const WORKSPACE_ARGS = { workspaceKey: v.optional(v.string()) };
@@ -31,12 +31,15 @@ export const createPlan = mutation({
       .first();
     if (existing) return existing._id;
 
-    const planCount = await ctx.db
+    const plan = await planForWorkspace(ctx, userId);
+    const existingPlans = await ctx.db
       .query("autopilotPlans")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
-    if (planCount.length >= MAX_WORKSPACE_PLANS) {
-      throw new Error(`Batas ${MAX_WORKSPACE_PLANS} rencana per workspace tercapai.`);
+    if (existingPlans.length >= plan.maxPlans) {
+      throw new Error(
+        `Plan ${plan.name} mengizinkan ${plan.maxPlans} rencana produksi. Arsipkan atau hapus rencana lama dulu.`
+      );
     }
 
     const raw = (c.raw ?? {}) as RawCampaign;
@@ -102,6 +105,7 @@ export const createPlan = mutation({
     for (const t of taskDefs) {
       await ctx.db.insert("planTasks", { planId, label: t.label, category: t.category, done: false, order: order++ });
     }
+    await recordUsage(ctx, userId, "plan.created", 1, { campaignExtId: c.extId });
     return planId;
   },
 });

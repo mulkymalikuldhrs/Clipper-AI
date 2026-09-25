@@ -1,10 +1,10 @@
 /**
- * Super Clipper — bridge-sync: mirrors YOUR OWN konten.com dashboard into your
- * Super Clipper workspace. Run locally: bun scripts/bridge-sync.ts
+ * Clipper AI — bridge-sync: mirrors YOUR OWN konten.com dashboard into your
+ * Clipper AI workspace. Run locally: bun scripts/bridge-sync.ts
  *
  * Env (via .env.local — never commit):
  *   KONTEN_EMAIL / KONTEN_PASSWORD   OR   KONTEN_COOKIES_JSON (stringified cookie array)
- *   SUPERCLIPPER_URL   = <Convex HTTP actions URL>/ingest
+ *   CLIPPER_AI_URL     = <Convex HTTP actions URL>/ingest   (legacy: SUPERCLIPPER_URL)
  *   INGEST_TOKEN       = token registered as Convex env INGEST_TOKEN
  */
 import { chromium } from "playwright";
@@ -15,11 +15,11 @@ const BASE = "https://konten.com";
 const EMAIL = process.env.KONTEN_EMAIL ?? "";
 const PASSWORD = process.env.KONTEN_PASSWORD ?? "";
 const COOKIES_RAW = process.env.KONTEN_COOKIES_JSON ?? "";
-const PUSH_URL = process.env.SUPERCLIPPER_URL ?? "";
+const PUSH_URL = (process.env.CLIPPER_AI_URL ?? process.env.SUPERCLIPPER_URL ?? "").trim();
 const TOKEN = process.env.INGEST_TOKEN ?? "";
 
 if (!PUSH_URL || !TOKEN) {
-  console.error("Set SUPERCLIPPER_URL dan INGEST_TOKEN di .env.local (lihat halaman Bridge).");
+  console.error("Set CLIPPER_AI_URL dan INGEST_TOKEN di .env.local (lihat halaman Bridge).");
   process.exit(1);
 }
 if (!EMAIL && !COOKIES_RAW) {

@@ -30,6 +30,7 @@ const GROUPS: { section: string; items: { to: string; label: string; end?: boole
     { to: "/app/accounts", label: "Social accounts" },
     { to: "/app/organism", label: "Organism" },
     { to: "/app/swarm", label: "Agent Swarm" },
+    { to: "/app/platform", label: "Platform" },
   ] },
 ];
 
@@ -62,7 +63,7 @@ export default function DashboardLayout() {
         <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
           <span className="grid h-7 w-7 place-items-center rounded-sm border border-primary/30 bg-primary/10 font-mono text-[10px] text-primary">//</span>
           <span className="leading-none">
-            <span className="block text-[13px] font-semibold tracking-tight">Super Clipper</span>
+            <span className="block text-[13px] font-semibold tracking-tight">Clipper AI</span>
             <span className="mt-0.5 block font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
               control plane v3
             </span>
@@ -129,7 +130,7 @@ export default function DashboardLayout() {
         {/* Top bar */}
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/85 px-4 backdrop-blur md:px-8">
           <div className="flex min-w-0 items-center gap-2 font-mono text-[11px]">
-            <span className="hidden text-muted-foreground/60 sm:inline">super-clipper</span>
+            <span className="hidden text-muted-foreground/60 sm:inline">clipper-ai</span>
             <span className="hidden text-muted-foreground/40 sm:inline">/</span>
             <span className="truncate uppercase tracking-[0.12em] text-foreground">
               {active?.label ?? "Ringkasan"}
@@ -214,7 +215,7 @@ export default function DashboardLayout() {
 
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-3 md:px-8">
           <p className="font-mono text-[10px] text-muted-foreground/60">
-            Super Clipper • source-backed control plane
+            Clipper AI • source-backed control plane
           </p>
           <Button
             variant="ghost"

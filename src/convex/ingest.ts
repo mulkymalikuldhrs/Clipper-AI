@@ -194,6 +194,11 @@ export const applySnapshot = internalAction({
         durationMs: Date.now() - startedAt,
         message: `Snapshot diterima: ${campaignCount} campaign.`,
       });
+      await ctx.runMutation(internal.platform.recordIngestUsage, {
+        workspaceId: userId,
+        source,
+        campaigns: campaignCount,
+      });
       return { ok: true, userId: String(userId), campaigns: campaignCount, source, scope };
     } catch (error) {
       await ctx.runMutation(internal.bridge.failSync, {

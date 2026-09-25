@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-/** Super Clipper operator CLI. Local, bounded, and read-only by default. */
+/** Clipper AI operator CLI. Local, bounded, and read-only by default. */
 import { readFileSync } from "node:fs";
 import { CONNECTORS } from "../src/lib/connectors";
 import {
@@ -19,7 +19,7 @@ function print(value: unknown): void {
 }
 
 function help(): void {
-  console.log(`Super Clipper operator CLI\n\nCommands:\n  source status\n  connector list\n  mcp list\n  daemon status\n  browser policy [url]\n  browser check <allowlisted-url>\n\nAll commands are read-only. Run the daemon explicitly with: bun run sc:daemon`);
+  console.log(`Clipper AI operator CLI\n\nCommands:\n  source status\n  connector list\n  mcp list\n  daemon status\n  browser policy [url]\n  browser check <allowlisted-url>\n\nAll commands are read-only. Run the daemon explicitly with: bun run sc:daemon`);
 }
 
 function daemonState(): { running: boolean; state: unknown } {

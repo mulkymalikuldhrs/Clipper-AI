@@ -1,5 +1,5 @@
 /**
- * Super Clipper — konten.com live crawler (research tool, deep mode).
+ * Clipper AI — konten.com live crawler (research tool, deep mode).
  *
  * Logs in with credentials from env (KONTEN_EMAIL / KONTEN_PASSWORD), then
  * BREADTH-FIRST-CRAWLS every reachable internal clipper page (sidebar routes,

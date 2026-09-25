@@ -44,7 +44,7 @@ async function runCycle(): Promise<CycleResult> {
   const result = await readPublicCampaigns();
   const shouldSync = process.env.SC_DAEMON_SYNC === "true";
   const email = process.env.CONTENT_REWARDS_SYNC_EMAIL?.trim();
-  const pushUrl = process.env.SUPERCLIPPER_URL?.trim();
+  const pushUrl = (process.env.CLIPPER_AI_URL ?? process.env.SUPERCLIPPER_URL)?.trim();
   const token = process.env.INGEST_TOKEN?.trim();
   if (!shouldSync) return { source: "content_rewards", status: "ok", campaigns: result.count, detail: "observe-only" };
   if (!email || !pushUrl || !token) return { source: "content_rewards", status: "skipped", campaigns: result.count, detail: "sync disabled until email, ingest URL, and token are configured" };

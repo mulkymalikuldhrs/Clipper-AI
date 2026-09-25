@@ -33,9 +33,14 @@ export type DaemonConfig = {
   source: "content_rewards";
 };
 
+export const DEFAULT_STATE_DIR = ".clipper-ai/";
+
 function safeLocalPath(value: string | undefined, fallback: string): string {
   const candidate = value?.trim() ?? "";
-  if (!candidate.startsWith(".superclipper/") || candidate.includes("..") || candidate.includes("\\")) return fallback;
+  // The legacy `.superclipper/` directory stays accepted so an existing operator state file
+  // keeps working after the rename; anything outside these two prefixes is refused.
+  const allowed = candidate.startsWith(DEFAULT_STATE_DIR) || candidate.startsWith(".superclipper/");
+  if (!allowed || candidate.includes("..") || candidate.includes("\\")) return fallback;
   return candidate;
 }
 
@@ -47,8 +52,8 @@ export function daemonConfigFromEnv(env: NodeJS.ProcessEnv = process.env): Daemo
   return {
     intervalSeconds,
     maxCycles,
-    stateFile: safeLocalPath(env.SC_DAEMON_STATE_FILE, ".superclipper/daemon-state.json"),
-    lockFile: safeLocalPath(env.SC_DAEMON_LOCK_FILE, ".superclipper/daemon.lock"),
+    stateFile: safeLocalPath(env.SC_DAEMON_STATE_FILE, `${DEFAULT_STATE_DIR}daemon-state.json`),
+    lockFile: safeLocalPath(env.SC_DAEMON_LOCK_FILE, `${DEFAULT_STATE_DIR}daemon.lock`),
     source: "content_rewards",
   };
 }
@@ -66,13 +71,21 @@ export function redactConfigValue(value: string | undefined): string {
   return value && value.trim() ? "configured" : "missing";
 }
 
+/** Read an env var under its current name, falling back to the pre-rename name. */
+export function readRenamedEnv(env: NodeJS.ProcessEnv, name: string, legacyName: string): string | undefined {
+  return env[name]?.trim() || env[legacyName]?.trim() || undefined;
+}
+
+export const INGEST_URL_ENV = "CLIPPER_AI_URL";
+export const INGEST_URL_LEGACY_ENV = "SUPERCLIPPER_URL";
+
 export function readOnlySourceSummary(env: NodeJS.ProcessEnv = process.env): Record<string, string> {
   return {
     contentRewardsEmail: redactConfigValue(env.CONTENT_REWARDS_SYNC_EMAIL),
-    ingestUrl: redactConfigValue(env.SUPERCLIPPER_URL),
+    ingestUrl: redactConfigValue(readRenamedEnv(env, INGEST_URL_ENV, INGEST_URL_LEGACY_ENV)),
     ingestToken: redactConfigValue(env.INGEST_TOKEN),
-    modelBaseUrl: redactConfigValue(env.SUPERCLIPPER_MODEL_BASE_URL),
-    modelName: redactConfigValue(env.SUPERCLIPPER_MODEL_NAME),
-    modelApiKey: redactConfigValue(env.SUPERCLIPPER_MODEL_API_KEY),
+    modelBaseUrl: redactConfigValue(readRenamedEnv(env, "CLIPPER_AI_MODEL_BASE_URL", "SUPERCLIPPER_MODEL_BASE_URL")),
+    modelName: redactConfigValue(readRenamedEnv(env, "CLIPPER_AI_MODEL_NAME", "SUPERCLIPPER_MODEL_NAME")),
+    modelApiKey: redactConfigValue(readRenamedEnv(env, "CLIPPER_AI_MODEL_API_KEY", "SUPERCLIPPER_MODEL_API_KEY")),
   };
 }

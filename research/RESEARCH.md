@@ -61,7 +61,7 @@ Normalization decisions:
 
 ## Product conclusion
 
-Super Clipper should ingest public marketplace intelligence, preserve provenance, and produce a reviewable plan. It should not join, submit, publish, scrape credentials, or create engagement. A source becoming unavailable is a normal empty/stale state, not a reason to invent data.
+Clipper AI should ingest public marketplace intelligence, preserve provenance, and produce a reviewable plan. It should not join, submit, publish, scrape credentials, or create engagement. A source becoming unavailable is a normal empty/stale state, not a reason to invent data.
 
 ## Operator runtime research note
 

@@ -22,7 +22,7 @@ KONTEN_EMAIL=kamu@email.com
 KONTEN_PASSWORD=********
 # atau mode cookies (tanpa password):
 KONTEN_COOKIES_JSON=[{"name":"sb-...","value":"...","domain":".konten.com"}]
-SUPERCLIPPER_URL=<Convex HTTP actions URL>/ingest
+CLIPPER_AI_URL=<Convex HTTP actions URL>/ingest
 INGEST_TOKEN=<token dari langkah 1>
 
 # Content Rewards Discover (publik, tanpa cookie):
@@ -35,7 +35,7 @@ bun convex env set INGEST_TOKEN <token>`;
 const RUN_SNIPPET = `bun scripts/bridge-sync.ts               # konten.com, sekali jalan
 bun run bridge:content-rewards            # Discover Content Rewards, read-only
 # berkala (contoh tiap 30 menit):
-*/30 * * * * cd /path/super-clipper && bun scripts/bridge-sync.ts`;
+*/30 * * * * cd /path/clipper-ai && bun scripts/bridge-sync.ts`;
 
 export default function Bridge() {
   const { args: workspaceArgs } = useWorkspace();
