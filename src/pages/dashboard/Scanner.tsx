@@ -9,6 +9,7 @@ import {
   Meter,
   PageHeader,
   Panel,
+  BackendUnreachable,
   PanelLoading,
   Score,
   Status,
@@ -16,6 +17,7 @@ import {
   TableShell,
 } from "@/components/shared";
 import { cn, formatCampaignMoney, formatNumber } from "@/lib/utils";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
 import { ArrowDown, ArrowUp, RefreshCw, Search } from "lucide-react";
 
 type SortKey = "score" | "cpm" | "remaining" | "clippers" | "minViews";
@@ -62,7 +64,9 @@ function SortHead({
 }
 
 export default function Scanner() {
-  const campaigns = useQuery(api.queries.listCampaigns, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
+  const campaigns = useQuery(api.queries.listCampaigns, workspaceArgs);
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<"all" | "joined">("all");
   const [sort, setSort] = useState<SortKey>("score");
@@ -158,7 +162,9 @@ export default function Scanner() {
         ))}
       </div>
 
-      {campaigns === undefined ? (
+      {!reachable ? (
+        <BackendUnreachable />
+      ) : campaigns === undefined ? (
         <PanelLoading />
       ) : rows.length === 0 ? (
         <EmptyState

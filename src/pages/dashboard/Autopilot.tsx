@@ -6,6 +6,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  BackendUnreachable,
   Bullets,
   CopyButton,
   EmptyState,
@@ -21,6 +22,7 @@ import {
 } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { buildAutoShortsManifest } from "@/lib/autoshorts";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
 import { Check, ExternalLink, Play, Zap } from "lucide-react";
 
 const MATERI_COLS = "minmax(0,1fr) 7rem 5rem";
@@ -32,7 +34,9 @@ function planErrorMessage(error: unknown): string {
 }
 
 export default function Autopilot() {
-  const joined = useQuery(api.queries.listCampaigns, { joined: true });
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
+  const joined = useQuery(api.queries.listCampaigns, { joined: true, ...workspaceArgs });
   const [selectedExtId, setSelectedExtId] = useState<string | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -44,7 +48,7 @@ export default function Autopilot() {
   const active = joined?.find((c) => c.extId === activeExtId) ?? null;
   const planData = useQuery(
     api.queries.getPlanForCampaign,
-    activeExtId ? { campaignExtId: activeExtId } : "skip"
+    activeExtId ? { campaignExtId: activeExtId, ...workspaceArgs } : "skip"
   );
 
   // Autopilot: susun rencana otomatis begitu campaign terpilih (sekali per campaign).
@@ -57,7 +61,7 @@ export default function Autopilot() {
     creatingRef.current = true;
     setCreating(true);
     setPlanError(null);
-    createPlan({ campaignId: active._id })
+    createPlan({ campaignId: active._id, ...workspaceArgs })
       .catch((error) => {
         setPlanError(planErrorMessage(error));
       })
@@ -65,19 +69,28 @@ export default function Autopilot() {
         creatingRef.current = false;
         setCreating(false);
       });
-  }, [active, planData, createPlan]);
+  }, [active, planData, createPlan, workspaceArgs]);
 
   async function handleManualCreate() {
     if (!active || creating) return;
     setCreating(true);
     setPlanError(null);
     try {
-      await createPlan({ campaignId: active._id });
+      await createPlan({ campaignId: active._id, ...workspaceArgs });
     } catch (error) {
       setPlanError(planErrorMessage(error));
     } finally {
       setCreating(false);
     }
+  }
+
+  if (!reachable) {
+    return (
+      <div className="space-y-6">
+        <PageHeader eyebrow="Autopilot" title="Rencana produksi" />
+        <BackendUnreachable />
+      </div>
+    );
   }
 
   if (joined === undefined) {
@@ -98,8 +111,8 @@ export default function Autopilot() {
           meta="Brief campaign dipecah jadi shotlist, hook, caption, dan checklist kepatuhan."
         />
         <EmptyState
-          title="Belum ada campaign diikuti"
-          description="Tandai satu campaign sebagai diikuti di Scanner. Autopilot lalu membaca brief-nya dan menyusun rencana produksi siap eksekusi."
+          title="Belum ada rencana"
+          description="Buka satu campaign di Scanner lalu tekan “Susun rencana”. Autopilot membaca brief-nya dan menyusun shotlist, hook, caption, serta checklist kepatuhan."
           action={
             <Button asChild size="sm">
               <Link to="/app/scanner">Buka scanner</Link>
@@ -118,7 +131,7 @@ export default function Autopilot() {
       <PageHeader
         eyebrow="Autopilot"
         title="Rencana produksi"
-        meta={`${joined.length} campaign diikuti • rencana dibuat otomatis dari brief marketplace; submit tetap manual setelah review`}
+        meta={`${joined.length} campaign dalam antrean produksi • rencana disusun dari brief marketplace; submit tetap manual setelah review`}
         actions={
           active && (
             <Button asChild variant="ghost" size="sm">
@@ -173,8 +186,14 @@ export default function Autopilot() {
       ) : (
         <PlanView
           data={plan}
-          onToggleTask={(taskId) => toggleTask({ taskId })}
-          onSetStatus={(status) => setPlanStatus({ planId: plan.plan._id, status })}
+          onToggleTask={(taskId) => {
+            toggleTask({ taskId, ...workspaceArgs }).catch((error) => setPlanError(planErrorMessage(error)));
+          }}
+          onSetStatus={(status) => {
+            setPlanStatus({ planId: plan.plan._id, status, ...workspaceArgs }).catch((error) =>
+              setPlanError(planErrorMessage(error))
+            );
+          }}
         />
       )}
     </div>

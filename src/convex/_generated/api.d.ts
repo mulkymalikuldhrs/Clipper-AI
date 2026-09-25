@@ -21,9 +21,11 @@ import type * as lib_contentRewards from "../lib/contentRewards.js";
 import type * as lib_ingest from "../lib/ingest.js";
 import type * as lib_konten from "../lib/konten.js";
 import type * as lib_organism from "../lib/organism.js";
+import type * as lib_workspace from "../lib/workspace.js";
 import type * as maintenance from "../maintenance.js";
 import type * as queries from "../queries.js";
 import type * as users from "../users.js";
+import type * as workspace from "../workspace.js";
 
 import type {
   ApiFromModules,
@@ -45,9 +47,11 @@ declare const fullApi: ApiFromModules<{
   "lib/ingest": typeof lib_ingest;
   "lib/konten": typeof lib_konten;
   "lib/organism": typeof lib_organism;
+  "lib/workspace": typeof lib_workspace;
   maintenance: typeof maintenance;
   queries: typeof queries;
   users: typeof users;
+  workspace: typeof workspace;
 }>;
 
 /**

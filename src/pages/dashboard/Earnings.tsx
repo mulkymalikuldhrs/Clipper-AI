@@ -2,6 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
+  BackendUnreachable,
   EmptyState,
   KeyValue,
   KeyValueList,
@@ -15,7 +16,9 @@ import {
   TableShell,
 } from "@/components/shared";
 import { formatNumber, formatRupiah, timeAgo } from "@/lib/utils";
-import { ExternalLink } from "lucide-react";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
+import { Cable, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ROW_COLS = "minmax(0,1fr) 6.5rem 7rem 7rem 8rem";
 
@@ -26,10 +29,22 @@ function statusTone(status?: string) {
 }
 
 export default function EarningsPage() {
-  const snapshot = useQuery(api.queries.getSnapshot, {});
-  const earnings = useQuery(api.queries.getEarnings, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
+  const snapshot = useQuery(api.queries.getSnapshot, workspaceArgs);
+  const earnings = useQuery(api.queries.getEarnings, workspaceArgs);
+  const workspace = useQuery(api.queries.getWorkspaceContext, workspaceArgs);
 
-  if (snapshot === undefined || earnings === undefined) {
+  if (!reachable) {
+    return (
+      <div className="space-y-6">
+        <PageHeader eyebrow="Earnings" title="Saldo & payout" />
+        <BackendUnreachable />
+      </div>
+    );
+  }
+
+  if (snapshot === undefined || earnings === undefined || workspace === undefined) {
     return (
       <div className="space-y-6">
         <div className="h-16 border-b border-border" />
@@ -38,13 +53,22 @@ export default function EarningsPage() {
     );
   }
 
-  if (!snapshot) {
+  // Earnings only exist for an own-session bridge mirror. Showing zeros for public
+  // discovery data would read as "you earned nothing", which would be a false claim.
+  if (!snapshot || workspace?.dataMode !== "own-session") {
     return (
       <div className="space-y-6">
         <PageHeader eyebrow="Earnings" title="Saldo & payout" />
         <EmptyState
-          title="Belum ada data earnings"
-          description="Sync bridge untuk melihat saldo, status pemrosesan, dan kesiapan withdraw."
+          title="Earnings hanya dari bridge milikmu"
+          description="Saldo, status pemrosesan, dan kesiapan withdraw berasal dari mirror sesi marketplace milikmu sendiri. Console publik tidak menampilkan saldo siapa pun, dan tidak mengarang angka nol sebagai hasil."
+          action={
+            <Button asChild size="sm">
+              <Link to="/app/bridge">
+                <Cable className="h-3.5 w-3.5" /> Buka setup bridge
+              </Link>
+            </Button>
+          }
         />
       </div>
     );

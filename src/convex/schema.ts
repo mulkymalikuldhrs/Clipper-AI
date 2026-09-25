@@ -17,11 +17,19 @@ export default defineSchema({
     avatarSeed: v.optional(v.string()),
   }).index("email", ["email"]),
 
+  // Login-free operator workspace: a browser-held key that owns plans and organism state.
+  operatorWorkspaces: defineTable({
+    key: v.string(),
+    userId: v.id("users"),
+    createdAt: v.number(),
+  }).index("by_key", ["key"]),
+
   // One snapshot per user — full mirror of konten.com state.
   kontenSnapshots: defineTable({
     userId: v.id("users"),
     fetchedAt: v.number(),
     source: v.string(), // "bridge" | "content_rewards"
+    scope: v.optional(v.string()), // "private" | "public"
     profile: v.optional(v.any()),
     campaigns: v.optional(v.any()),
     joined: v.optional(v.any()),
@@ -35,7 +43,8 @@ export default defineSchema({
     coverage: v.optional(v.any()),
   })
     .index("by_userId", ["userId"])
-    .index("by_userId_source", ["userId", "source"]),
+    .index("by_userId_source", ["userId", "source"])
+    .index("by_scope", ["scope"]),
 
   // Campaign cache with derived autopilot score.
   kontenCampaigns: defineTable({
@@ -60,13 +69,15 @@ export default defineSchema({
     remainingPct: v.optional(v.number()),
     joined: v.boolean(),
     marketplace: v.optional(v.string()),
+    scope: v.optional(v.string()), // "private" | "public"
     score: v.number(),
     raw: v.optional(v.any()),
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
     .index("by_userId_extId", ["userId", "extId"])
-    .index("by_userId_joined", ["userId", "joined"]),
+    .index("by_userId_joined", ["userId", "joined"])
+    .index("by_scope", ["scope"]),
 
   kontenEarnings: defineTable({
     userId: v.id("users"),

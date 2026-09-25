@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { parseBrief, scoreCampaign } from "../src/convex/lib/konten";
-import { MAX_CAMPAIGNS, validateIngestPayload } from "../src/convex/lib/ingest";
+import { MAX_CAMPAIGNS, scopeForSource, validateIngestPayload } from "../src/convex/lib/ingest";
 import { chooseNextGoal, decideExperiment, scoreGoal } from "../src/convex/lib/organism";
 import { readNonSecretProviderConfig, validateProviderConfig } from "../src/lib/providerConfig";
 import { buildAutoShortsManifest } from "../src/lib/autoshorts";
@@ -57,6 +57,7 @@ describe("validateIngestPayload", () => {
       value: {
         email: "clipper@example.com",
         source: "bridge",
+        scope: "private",
         requestId: "sync-2026-09-24",
         snapshot: { campaigns: [{ id: "1", slug: "one" }] },
       },
@@ -66,7 +67,7 @@ describe("validateIngestPayload", () => {
   test("accepts the bounded Content Rewards source and rejects unsupported sources", () => {
     expect(validateIngestPayload({ email: "a@example.com", source: "content_rewards", snapshot: { campaigns: [] } })).toEqual({
       ok: true,
-      value: { email: "a@example.com", source: "content_rewards", snapshot: { campaigns: [] } },
+      value: { email: "a@example.com", source: "content_rewards", scope: "public", snapshot: { campaigns: [] } },
     });
     expect(validateIngestPayload({ email: "a@example.com", source: "demo" })).toEqual({
       ok: false,
@@ -80,6 +81,13 @@ describe("validateIngestPayload", () => {
     });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain("at most");
+  });
+});
+
+describe("ingest scope policy", () => {
+  test("keeps own-session bridge data private and public discovery public", () => {
+    expect(scopeForSource("bridge")).toBe("private");
+    expect(scopeForSource("content_rewards")).toBe("public");
   });
 });
 

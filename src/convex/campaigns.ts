@@ -1,16 +1,19 @@
 import { v } from "convex/values";
 import { mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { resolveWorkspaceUserId } from "./workspace";
 
-// Local tracking flag: mark a campaign as followed/joined from the app.
+// Local tracking flag: mark one of *your own mirrored* campaigns as being worked on.
 // The authoritative joined state still comes from bridge sync (/api/campaigns/joined-details).
+// Public discovery rows are never patched: joining happens on the marketplace itself.
 export const toggleJoined = mutation({
-  args: { campaignId: v.id("kontenCampaigns") },
-  handler: async (ctx, { campaignId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Unauthorized");
+  args: { campaignId: v.id("kontenCampaigns"), workspaceKey: v.optional(v.string()) },
+  handler: async (ctx, { campaignId, workspaceKey }) => {
+    const userId = await resolveWorkspaceUserId(ctx, workspaceKey);
+    if (!userId) throw new Error("Workspace tidak ditemukan.");
     const c = await ctx.db.get(campaignId);
-    if (!c || c.userId !== userId) throw new Error("Campaign tidak ditemukan");
+    if (!c || c.userId !== userId) {
+      throw new Error("Hanya campaign hasil bridge milikmu yang bisa ditandai di sini.");
+    }
     await ctx.db.patch(campaignId, { joined: !c.joined, updatedAt: Date.now() });
     return !c.joined;
   },

@@ -1,9 +1,10 @@
 import { NavLink, Outlet, useLocation, Link } from "react-router-dom";
-import { useQuery } from "convex/react";
+import { useConvexConnectionState, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Status } from "@/components/shared";
 import { cn, timeAgo } from "@/lib/utils";
+import { useWorkspace } from "@/lib/useWorkspace";
 import { ArrowUpRight } from "lucide-react";
 
 type NavItem = { to: string; label: string; end?: boolean; count?: number };
@@ -34,8 +35,11 @@ const GROUPS: { section: string; items: { to: string; label: string; end?: boole
 
 export default function DashboardLayout() {
   const { pathname } = useLocation();
-  const snapshot = useQuery(api.queries.getSnapshot, {});
-  const campaigns = useQuery(api.queries.listCampaigns, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const connection = useConvexConnectionState();
+  const snapshot = useQuery(api.queries.getSnapshot, workspaceArgs);
+  const campaigns = useQuery(api.queries.listCampaigns, workspaceArgs);
+  const workspace = useQuery(api.queries.getWorkspaceContext, workspaceArgs);
 
   const counts = {
     campaigns: campaigns?.length ?? 0,
@@ -114,9 +118,9 @@ export default function DashboardLayout() {
 
         <div className="border-t border-border px-4 py-3">
           <p className="font-mono text-[9px] leading-relaxed tracking-wide text-muted-foreground/60">
-            bridge memakai sesi akunmu sendiri
+            workspace key disimpan di browser ini
             <br />
-            bukan afiliasi konten.com
+            tanpa akun · bukan afiliasi konten.com
           </p>
         </div>
       </aside>
@@ -134,12 +138,32 @@ export default function DashboardLayout() {
 
           <div className="flex shrink-0 items-center gap-3">
             <span className="hidden items-center gap-2 lg:flex">
-              <Status tone={snapshot ? (syncStale ? "warn" : "good") : "neutral"}>
-                {snapshot ? `sync ${timeAgo(snapshot.fetchedAt)}` : "belum sync"}
+              <Status
+                tone={
+                  workspace?.dataMode === "own-session"
+                    ? "good"
+                    : workspace?.dataMode === "public-discovery"
+                      ? "info"
+                      : "neutral"
+                }
+              >
+                {workspace?.dataMode === "own-session"
+                  ? "own session mirror"
+                  : workspace?.dataMode === "public-discovery"
+                    ? "public discovery data"
+                    : "no source"}
               </Status>
+              {snapshot && (
+                <Status tone={syncStale ? "warn" : "good"}>sync {timeAgo(snapshot.fetchedAt)}</Status>
+              )}
               {snapshot?.source && (
                 <span className="font-mono text-[10px] text-muted-foreground/60">
                   {snapshot.source}
+                </span>
+              )}
+              {workspace && (
+                <span className="font-mono text-[10px] text-muted-foreground/60">
+                  {workspace.plans} plan · {workspace.goals} goal
                 </span>
               )}
             </span>
@@ -174,6 +198,15 @@ export default function DashboardLayout() {
             </NavLink>
           ))}
         </nav>
+
+        {!connection.hasEverConnected && (
+          <div className="border-b border-amber-500/25 bg-amber-300/5 px-4 py-2.5 md:px-8">
+            <p className="font-mono text-[11px] leading-relaxed text-amber-200">
+              backend Convex belum tersambung — console menampilkan shell-nya saja. Data akan terisi begitu
+              backend terjangkau.
+            </p>
+          </div>
+        )}
 
         <main className="mx-auto w-full min-w-0 max-w-[1480px] flex-1 px-4 py-6 md:px-8 md:py-8">
           <Outlet />

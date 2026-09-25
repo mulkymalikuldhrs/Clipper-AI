@@ -7,7 +7,11 @@
 ## Current product state
 
 - `/` is a public, product-first landing page.
-- `/app/*` is a public exploration console; there is no account gate in the shipped UI.
+- `/app/*` is a public console with no sign-in, no sign-up, and no auth form anywhere.
+- Identity is one random 32-hex **workspace key** minted in `localStorage` (`src/lib/useWorkspace.ts`). It owns plans, tasks, and organism state for that browser only.
+- Convex resolves the actor as: signed-in user if one exists → else the workspace key → else public-only. See `src/convex/workspace.ts`.
+- Public discovery data (`content_rewards`, scope `public`) is readable by everyone; operator bridge data (`bridge`, scope `private`) is readable only by its owning workspace and is never returned to an anonymous console.
+- Sync logs shown without a workspace are filtered to public sources, so private bridge activity is not leaked.
 - Marketplace data is source-backed. The console does not ship synthetic campaign or financial records.
 - Konten.com account data is mirrored only by the operator's local Playwright bridge.
 - Content Rewards Discover is a separate public, read-only JSON source with bounded pagination and detail requests.
@@ -43,6 +47,15 @@ Core primitives live in `src/components/shared.tsx`; global tokens and required 
 
 ## Verified implementation
 
+- `operatorWorkspaces` maps a browser key to a lightweight non-auth `users` row (same pattern as `ensureBridgeUser`), so the login-free console can persist work without a second backend.
+- Writes are bounded per workspace: 80 plans, 60 organism goals, strict key shape validation (`src/convex/lib/workspace.ts`).
+- `listCampaigns` merges public discovery rows with the workspace's own rows, keyed by `marketplace:extId`, so a discovery campaign is visible to everyone while your mirror wins on collision.
+- `listCampaigns({ joined: true })` is the production queue: own joined rows plus discovery campaigns this workspace has planned.
+- `toggleJoined` refuses to patch a public discovery row; joining is a marketplace action, not a local flag.
+- `CampaignDetail` hides the mark-joined control for discovery rows and states that joining happens on the marketplace.
+- `DashboardLayout` shows the real data mode (`own session mirror` / `public discovery data` / `no source`) and warns when the Convex backend has never connected (`useConvexConnectionState`).
+- Data pages use `useBackendReachable()` and render `BackendUnreachable` instead of an endless skeleton when no backend has answered, so an unreachable backend is never mistaken for an empty result.
+- `/app/analytics` and `/app/earnings` only render own-session views; with public discovery data they show an explanatory empty state rather than Rp0 charts.
 - Content Rewards normalizer maps cents to USD dollars and `$2 / 1K views` to `$2,000 / 1M views` for the shared campaign score.
 - Content Rewards campaign IDs are prefixed as `content-rewards:<id>` to prevent collisions with Konten IDs.
 - Snapshots are separated by source; the dashboard shows the most recently fetched source snapshot while campaign rows remain unified.
@@ -61,7 +74,9 @@ git diff --check
 freebuff-preview status
 ```
 
-The current automated suite includes the original 24 tests plus focused operator-runtime tests. Browser smoke must still be interpreted with care when the managed Convex runtime is stale or unavailable.
+`bun test` currently reports 31 passing tests across 3 files (ingest/scope policy, workspace key bounds, swarm, connectors, operator runtime, Content Rewards normalization, provider config, organism policy, autonomy review, AutoShorts handoff, brief parser, social accounts).
+
+Browser smoke covers `/`, `/auth`, and all nine console routes at 1440px and 390px. Console routes need a reachable Convex backend on port 3210; without it they render the shell, the connection banner, and empty panels instead of data — that is a backend-availability condition, not a code failure, so never report those pages as verified when the backend is down.
 
 ## Documentation map
 

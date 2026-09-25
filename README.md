@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Minimal operating system untuk workflow clipping marketplace</b><br/>
-  Preview produk secara publik → Jelajahi command center → buka console tanpa akun.
+  Preview produk secara publik → Jelajahi command center → buka console tanpa akun sama sekali.
 </p>
 
 <p align="center">
@@ -23,18 +23,23 @@
 
 Bridge lokal membaca dashboard clipper dari sesi akun milikmu sendiri, menormalkan campaign, brief, earnings, dan timeseries ke workspace Convex. Content Rewards ditambahkan sebagai sumber Discover publik dan read-only. Video tetap dikirim dan disetujui melalui marketplace asal; Super Clipper menyiapkan keputusan dan materi produksi, bukan mengirim, mengambil alih akun, atau memalsukan engagement.
 
-## Public console, no account required
+## Tanpa akun: satu workspace key lokal
 
-- Buka `/` untuk membaca sistem dan masuk ke control room.
-- Klik **Buka workspace** atau **Mulai eksplorasi** untuk membuka console tanpa form login atau pendaftaran.
-- Route `/app/*` dapat diakses langsung; `/auth` hanya menjadi redirect ke landing page.
-- Credential marketplace tetap hanya dipakai oleh bridge lokal dan tidak pernah ditampilkan di console.
+Tidak ada form login, pendaftaran, atau sesi akun di produk ini. Sebagai gantinya, setiap browser membuat satu **workspace key** acak 32 karakter hex di `localStorage` dan itulah identitas yang memiliki rencana produksi serta state organism yang kamu buat. Konsekuensinya, jujur dan bisa diprediksi:
+
+- Membuka `/app/*` langsung bekerja; tombol rencana, task, dan organism menyimpan ke workspace browser ini.
+- Menghapus data situs atau memakai browser/perangkat lain berarti workspace baru; state lama tidak ikut pindah dan tidak bisa dipulihkan dari UI.
+- Isi key adalah capability. Siapa pun yang memiliki key itu dapat menulis ke workspace tersebut, jadi jangan tempelkan key ke issue, chat, atau screenshot.
+- Route `/auth` tidak lagi punya form; ia hanya redirect ke landing page.
+- Data bridge milik operator (`source: bridge`) ber-scope `private` dan **tidak** dibaca oleh console publik. Yang tampil tanpa akun hanyalah discovery publik (`content_rewards`, scope `public`); log sync yang ditampilkan juga difilter ke sumber publik.
 - `/app/swarm` menggunakan provider OpenAI-compatible secara lokal; API key hanya di sessionStorage browser.
+
+Batasan per workspace: maksimum 80 rencana produksi dan 60 goal organism, dengan validasi ketat pada bentuk key. Ini menjaga console tanpa autentikasi tidak bisa menumbuhkan tabel tanpa batas.
 
 | Modul | Fungsi |
 |---|---|
 | **Landing** | Preview publik tanpa akun: command center, operating loop, campaign specs, dan trust boundary. |
-| **Console** | Console `/app` terbuka tanpa autentikasi untuk menjelajahi data dan alur operasi. |
+| **Console** | Console `/app` terbuka tanpa autentikasi; identitas ditentukan workspace key lokal di browser. |
 | **Konten Bridge** | Sync read-only memakai sesi marketplace milikmu sendiri: campaign, brief detail, joined, earnings, wallet, tier, dan timeseries. |
 | **Content Rewards Discover** | Sync read-only dari endpoint JSON publik Discover: campaign, brief detail, budget, payout, dan materi. Tidak memakai cookie, join, submit, atau engagement. |
 | **Campaign Scanner** | Cache campaign aktif dengan skor 0–100, filter, pencarian, dan sorting keyboard-friendly. |
@@ -148,14 +153,15 @@ Di Freebuff, platform sudah mengelola proses Convex. Jangan menambahkan proses `
 | Route | Akses | Isi |
 |---|---|---|
 | `/` | Publik | Product entry and execution boundary, fully explorable tanpa akun. |
-| `/app` | Publik | Ringkasan campaign, earnings, sync, dan aktivitas tanpa autentikasi. |
-| `/app/scanner` | Publik | Daftar campaign, skor, filter, sorting. |
-| `/app/autopilot` | Publik | Plan produksi per campaign yang diikuti. |
-| `/app/campaign/:id` | Publik | Detail ekonomi dan brief campaign. |
-| `/app/analytics` | Publik | Timeseries dan performa. |
-| `/app/earnings` | Publik | Earnings dan payout readiness. |
+| `/auth` | Redirect | Tidak ada form auth lagi; redirect ke `/`. |
+| `/app` | Publik + workspace | Ringkasan campaign, earnings, sync, dan aktivitas. |
+| `/app/scanner` | Publik + workspace | Daftar campaign discovery + mirror milikmu, skor, filter, sorting. |
+| `/app/autopilot` | Publik + workspace | Plan produksi untuk campaign yang sudah kamu susun rencananya. |
+| `/app/campaign/:id` | Publik + workspace | Detail ekonomi dan brief campaign; aksi hanya aktif pada baris yang boleh kamu tulis. |
+| `/app/analytics` | Publik + workspace | Timeseries dan performa dari sumber yang tersambung. |
+| `/app/earnings` | Workspace | Earnings dan payout readiness; hanya dari mirror bridge milikmu. |
 | `/app/bridge` | Publik | Konfigurasi dan status sinkronisasi. |
-| `/app/organism` | Publik | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
+| `/app/organism` | Workspace | Bounded organism kernel, goals, capabilities, memory, dan experiment ledger. |
 | `/app/swarm` | Publik | Agent control room: role swarm, provider custom, transcript, memory, evaluation, dan skill review. |
 | `/app/accounts` | Publik | Konfigurasi metadata akun TikTok/Instagram dan status OAuth resmi. |
 
@@ -266,10 +272,11 @@ Endpoint marketplace dapat berubah. Bridge dan parser harus diperlakukan sebagai
 Perintah yang tersedia:
 
 ```bash
-bun run typecheck          # TypeScript aplikasi
-bun run typecheck:scripts  # TypeScript smoke harness
-bun test                   # Unit test scoreCampaign + parseBrief
-bun run smoke              # Playwright desktop/mobile smoke test
+bun run typecheck           # TypeScript aplikasi
+bun run typecheck:scripts   # TypeScript smoke harness
+bun test                    # 31 unit test (brief, scoring, swarm, connector, workspace)
+bun convex dev --once        # codegen + push fungsi
+bun run smoke               # Playwright desktop/mobile smoke test
 ```
 
 `bun run smoke` membutuhkan preview Vite yang sudah berjalan. Harness memeriksa landing, console, dan route social accounts pada viewport 1440px serta 390px, lalu gagal non-zero jika menemukan page error, console error, route kosong, atau overflow horizontal. Screenshots disimpan di `research/shots/`.

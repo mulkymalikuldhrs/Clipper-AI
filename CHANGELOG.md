@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2026-09-25
 
 ### Added
+- Login-free operator workspace: one random 32-hex key per browser in `localStorage` (`src/lib/useWorkspace.ts`) resolves to an anonymous Convex identity (`operatorWorkspaces`) so plans, tasks, and organism state persist with no account at all. Writes are bounded per workspace (80 plans, 60 goals).
+- Source scoping: snapshots and campaigns carry `scope` (`private` own-session bridge vs `public` discovery). The public console reads only public discovery data, merges it with the caller's own rows, and never returns another operator's bridge mirror.
+- Data-mode indicator in the console shell plus a banner when the Convex backend has never connected, so an unreachable backend reads as a state instead of an infinite skeleton.
+- Unit coverage for the workspace key rule and the source-visibility policy (suite now 31 tests / 3 files).
+
+### Fixed
+- Public sync-log view no longer mixes private bridge activity into anonymous reads: logs shown without a workspace are filtered to public discovery sources.
+- Campaign actions are honest per record: discovery rows never expose a local mark-joined control, and `toggleJoined` refuses to patch a public row instead of silently mutating global data.
+- Buttons that previously threw `Unauthorized` for every visitor now either work against the local workspace or are absent.
+
+### Changed
+- Documentation states the access model plainly: no auth UI, workspace key as a bearer capability for that browser only, and connector actions that remain unreachable until a deployment adds auth.
 - Final control-room pass: terminal-style landing, source-aware dashboard, real provider health check, public Content Rewards API check, and removal of generated demo utilities and synthetic landing records.
 - Minimal monochrome/lime UI system: neutral charcoal surfaces, tighter type scale, hairline panels, quieter borders, and no decorative gradients or glows.
 - Content Rewards Discover read-only connector and bounded public sync script.
@@ -24,16 +36,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that public console data is source-backed and that browser swarm memory is local-first; no unrestricted autonomous mutation or publishing was added.
 
 ### Quality
-- `bun run convex codegen`
+- `bun convex dev --once` — functions push and index creation succeed
 - `bun tsc -b --noEmit`
 - `bun run typecheck:scripts`
-- `bun test` (operator runtime coverage added; exact count recorded at final verification)
+- `bun test` — 31 passing tests across 3 files
 - `git diff --check`
+- `bun run smoke` on the managed preview: 0 horizontal overflow and 0 page errors on all routes; console data panels need a reachable Convex backend on port 3210
 
 ### Safety
 - API keys are never stored in localStorage, Convex, source control, or ingest payloads.
 - Agent skills remain `review_required` until a human approves them.
-- Connector actions with external credentials require an authenticated Convex user; consequential operations remain review-gated.
+- Connector actions with external credentials require an authenticated Convex user, so they are not reachable from the login-free console; consequential operations remain review-gated.
+- A workspace key is a bearer capability for that browser's plans and organism state only; it grants no access to marketplace credentials or the operator bridge mirror.
 
 ## [2.3.0] - 2026-09-24
 

@@ -12,6 +12,7 @@ import {
   Meter,
   PageHeader,
   Panel,
+  BackendUnreachable,
   PanelLoading,
   Score,
   Status,
@@ -20,7 +21,8 @@ import {
   toneForScore,
 } from "@/components/shared";
 import { formatCampaignMoney, formatNumber } from "@/lib/utils";
-import { ArrowLeft, BookmarkCheck, BookmarkPlus, ExternalLink, Zap } from "lucide-react";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
+import { ArrowLeft, BookmarkCheck, BookmarkPlus, ExternalLink, Globe, Zap } from "lucide-react";
 
 const METRIC_COLS = "repeat(auto-fit, minmax(9rem, 1fr))";
 const MATERI_COLS = "minmax(0,1fr) 6rem";
@@ -28,14 +30,25 @@ const MATERI_COLS = "minmax(0,1fr) 6rem";
 export default function CampaignDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
   const campaign = useQuery(
     api.queries.getCampaign,
-    id ? { id: id as Id<"kontenCampaigns"> } : "skip"
+    id ? { id: id as Id<"kontenCampaigns">, ...workspaceArgs } : "skip"
   );
   const toggleJoined = useMutation(api.campaigns.toggleJoined);
   const createPlan = useMutation(api.brief.createPlan);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!reachable) {
+    return (
+      <div className="space-y-6">
+        <PageHeader eyebrow="Campaign" title="Detail campaign" />
+        <BackendUnreachable />
+      </div>
+    );
+  }
 
   if (campaign === undefined) {
     return (
@@ -60,6 +73,8 @@ export default function CampaignDetail() {
   }
 
   const c = campaign;
+  // Public discovery rows are read-only: joining happens on the marketplace itself.
+  const isDiscovery = c.scope === "public";
   const remaining =
     c.budget != null && c.budget > 0
       ? Math.max(0, Math.round(((c.budget - (c.spent ?? 0)) / c.budget) * 100))
@@ -98,7 +113,7 @@ export default function CampaignDetail() {
     setBusy(true);
     setError(null);
     try {
-      await createPlan({ campaignId: c._id });
+      await createPlan({ campaignId: c._id, ...workspaceArgs });
       navigate("/app/autopilot");
     } catch (err) {
       setError(
@@ -124,9 +139,13 @@ export default function CampaignDetail() {
               {c.platforms?.length ? ` • ${c.platforms.join("/")}` : ""}
               {c.marketplace === "content-rewards" ? " • contentrewards.com" : " • konten.com"}
             </span>
-            <Status tone={c.joined ? "info" : "neutral"}>
-              {c.joined ? "diikuti" : "belum diikuti"}
-            </Status>
+            {isDiscovery ? (
+              <Status tone="info">discovery · bukan mirror akunmu</Status>
+            ) : (
+              <Status tone={c.joined ? "info" : "neutral"}>
+                {c.joined ? "diikuti" : "belum diikuti"}
+              </Status>
+            )}
             <Status tone={c.status === "active" ? "good" : "neutral"}>{c.status ?? "—"}</Status>
           </span>
         }
@@ -137,18 +156,29 @@ export default function CampaignDetail() {
                 <ArrowLeft className="h-3.5 w-3.5" /> Scanner
               </Link>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toggleJoined({ campaignId: c._id })}
-            >
-              {c.joined ? (
-                <BookmarkCheck className="h-3.5 w-3.5" />
-              ) : (
-                <BookmarkPlus className="h-3.5 w-3.5" />
-              )}
-              {c.joined ? "Batalkan ikut" : "Tandai diikuti"}
-            </Button>
+            {isDiscovery ? (
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                <Globe className="h-3.5 w-3.5" /> join di marketplace asal
+              </span>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setError(null);
+                  toggleJoined({ campaignId: c._id, ...workspaceArgs }).catch((err) =>
+                    setError(err instanceof Error ? err.message.replace("Uncaught Error: ", "") : "Gagal menandai campaign.")
+                  );
+                }}
+              >
+                {c.joined ? (
+                  <BookmarkCheck className="h-3.5 w-3.5" />
+                ) : (
+                  <BookmarkPlus className="h-3.5 w-3.5" />
+                )}
+                {c.joined ? "Batalkan ikut" : "Tandai diikuti"}
+              </Button>
+            )}
             <Button size="sm" onClick={handleCreatePlan} disabled={busy}>
               <Zap className="h-3.5 w-3.5" /> Susun rencana
             </Button>

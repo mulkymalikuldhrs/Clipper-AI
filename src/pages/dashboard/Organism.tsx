@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  BackendUnreachable,
   EmptyState,
   MetricStrip,
   PageHeader,
@@ -15,6 +16,7 @@ import {
   TableShell,
 } from "@/components/shared";
 import { timeAgo } from "@/lib/utils";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
 import {
   EMPTY_PROVIDER_CONFIG,
   PROVIDER_API_KEY_SESSION_KEY,
@@ -29,9 +31,11 @@ const CAP_COLS = "minmax(0,1fr) 7rem 5rem 5rem";
 const EXP_COLS = "minmax(0,1fr) 6rem 6rem 7rem";
 
 export default function Organism() {
-  const organism = useQuery(api.queries.getOrganism, {});
-  const autonomyReviews = useQuery(api.queries.getAutonomyReviews, {});
-  const autonomySummary = useQuery(api.queries.getAutonomySummary, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
+  const organism = useQuery(api.queries.getOrganism, workspaceArgs);
+  const autonomyReviews = useQuery(api.queries.getAutonomyReviews, workspaceArgs);
+  const autonomySummary = useQuery(api.queries.getAutonomySummary, workspaceArgs);
   const initialize = useMutation(api.queries.initializeOrganism);
   const setMode = useMutation(api.queries.setOrganismMode);
   const addGoal = useMutation(api.queries.createOrganismGoal);
@@ -44,7 +48,7 @@ export default function Organism() {
   const [providerNotice, setProviderNotice] = useState("");
 
   useEffect(() => {
-    if (organism === null) void initialize({});
+    if (organism === null) void initialize(workspaceArgs);
     try {
       const stored = localStorage.getItem(PROVIDER_SETTINGS_KEY);
       const apiKey = sessionStorage.getItem(PROVIDER_API_KEY_SESSION_KEY) ?? "";
@@ -61,7 +65,16 @@ export default function Organism() {
     } catch {
       setProviderNotice("Browser storage tidak tersedia; konfigurasi hanya berlaku selama halaman terbuka.");
     }
-  }, [initialize, organism]);
+  }, [initialize, organism, workspaceArgs]);
+
+  if (!reachable) {
+    return (
+      <div className="space-y-6">
+        <PageHeader eyebrow="Organism kernel" title="Kernel yang hanya bertindak di dalam batas" />
+        <BackendUnreachable />
+      </div>
+    );
+  }
 
   if (organism === undefined) return <PanelLoading />;
   if (organism === null) {
@@ -69,7 +82,7 @@ export default function Organism() {
       <EmptyState
         title="Kernel organism belum aktif"
         description="Aktifkan world model, dynamic goals, memory, dan experiment ledger yang terisolasi dari tool eksternal."
-        action={<Button size="sm" onClick={() => void initialize({})}>Aktifkan kernel</Button>}
+        action={<Button size="sm" onClick={() => void initialize(workspaceArgs)}>Aktifkan kernel</Button>}
       />
     );
   }
@@ -129,6 +142,7 @@ export default function Organism() {
         cost: 0.3,
         risk: 0.2,
         feasibility: 0.6,
+        ...workspaceArgs,
       });
       setGoalTitle("");
       setGoalRationale("");
@@ -142,20 +156,20 @@ export default function Organism() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Organism kernel"
-        title="Runtime yang bisaasional memilih arah"
+        title="Kernel yang hanya bertindak di dalam batas"
         meta="Fondasi untuk self-directed autonomy: identitas tetap, world model terukur, goal dinamis, memory, dan eksperimen yang harus melewati evaluasi. Tidak ada credential, model, atau tool eksternal yang dijalankan dari halaman ini."
         actions={
           <div className="flex gap-2">
             {profile.mode === "paused" ? (
-              <Button variant="outline" size="sm" onClick={() => void setMode({ mode: "observe" })}>
+              <Button variant="outline" size="sm" onClick={() => void setMode({ mode: "observe", ...workspaceArgs })}>
                 <Play className="h-3.5 w-3.5" /> Observe
               </Button>
             ) : (
-              <Button variant="outline" size="sm" onClick={() => void setMode({ mode: "paused" })}>
+              <Button variant="outline" size="sm" onClick={() => void setMode({ mode: "paused", ...workspaceArgs })}>
                 <Pause className="h-3.5 w-3.5" /> Pause
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={() => void setMode({ mode: "review" })}>
+            <Button variant="outline" size="sm" onClick={() => void setMode({ mode: "review", ...workspaceArgs })}>
               <ShieldAlert className="h-3.5 w-3.5" /> Review
             </Button>
           </div>
@@ -292,7 +306,14 @@ export default function Organism() {
                       variant="ghost"
                       size="sm"
                       className="h-6 px-2 text-[11px]"
-                      onClick={() => void evaluate({ experimentId: experiment._id, score: 0.7, evidence: "Manual review from the bounded kernel console." })}
+                      onClick={() =>
+                        void evaluate({
+                          experimentId: experiment._id,
+                          score: 0.7,
+                          evidence: "Evaluasi manual dari console kernel.",
+                          ...workspaceArgs,
+                        })
+                      }
                     >
                       Evaluate
                     </Button>

@@ -33,10 +33,25 @@ Browser custom model provider -> local Agent Swarm runtime
 Convex env credentials         -> authenticated Apify / Whop actions
 ```
 
+### Workspace model
+
+There is no sign-in flow. `src/lib/useWorkspace.ts` mints one random 32-hex key per browser and stores it in
+`localStorage`; the console passes it as `workspaceKey` to every query and mutation that can write.
+
+`src/convex/workspace.ts` resolves the acting identity in this order:
+
+1. a signed-in Convex Auth user, if the deployment ever provides one;
+2. an anonymous operator workspace looked up by key (`operatorWorkspaces`);
+3. no workspace — read-only public discovery access.
+
+Mutations create the workspace on first use as a non-auth `users` row, the same pattern `ensureBridgeUser` uses.
+Writes are bounded per workspace (80 plans, 60 goals) in `src/convex/lib/workspace.ts`.
+
 ### Source model
 
-- `kontenSnapshots` stores independent source snapshots.
-- `kontenCampaigns` is the shared campaign cache.
+- `kontenSnapshots` stores independent source snapshots, each tagged `scope` (`private` for own-session bridge, `public` for public discovery).
+- `kontenCampaigns` is the shared campaign cache with the same `scope` tag.
+- Queries merge public discovery rows with the caller's own rows (`marketplace:extId` key), so anonymous consoles see discovery data and never another operator's bridge mirror.
 - `extId` namespaces Content Rewards campaigns as `content-rewards:<id>`.
 - `marketplace` controls currency and source presentation.
 - Konten economics remain IDR; Content Rewards economics are displayed as USD without silent FX conversion.
@@ -67,7 +82,8 @@ Connector definitions declare capabilities (`read`, `write`, `scrape`, `schedule
 ## Product boundaries
 
 - Public UI is explorable, but data is not fabricated.
-- Convex user ownership checks remain on protected data and provider actions.
+- Owner scoping is enforced on every write: a workspace can only patch records it owns, and public discovery rows are never patched in place.
+- A workspace key is a bearer capability stored in `localStorage`; losing it loses access to that workspace's plans and organism state, and rotating it is the only reset.
 - The UI does not expose provider secrets.
 - No shell, filesystem mutation, browser takeover, account takeover, fake engagement, unattended spend, auto-submit, or auto-publish.
 - Skills, consequential connector actions, and social handoffs require review.

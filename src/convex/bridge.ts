@@ -100,6 +100,7 @@ export const writeSnapshot = internalMutation({
   args: {
     userId: v.id("users"),
     source: v.string(),
+    scope: v.optional(v.string()),
     profile: v.optional(v.any()),
     campaigns: v.optional(v.any()),
     joined: v.optional(v.any()),
@@ -120,6 +121,7 @@ export const writeSnapshot = internalMutation({
     const data = {
       userId: args.userId,
       source: args.source,
+      scope: args.scope,
       fetchedAt: Date.now(),
       profile: args.profile,
       campaigns: args.campaigns,
@@ -164,6 +166,7 @@ export const upsertCampaign = internalMutation({
     remainingPct: v.optional(v.number()),
     joined: v.boolean(),
     marketplace: v.optional(v.string()),
+    scope: v.optional(v.string()),
     score: v.number(),
     raw: v.optional(v.any()),
   },

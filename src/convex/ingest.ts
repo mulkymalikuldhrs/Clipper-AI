@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { scoreCampaign } from "./lib/konten";
-import { MAX_CAMPAIGNS } from "./lib/ingest";
+import { MAX_CAMPAIGNS, scopeForSource, type IngestSource } from "./lib/ingest";
 
 type RawCampaign = {
   id?: string;
@@ -103,8 +103,9 @@ export const applySnapshot = internalAction({
     snapshot: v.any(),
     requestId: v.optional(v.string()),
   },
-  handler: async (ctx, { email, source, snapshot, requestId }): Promise<{ ok: boolean; userId: string; campaigns: number; source: string; deduped?: boolean }> => {
+  handler: async (ctx, { email, source, snapshot, requestId }): Promise<{ ok: boolean; userId: string; campaigns: number; source: string; scope: string; deduped?: boolean }> => {
     const snap = snapshot as Snapshot;
+    const scope = scopeForSource(source as IngestSource);
     const userId = await ctx.runMutation(internal.bridge.ensureBridgeUser, { email });
     const startedAt = Date.now();
     const sync = await ctx.runMutation(internal.bridge.beginSync, {
@@ -118,6 +119,7 @@ export const applySnapshot = internalAction({
         userId: String(userId),
         campaigns: sync.campaignCount,
         source,
+        scope,
         deduped: true,
       };
     }
@@ -126,6 +128,7 @@ export const applySnapshot = internalAction({
       await ctx.runMutation(internal.bridge.writeSnapshot, {
       userId,
       source,
+      scope,
       profile: (snap.profile ?? undefined) as unknown,
       campaigns: (snap.campaigns ?? undefined) as unknown,
       joined: (snap.joined ?? undefined) as unknown,
@@ -179,6 +182,7 @@ export const applySnapshot = internalAction({
         remainingPct: snap.closureByCampaignId?.[c.id],
         joined: source === "content_rewards" ? false : joinedIds.has(c.id),
         marketplace: c.marketplace ?? (source === "content_rewards" ? "content-rewards" : "konten"),
+        scope,
         score,
         raw: c as unknown,
       });
@@ -190,7 +194,7 @@ export const applySnapshot = internalAction({
         durationMs: Date.now() - startedAt,
         message: `Snapshot diterima: ${campaignCount} campaign.`,
       });
-      return { ok: true, userId: String(userId), campaigns: campaignCount, source };
+      return { ok: true, userId: String(userId), campaigns: campaignCount, source, scope };
     } catch (error) {
       await ctx.runMutation(internal.bridge.failSync, {
         logId: sync.logId,

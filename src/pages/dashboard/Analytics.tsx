@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { api } from "../../convex/_generated/api";
 import {
+  BackendUnreachable,
   EmptyState,
   MetricStrip,
   PageHeader,
@@ -25,6 +26,10 @@ import {
   Meter,
 } from "@/components/shared";
 import { formatNumber, formatRupiah } from "@/lib/utils";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Cable } from "lucide-react";
 
 const GRID = "hsl(185 30% 16%)";
 const AXIS = "#7d9a94";
@@ -42,10 +47,22 @@ const TOOLTIP_STYLE = {
 const DIST_COLS = "minmax(0,1fr) 6rem 6rem";
 
 export default function Analytics() {
-  const snapshot = useQuery(api.queries.getSnapshot, {});
-  const earnings = useQuery(api.queries.getEarnings, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
+  const snapshot = useQuery(api.queries.getSnapshot, workspaceArgs);
+  const earnings = useQuery(api.queries.getEarnings, workspaceArgs);
+  const workspace = useQuery(api.queries.getWorkspaceContext, workspaceArgs);
 
-  if (snapshot === undefined || earnings === undefined) {
+  if (!reachable) {
+    return (
+      <div className="space-y-6">
+        <PageHeader eyebrow="Analitik" title="Tren views & earnings" />
+        <BackendUnreachable />
+      </div>
+    );
+  }
+
+  if (snapshot === undefined || earnings === undefined || workspace === undefined) {
     return (
       <div className="space-y-6">
         <div className="h-16 border-b border-border" />
@@ -54,13 +71,22 @@ export default function Analytics() {
     );
   }
 
-  if (!snapshot) {
+  // Views timeseries and per-campaign earnings are own-session data. With public discovery
+  // data only, an empty chart would imply real zero performance.
+  if (!snapshot || workspace?.dataMode !== "own-session") {
     return (
       <div className="space-y-6">
         <PageHeader eyebrow="Analitik" title="Tren views & earnings" />
         <EmptyState
-          title="Belum ada data analitik"
-          description="Jalankan bridge sync untuk melihat timeseries views dan earnings per campaign."
+          title="Analitik butuh mirror sesi milikmu"
+          description="Timeseries views dan earnings per campaign hanya ada setelah bridge lokal menyinkronkan dashboard clipper milikmu. Discovery publik tidak memuat statistik performa, jadi console tidak menampilkannya sebagai nol."
+          action={
+            <Button asChild size="sm">
+              <Link to="/app/bridge">
+                <Cable className="h-3.5 w-3.5" /> Buka setup bridge
+              </Link>
+            </Button>
+          }
         />
       </div>
     );

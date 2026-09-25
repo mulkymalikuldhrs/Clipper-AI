@@ -12,6 +12,7 @@ import {
   TableShell,
 } from "@/components/shared";
 import { formatNumber, timeAgo } from "@/lib/utils";
+import { useWorkspace } from "@/lib/useWorkspace";
 import { Database, ShieldCheck, Terminal } from "lucide-react";
 
 const LOG_COLS = "5rem minmax(0,0.6fr) minmax(0,1fr) 4.5rem 5rem";
@@ -37,8 +38,10 @@ bun run bridge:content-rewards            # Discover Content Rewards, read-only
 */30 * * * * cd /path/super-clipper && bun scripts/bridge-sync.ts`;
 
 export default function Bridge() {
-  const snapshot = useQuery(api.queries.getSnapshot, {});
-  const logs = useQuery(api.queries.getSyncLogs, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const snapshot = useQuery(api.queries.getSnapshot, workspaceArgs);
+  const logs = useQuery(api.queries.getSyncLogs, workspaceArgs);
+  const workspace = useQuery(api.queries.getWorkspaceContext, workspaceArgs);
 
   return (
     <div className="space-y-6">

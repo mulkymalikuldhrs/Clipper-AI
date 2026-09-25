@@ -1,16 +1,26 @@
 /* Brief Autopilot: generate a production plan from a campaign's brief. */
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { mutation, type MutationCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { parseBrief, type RawCampaign } from "./lib/konten";
+import { MAX_WORKSPACE_PLANS } from "./lib/workspace";
+import { ensureWorkspaceUserId, resolveWorkspaceUserId } from "./workspace";
+
+const WORKSPACE_ARGS = { workspaceKey: v.optional(v.string()) };
+
+/** A campaign can be planned when it is public discovery data or owned by this workspace. */
+async function planOwner(ctx: MutationCtx, campaignId: Id<"kontenCampaigns">, workspaceKey?: string) {
+  const userId = await ensureWorkspaceUserId(ctx, workspaceKey);
+  const c = await ctx.db.get(campaignId);
+  if (!c) throw new Error("Campaign tidak ditemukan");
+  if (c.scope !== "public" && c.userId !== userId) throw new Error("Campaign tidak ditemukan");
+  return { userId, campaign: c };
+}
 
 export const createPlan = mutation({
-  args: { campaignId: v.id("kontenCampaigns") },
-  handler: async (ctx, { campaignId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Unauthorized");
-    const c = await ctx.db.get(campaignId);
-    if (!c || c.userId !== userId) throw new Error("Campaign tidak ditemukan");
+  args: { campaignId: v.id("kontenCampaigns"), ...WORKSPACE_ARGS },
+  handler: async (ctx, { campaignId, workspaceKey }) => {
+    const { userId, campaign: c } = await planOwner(ctx, campaignId, workspaceKey);
 
     // Reuse existing plan if present.
     const existing = await ctx.db
@@ -20,6 +30,14 @@ export const createPlan = mutation({
       )
       .first();
     if (existing) return existing._id;
+
+    const planCount = await ctx.db
+      .query("autopilotPlans")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+    if (planCount.length >= MAX_WORKSPACE_PLANS) {
+      throw new Error(`Batas ${MAX_WORKSPACE_PLANS} rencana per workspace tercapai.`);
+    }
 
     const raw = (c.raw ?? {}) as RawCampaign;
     const brief = parseBrief({
@@ -89,10 +107,10 @@ export const createPlan = mutation({
 });
 
 export const toggleTask = mutation({
-  args: { taskId: v.id("planTasks") },
-  handler: async (ctx, { taskId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Unauthorized");
+  args: { taskId: v.id("planTasks"), ...WORKSPACE_ARGS },
+  handler: async (ctx, { taskId, workspaceKey }) => {
+    const userId = await resolveWorkspaceUserId(ctx, workspaceKey);
+    if (!userId) throw new Error("Workspace tidak ditemukan.");
     const task = await ctx.db.get(taskId);
     if (!task) return;
     const plan = await ctx.db.get(task.planId);
@@ -102,10 +120,10 @@ export const toggleTask = mutation({
 });
 
 export const setPlanStatus = mutation({
-  args: { planId: v.id("autopilotPlans"), status: v.string() },
-  handler: async (ctx, { planId, status }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Unauthorized");
+  args: { planId: v.id("autopilotPlans"), status: v.string(), ...WORKSPACE_ARGS },
+  handler: async (ctx, { planId, status, workspaceKey }) => {
+    const userId = await resolveWorkspaceUserId(ctx, workspaceKey);
+    if (!userId) throw new Error("Workspace tidak ditemukan.");
     const plan = await ctx.db.get(planId);
     if (!plan || plan.userId !== userId) return;
     await ctx.db.patch(planId, { status, updatedAt: Date.now() });

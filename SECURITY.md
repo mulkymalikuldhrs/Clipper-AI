@@ -20,6 +20,10 @@ Do not send API keys, cookies, bridge dumps, or raw account data. The maintainer
 
 ## Security boundaries
 
+- There is no authentication UI. Each browser holds one random 32-hex workspace key in `localStorage`; Convex treats it as a bearer capability and resolves writes to that workspace only.
+- The workspace key is not a secret store: it grants write access to that workspace's plans, tasks, and organism state. Never paste it into issues, chat, or screenshots, and clear site data to revoke it.
+- Public reads are limited to records tagged `scope: "public"` (public discovery sources). Own-session bridge data (`scope: "private"`) is never returned to an anonymous caller, and public sync-log views are filtered to public sources.
+- Workspace writes are bounded per workspace (80 plans, 60 organism goals) with strict key-shape validation so an unauthenticated console cannot grow tables without limit.
 - `INGEST_TOKEN` protects `/ingest`.
 - Bridge credentials and cookies remain on the operator's machine.
 - `APIFY_TOKEN` and `WHOP_API_KEY` are server-side Convex environment variables.
@@ -32,7 +36,7 @@ Do not send API keys, cookies, bridge dumps, or raw account data. The maintainer
 
 Before running a bridge or connector:
 
-1. Use a dedicated local sync identity where possible.
+1. Use a dedicated local sync identity where possible, and treat the browser workspace key as a credential for the plans it owns.
 2. Keep secrets in the platform Keys/API keys UI or local environment, never in Markdown or source files.
 3. Confirm the target URL and Convex deployment.
 4. Start with read-only operations.

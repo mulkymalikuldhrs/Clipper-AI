@@ -7,10 +7,21 @@ export const MAX_EARNINGS_ROWS = 500;
 export const CONTENT_REWARDS_SOURCE = "content_rewards";
 export const INGEST_SOURCES = ["bridge", CONTENT_REWARDS_SOURCE] as const;
 export type IngestSource = (typeof INGEST_SOURCES)[number];
+export type IngestScope = "private" | "public";
+
+/** Public discovery is safe to expose in the public console; own-session bridge data is not. */
+export function isPublicSource(source: string): boolean {
+  return source === CONTENT_REWARDS_SOURCE;
+}
+
+export function scopeForSource(source: IngestSource): IngestScope {
+  return isPublicSource(source) ? "public" : "private";
+}
 
 export type ValidatedIngest = {
   email: string;
   source: IngestSource;
+  scope: IngestScope;
   requestId?: string;
   snapshot: Record<string, unknown>;
 };
@@ -74,6 +85,7 @@ export function validateIngestPayload(input: unknown): IngestValidation {
     value: {
       email,
       source,
+      scope: scopeForSource(source as IngestSource),
       ...(requestId ? { requestId } : {}),
       snapshot,
     },

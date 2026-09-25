@@ -365,6 +365,20 @@ export function EmptyState({
   );
 }
 
+/** Shown instead of an endless skeleton when the Convex backend has never answered. */
+export function BackendUnreachable({ title = "Backend belum tersambung" }: { title?: string }) {
+  return (
+    <div className="rounded-lg border border-dashed border-amber-500/30 bg-amber-300/5 px-5 py-8">
+      <p className="text-sm font-medium">{title}</p>
+      <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+        Halaman ini membaca data langsung dari backend Convex, dan belum ada koneksi yang berhasil.
+        Ini bukan hasil kosong — datanya memang belum bisa dibaca. Periksa apakah proses Convex dev
+        berjalan dan apakah URL backend bisa dijangkau dari browser ini.
+      </p>
+    </div>
+  );
+}
+
 export function RowsLoading({ rows = 5, className }: { rows?: number; className?: string }) {
   return (
     <div className={cn("divide-y divide-border/60", className)} aria-hidden>

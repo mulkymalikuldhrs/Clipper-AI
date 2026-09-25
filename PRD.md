@@ -38,7 +38,9 @@ The product is successful when an operator can:
 
 ## 4. Users and surfaces
 
-The current public preview is explorable without a registration wall. Data remains empty or source-backed until an operator runs a bridge. Server actions that touch external credentials require a Convex-authenticated user even though the presentation layer is public.
+The product has no registration wall, no sign-in, and no auth form. Each browser mints one random workspace key in `localStorage`, and that key owns the plans, tasks, and organism state created from it. Data remains empty or source-backed until an operator runs a bridge or a public discovery sync. Public discovery records are readable by any visitor; own-session bridge records are readable only by the workspace that owns them.
+
+Explicitly out of scope for the login-free console: server actions that spend money or touch external credentials (`src/convex/connectors.ts`) still require a Convex-authenticated user, so they are not reachable from the shipped UI. They stay in the codebase as a bounded, review-gated surface for a deployment that adds auth; the console must not present them as working buttons.
 
 Primary surfaces:
 

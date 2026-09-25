@@ -2,19 +2,32 @@ import { Link } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { EmptyState, KeyValue, KeyValueList, MetricStrip, Meter, PageHeader, Panel, PanelLoading, Score, Status, TableRow, TableShell, toneForScore } from "@/components/shared";
+import { BackendUnreachable, EmptyState, KeyValue, KeyValueList, MetricStrip, Meter, PageHeader, Panel, PanelLoading, Score, Status, TableRow, TableShell, toneForScore } from "@/components/shared";
 import { formatCampaignMoney, formatNumber, formatRupiah, timeAgo } from "@/lib/utils";
+import { useBackendReachable, useWorkspace } from "@/lib/useWorkspace";
 import { ArrowUpRight, Cable, Radar, Terminal } from "lucide-react";
 
 const OPPORTUNITY_COLS = "minmax(0,1fr) 7.5rem 7.5rem 5rem 5.5rem";
 const LOG_COLS = "4.5rem 6rem minmax(0,1fr) 5rem";
 
 export default function DashboardHome() {
-  const snapshot = useQuery(api.queries.getSnapshot, {});
-  const campaigns = useQuery(api.queries.listCampaigns, {});
-  const logs = useQuery(api.queries.getSyncLogs, {});
+  const { args: workspaceArgs } = useWorkspace();
+  const reachable = useBackendReachable();
+  const snapshot = useQuery(api.queries.getSnapshot, workspaceArgs);
+  const campaigns = useQuery(api.queries.listCampaigns, workspaceArgs);
+  const logs = useQuery(api.queries.getSyncLogs, workspaceArgs);
+  const workspace = useQuery(api.queries.getWorkspaceContext, workspaceArgs);
 
-  if (snapshot === undefined || campaigns === undefined) {
+  if (!reachable) {
+    return (
+      <div className="space-y-6">
+        <PageHeader eyebrow="Control room" title="Ringkasan" />
+        <BackendUnreachable />
+      </div>
+    );
+  }
+
+  if (snapshot === undefined || campaigns === undefined || workspace === undefined) {
     return <div className="space-y-6"><div className="h-16 border-b border-border" /><PanelLoading /></div>;
   }
 
@@ -22,7 +35,7 @@ export default function DashboardHome() {
     return <div className="space-y-6">
       <PageHeader eyebrow="Control room" title="No source attached" meta="The console is ready. Connect a real source before reading campaign state." />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        <EmptyState title="Workspace kosong" description="Tidak ada campaign, earnings, atau analytics until operator menjalankan bridge lokal atau Content Rewards sync." action={<Button asChild size="sm"><Link to="/app/bridge"><Cable className="h-3.5 w-3.5" /> Open source setup</Link></Button>} />
+        <EmptyState title="Belum ada sumber data" description="Console ini berjalan tanpa akun. Tidak ada campaign atau earnings sampai kamu menjalankan bridge lokal (sesi marketplace milikmu) atau sync Discover publik Content Rewards." action={<Button asChild size="sm"><Link to="/app/bridge"><Cable className="h-3.5 w-3.5" /> Buka setup sumber</Link></Button>} />
         <Panel title="$ connect --list" meta="available sources" flush><div className="divide-y divide-border/60 font-mono text-[12px]"><div className="flex justify-between gap-4 px-4 py-3"><span className="text-primary">konten</span><span className="text-muted-foreground">own-session bridge · authenticated locally</span></div><div className="flex justify-between gap-4 px-4 py-3"><span className="text-primary">content-rewards</span><span className="text-muted-foreground">public Discover JSON · read-only</span></div><div className="flex justify-between gap-4 px-4 py-3"><span className="text-primary">model-provider</span><span className="text-muted-foreground">configured inside Agent Swarm</span></div></div></Panel>
       </div>
     </div>;
@@ -35,7 +48,7 @@ export default function DashboardHome() {
   const lastLog = logs?.[0];
 
   return <div className="space-y-6">
-    <PageHeader eyebrow="Control room" title="Live workspace state" meta={<span className="flex flex-wrap items-center gap-3"><span>{formatNumber(campaigns.length)} campaigns • {formatNumber(joined.length)} marked</span><Status tone={isKonten ? "good" : "info"}>source {snapshot.source}</Status></span>} actions={<><Button asChild variant="outline" size="sm"><Link to="/app/bridge"><Cable className="h-3.5 w-3.5" /> Sources</Link></Button><Button asChild size="sm"><Link to="/app/scanner"><Radar className="h-3.5 w-3.5" /> Scanner</Link></Button></>} />
+    <PageHeader eyebrow="Control room" title="Live workspace state" meta={<span className="flex flex-wrap items-center gap-3"><span>{formatNumber(campaigns.length)} campaigns • {formatNumber(joined.length)} marked</span><Status tone={isKonten ? "good" : "info"}>source {snapshot.source}</Status><Status tone={workspace?.dataMode === "own-session" ? "good" : "info"}>{workspace?.dataMode === "own-session" ? "own session mirror" : "public discovery data"}</Status></span>} actions={<><Button asChild variant="outline" size="sm"><Link to="/app/bridge"><Cable className="h-3.5 w-3.5" /> Sources</Link></Button><Button asChild size="sm"><Link to="/app/scanner"><Radar className="h-3.5 w-3.5" /> Scanner</Link></Button></>} />
 
     <MetricStrip items={[
       { label: "Source", value: snapshot.source, hint: snapshot.coverage ? "coverage recorded" : "coverage unknown" },
